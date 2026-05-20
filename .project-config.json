@@ -1,0 +1,35 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [],
+  "dev_command": "pnpm run dev",
+  "env_vars": {},
+  "experiments": null,
+  "git_remote": {
+    "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663330074234/2Gqv98JeaGjkNNNZLvxRr8",
+    "access_key_id": "ASIAZV3A2ECZLMQJE6IE",
+    "secret_access_key": "9nsKSOiAtpJ4BoRfxwRfVCzTiTjCyB/7RRnuGBd9",
+    "session_token": "IQoJb3JpZ2luX2VjEBwaCXVzLWVhc3QtMSJGMEQCIBmfKkBzLk/J9W4IqDRamizR+W5UkCvBtMzpBfQGw9+lAiA+EhxNHBE3eJCzYCI5xSOQwm2hJrljBNJkwSQYfidC+Sr/Awjl//////////8BEAQaDDY2NTM4NjA5ODg2NiIMHES01qJfA7nlyQmsKtMDja2+c8sHfuV6PAYVRFTIlbJC5DMGzRztiE7WUhMQl9uQZD3Uia1I5C/BxNGOqDFvv6zfKi7GVJIthr2YRAbpafVBiutw0wZR1S/0wvnMAgU2B0zRAb5P4TVhfX0/LcwZxBiuPMzdgtRdBDezmZ4Rric+mGDn9CaCsd3UyqPig4o79CyQZZz6g9UAFMB0mf1HiNw1lNrbUN69cUs2wXNPPXqgpB5zqfyPSTPqFa9cvwGoJYsvuJbQuVxZWGrSMgxOPwtAuUmJJZe4Yy2xTR09Cc2JCe/rxbWJYAmtSkkx6g7SCmx5PildexQDXQE2MxAud5LhhOQ1eSI7+0Idg+JIfZmKnqfWnNGXBvk9VgzNOd2lJEl9No9f+HhPD5TohGYoLZXe1u7CUJW4LgSKK8cl8tGQdnzwsTnn/Df7NlCJdNKdaoxDSbkXP3LFaRkGSP/AP6qvFmTubWGnFvKq01QzqaKNp5iSorRR4HCj2O9DmO6CWbYr9+GBjpwA4d+gpqz3eJc7cQE/Ym/WZEwf5iqdeXfan/FiOvDnmUUdu0bGqe0FrRc5gaESbP9eTRKot1bgaERWFv2xLVvRrJcC4TxCa+0HcxbgSBJpBgUextyS8oiy/BQwtti00AY6ngGZSqpFxPgEeCkqQSGTF62GEo0LHxYOveC1i0UdfeOHzCJN8bCcfLf0JEvUUK4pE4lguTu+TsVIItr95AxasKLpGngw9FvF1MCXLofpOGC/PxKWh/zLHWU1mjfi2EMsLpgZoaDv9pUz81N3JRuzevZNT1lhqqo11IOQ2QDfE6anbifUNvXM0S6zJHR3JRqiH97UZJHesldU2q1VEG0z7g==",
+    "expiration": "2026-05-20T15:36:22.000Z"
+  },
+  "name": "osiris-web",
+  "path": "/home/ubuntu/osiris-web",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "Lur554bEZ79gZnP4UXUefu",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "bbq6MaKA6SxDQo7tWp8DA6",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "Sophia Jade",
+    "OWNER_OPEN_ID": "9tsNYZ2KUfrFv6Nn5KB8JU",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "d11199b4-d8c3-43dc-98a1-085f6e8c18f3",
+    "VITE_APP_ID": "2Gqv98JeaGjkNNNZLvxRr8",
+    "VITE_APP_LOGO": "",
+    "VITE_APP_TITLE": "OpenOSINT Showcase",
+    "VITE_FRONTEND_FORGE_API_KEY": "Eqpxv56JqBdjNxDQ5rGpvZ",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "web-static",
+  "test_command": "pnpm test"
+}
