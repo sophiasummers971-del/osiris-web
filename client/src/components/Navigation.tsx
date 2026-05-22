@@ -7,25 +7,23 @@ export default function Navigation() {
     <nav className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur">
       <div className="container mx-auto max-w-6xl px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/">
-            <a className="flex items-center gap-2 font-mono font-bold text-lg text-primary hover:text-primary/80 transition">
-              <span className="text-xl">◉</span>
-              OpenOSINT
-            </a>
+          <Link href="/" className="flex items-center gap-2 font-mono font-bold text-lg text-primary hover:text-primary/80 transition">
+            <span className="text-xl">◉</span>
+            OpenOSINT
           </Link>
 
           <div className="flex items-center gap-6">
-            <Link href="/">
-              <a className="text-sm text-muted-foreground hover:text-foreground transition">Home</a>
+            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition">
+              Home
             </Link>
-            <Link href="/tools">
-              <a className="text-sm text-muted-foreground hover:text-foreground transition">Tools</a>
+            <Link href="/tools" className="text-sm text-muted-foreground hover:text-foreground transition">
+              Tools
             </Link>
-            <Link href="/about">
-              <a className="text-sm text-muted-foreground hover:text-foreground transition">About</a>
+            <Link href="/about" className="text-sm text-muted-foreground hover:text-foreground transition">
+              About
             </Link>
-            <Link href="/supporters">
-              <a className="text-sm text-muted-foreground hover:text-foreground transition">Supporters</a>
+            <Link href="/supporters" className="text-sm text-muted-foreground hover:text-foreground transition">
+              Supporters
             </Link>
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition">
               Docs
