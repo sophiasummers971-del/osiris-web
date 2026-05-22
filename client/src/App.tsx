@@ -10,8 +10,8 @@ import Tools from "./pages/Tools";
 import About from "./pages/About";
 import SupporterHub from "./pages/SupporterHub";
 
-
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"//"} component={Home} />

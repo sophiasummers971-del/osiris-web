@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1779452197970,
+      "tag": "0000_fine_dagger",
+      "breakpoints": true
+    }
+  ]
+}
