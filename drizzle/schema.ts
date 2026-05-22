@@ -129,3 +129,112 @@ export const toolUsageLog = mysqlTable("tool_usage_log", {
 
 export type ToolUsageLog = typeof toolUsageLog.$inferSelect;
 export type InsertToolUsageLog = typeof toolUsageLog.$inferInsert;
+
+
+/**
+ * Notifications table - stores all notifications for users
+ * Supports multiple channels: in-app, email, push
+ */
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"), // null for system-wide notifications
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  type: mysqlEnum("type", ["success", "error", "warning", "info"]).notNull().default("info"),
+  category: varchar("category", { length: 64 }).notNull(), // "supporter", "system", "content", "admin", etc.
+  source: mysqlEnum("source", ["system", "admin", "user", "realtime"]).notNull().default("system"),
+  
+  // Channels this notification should be sent through
+  channels: varchar("channels", { length: 255 }).notNull().default("in-app"), // JSON array: ["in-app", "email", "push"]
+  
+  // Status tracking per channel
+  inAppStatus: mysqlEnum("inAppStatus", ["pending", "sent", "read", "dismissed"]).notNull().default("pending"),
+  emailStatus: mysqlEnum("emailStatus", ["pending", "sent", "failed", "skipped"]).notNull().default("skipped"),
+  pushStatus: mysqlEnum("pushStatus", ["pending", "sent", "failed", "skipped"]).notNull().default("skipped"),
+  
+  // Display options
+  displayLocation: varchar("displayLocation", { length: 64 }).notNull().default("toast"), // "toast", "banner", "center"
+  duration: int("duration"), // milliseconds for toast (null = persistent)
+  actionUrl: varchar("actionUrl", { length: 512 }), // CTA link
+  actionLabel: varchar("actionLabel", { length: 64 }), // CTA button text
+  
+  // Metadata
+  metadata: text("metadata"), // JSON object for extra data
+  
+  // Timestamps
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  sentAt: timestamp("sentAt"),
+  readAt: timestamp("readAt"),
+  dismissedAt: timestamp("dismissedAt"),
+  expiresAt: timestamp("expiresAt"), // Auto-cleanup after this date
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * User notification preferences - tracks user's notification settings
+ */
+export const notificationPreferences = mysqlTable("notification_preferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  
+  // Channel preferences
+  emailEnabled: boolean("emailEnabled").notNull().default(true),
+  pushEnabled: boolean("pushEnabled").notNull().default(true),
+  inAppEnabled: boolean("inAppEnabled").notNull().default(true),
+  
+  // Category preferences (JSON object: { "supporter": true, "content": false, ... })
+  categoryPreferences: text("categoryPreferences").notNull().default("{}"),
+  
+  // Frequency preferences
+  emailFrequency: mysqlEnum("emailFrequency", ["immediate", "daily", "weekly", "never"]).notNull().default("daily"),
+  
+  // Quiet hours (HH:MM format)
+  quietHoursStart: varchar("quietHoursStart", { length: 5 }), // "22:00"
+  quietHoursEnd: varchar("quietHoursEnd", { length: 5 }), // "08:00"
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+/**
+ * Push subscriptions - stores browser push notification subscriptions
+ */
+export const pushSubscriptions = mysqlTable("push_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  endpoint: varchar("endpoint", { length: 512 }).notNull().unique(),
+  auth: varchar("auth", { length: 255 }).notNull(),
+  p256dh: varchar("p256dh", { length: 255 }).notNull(),
+  userAgent: text("userAgent"),
+  isActive: boolean("isActive").notNull().default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
+
+/**
+ * Email queue - tracks emails to be sent
+ */
+export const emailQueue = mysqlTable("email_queue", {
+  id: int("id").autoincrement().primaryKey(),
+  notificationId: int("notificationId").notNull(),
+  recipientEmail: varchar("recipientEmail", { length: 320 }).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  htmlBody: text("htmlBody").notNull(),
+  status: mysqlEnum("status", ["pending", "sent", "failed", "bounced"]).notNull().default("pending"),
+  attemptCount: int("attemptCount").notNull().default(0),
+  lastAttemptAt: timestamp("lastAttemptAt"),
+  error: text("error"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  sentAt: timestamp("sentAt"),
+});
+
+export type EmailQueue = typeof emailQueue.$inferSelect;
+export type InsertEmailQueue = typeof emailQueue.$inferInsert;

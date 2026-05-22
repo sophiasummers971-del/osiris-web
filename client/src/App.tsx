@@ -5,10 +5,14 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navigation from "./components/Navigation";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import { ToastContainer } from "./components/NotificationToast";
+import { BannerContainer } from "./components/NotificationBanner";
 import Home from "./pages/Home";
 import Tools from "./pages/Tools";
 import About from "./pages/About";
 import SupporterHub from "./pages/SupporterHub";
+import NotificationCenter from "./pages/NotificationCenter";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -18,6 +22,7 @@ function Router() {
       <Route path="/tools" component={Tools} />
       <Route path="/about" component={About} />
       <Route path="/supporters" component={SupporterHub} />
+      <Route path="/notifications" component={NotificationCenter} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -37,11 +42,15 @@ function App() {
         defaultTheme="dark"
         // switchable
       >
-        <TooltipProvider>
-          <Toaster />
-          <Navigation />
-          <Router />
-        </TooltipProvider>
+        <NotificationProvider>
+          <TooltipProvider>
+            <Toaster />
+            <BannerContainer />
+            <Navigation />
+            <Router />
+            <ToastContainer />
+          </TooltipProvider>
+        </NotificationProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
