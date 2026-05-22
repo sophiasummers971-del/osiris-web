@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import KoFiSection from "@/components/KoFiSection";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -328,6 +329,9 @@ openosint ❯ investigate target@example.com
           </div>
         </div>
       </section>
+
+      {/* Ko-Fi Supporter Section */}
+      <KoFiSection />
 
       {/* CTA Section */}
       <section className="border-t border-border/50 py-20 bg-card/30">

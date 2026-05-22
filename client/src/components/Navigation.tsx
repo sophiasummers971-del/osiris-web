@@ -24,6 +24,9 @@ export default function Navigation() {
             <Link href="/about">
               <a className="text-sm text-muted-foreground hover:text-foreground transition">About</a>
             </Link>
+            <Link href="/supporters">
+              <a className="text-sm text-muted-foreground hover:text-foreground transition">Supporters</a>
+            </Link>
             <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition">
               Docs
             </a>

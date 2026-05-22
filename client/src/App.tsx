@@ -8,15 +8,17 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Tools from "./pages/Tools";
 import About from "./pages/About";
+import SupporterHub from "./pages/SupporterHub";
 
 
 function Router() {
   return (
     <Switch>
       <Route path={"//"} component={Home} />
-      <Route path={"/tools"} component={Tools} />
-      <Route path={"/about"} component={About} />
-      <Route path={"/404"} component={NotFound} />
+      <Route path={" /tools"} component={Tools} />
+      <Route path={" /about"} component={About} />
+      <Route path={" /supporters"} component={SupporterHub} />
+      <Route path={" /404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
