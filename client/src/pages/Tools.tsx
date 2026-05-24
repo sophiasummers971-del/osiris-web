@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Mail, User, Globe, Server, Shield, Zap, Search, FileText, Phone, Lock, Eye, Database } from "lucide-react";
+import { Helmet } from "react-helmet";
 
 const TOOLS_DETAILED = [
   {
@@ -118,8 +119,34 @@ const TOOLS_DETAILED = [
 ];
 
 export default function Tools() {
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://osirisweb-2gqv98je.manus.space/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Tools",
+        "item": "https://osirisweb-2gqv98je.manus.space/tools"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Helmet>
+        <title>OSINT Tools Reference - OpenOSINT</title>
+        <meta name="description" content="Complete reference for all 12 integrated OpenOSINT tools including holehe, sherlock, sublist3r, and more with usage examples." />
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
+      </Helmet>
       {/* Header */}
       <section className="border-b border-border/50 py-12">
         <div className="container mx-auto max-w-6xl px-4">

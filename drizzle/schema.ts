@@ -238,3 +238,83 @@ export const emailQueue = mysqlTable("email_queue", {
 
 export type EmailQueue = typeof emailQueue.$inferSelect;
 export type InsertEmailQueue = typeof emailQueue.$inferInsert;
+
+/**
+ * Products/Services table - defines what can be purchased
+ * Minimal schema: only store what's needed for local business logic
+ */
+export const products = mysqlTable("products", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  type: mysqlEnum("type", ["consulting", "subscription", "report", "training", "custom"]).notNull(),
+  stripeProductId: varchar("stripeProductId", { length: 255 }).notNull().unique(),
+  stripePriceId: varchar("stripePriceId", { length: 255 }).notNull().unique(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(), // in cents (e.g., 9900 = $99.00)
+  currency: varchar("currency", { length: 3 }).notNull().default("usd"),
+  interval: mysqlEnum("interval", ["one_time", "month", "year"]).notNull().default("one_time"),
+  active: boolean("active").notNull().default(true),
+  metadata: text("metadata"), // JSON for custom data
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = typeof products.$inferInsert;
+
+/**
+ * Orders table - tracks all purchases
+ * Minimal schema: store only essential Stripe references
+ */
+export const orders = mysqlTable("orders", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  productId: int("productId").notNull(),
+  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).notNull().default("usd"),
+  status: mysqlEnum("status", ["pending", "succeeded", "failed", "cancelled"]).notNull().default("pending"),
+  metadata: text("metadata"), // JSON for custom data (service details, etc.)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = typeof orders.$inferInsert;
+
+/**
+ * Subscriptions table - tracks active subscriptions
+ * Minimal schema: store only Stripe subscription ID and user reference
+ */
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  productId: int("productId").notNull(),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["active", "past_due", "cancelled", "paused"]).notNull().default("active"),
+  currentPeriodStart: timestamp("currentPeriodStart"),
+  currentPeriodEnd: timestamp("currentPeriodEnd"),
+  cancelledAt: timestamp("cancelledAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+/**
+ * Stripe customers table - link users to Stripe customers
+ * Minimal schema: only store the Stripe customer ID
+ */
+export const stripeCustomers = mysqlTable("stripe_customers", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type StripeCustomer = typeof stripeCustomers.$inferSelect;
+export type InsertStripeCustomer = typeof stripeCustomers.$inferInsert;

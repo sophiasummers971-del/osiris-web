@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Helmet } from 'react-helmet';
 import { Lock, Unlock, Heart, Video, BookOpen, Gift, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -127,6 +128,28 @@ export default function SupporterHub() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": `${window.location.origin}`
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Supporters",
+                "item": `${window.location.origin}/supporters`
+              }
+            ]
+          })}
+        </script>
+      </Helmet>
       {/* Header */}
       <section className="border-b border-border/50 py-12">
         <div className="container mx-auto max-w-6xl px-4">
@@ -321,6 +344,20 @@ export default function SupporterHub() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Products / Services Section */}
+      <section className="py-12 border-t border-border/50 bg-card/20">
+        <div className="container mx-auto max-w-6xl px-4">
+          <h2 className="text-2xl font-bold mb-8">Services & Subscriptions</h2>
+          <p className="text-muted-foreground mb-8">
+            Support our work directly through one-time purchases or recurring subscriptions.
+          </p>
+          {/* Products will be loaded here */}
+          <div className="text-center py-8 text-muted-foreground">
+            <p>Products coming soon. Configure your offerings in the admin panel.</p>
           </div>
         </div>
       </section>

@@ -1,9 +1,36 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Helmet } from "react-helmet";
 
 export default function About() {
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://osirisweb-2gqv98je.manus.space/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About",
+        "item": "https://osirisweb-2gqv98je.manus.space/about"
+      }
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Helmet>
+        <title>About OpenOSINT - Architecture & Philosophy</title>
+        <meta name="description" content="Learn about the architecture, design, and philosophy behind OpenOSINT, the AI-powered OSINT framework." />
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
+      </Helmet>
       {/* Header */}
       <section className="border-b border-border/50 py-12">
         <div className="container mx-auto max-w-6xl px-4">

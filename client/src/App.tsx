@@ -13,6 +13,8 @@ import Tools from "./pages/Tools";
 import About from "./pages/About";
 import SupporterHub from "./pages/SupporterHub";
 import NotificationCenter from "./pages/NotificationCenter";
+import { CheckoutSuccess } from "./pages/CheckoutSuccess";
+import { CheckoutCancel } from "./pages/CheckoutCancel";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -23,6 +25,8 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/supporters" component={SupporterHub} />
       <Route path="/notifications" component={NotificationCenter} />
+      <Route path="/checkout-success" component={CheckoutSuccess} />
+      <Route path="/checkout-cancel" component={CheckoutCancel} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

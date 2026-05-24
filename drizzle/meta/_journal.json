@@ -15,6 +15,13 @@
       "when": 1779452923124,
       "tag": "0001_messy_korvac",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1779600739153,
+      "tag": "0002_boring_maverick",
+      "breakpoints": true
     }
   ]
 }
