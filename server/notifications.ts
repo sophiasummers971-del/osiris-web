@@ -127,7 +127,7 @@ export const notificationRouter = router({
           .optional(),
         quietHoursStart: z.string().optional(),
         quietHoursEnd: z.string().optional(),
-        categoryPreferences: z.record(z.string(), z.boolean()).optional(),
+        categoryPreferences: z.string().optional(), // JSON stringified record
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -283,6 +283,7 @@ export const notificationRouter = router({
         });
       }
     }),
+
 
   /**
    * Admin: Broadcast notification to all users

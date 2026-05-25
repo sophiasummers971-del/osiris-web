@@ -1,20 +1,17 @@
 import { getDb, getPendingEmails, updateEmailStatus } from "./db";
 import { users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { sendEmail } from "./emailServiceIntegration";
 
 /**
- * Email configuration - update with your email service credentials
- * Supports: SendGrid, Mailgun, AWS SES, or custom SMTP
+ * Email configuration
  */
 const EMAIL_CONFIG = {
-  // Using a simple nodemailer-like setup
   from: process.env.EMAIL_FROM || "noreply@openosint.com",
-  // Add your email service configuration here
 };
 
 /**
- * Send email via your email service
- * This is a placeholder - implement with your chosen email service
+ * Send email via configured service (SendGrid, Mailgun, or console)
  */
 async function sendEmailViaService(
   to: string,
@@ -22,15 +19,13 @@ async function sendEmailViaService(
   html: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // TODO: Implement with your email service (SendGrid, Mailgun, etc.)
-    // Example with SendGrid:
-    // const sgMail = require('@sendgrid/mail');
-    // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    // await sgMail.send({ to, from: EMAIL_CONFIG.from, subject, html });
-
-    // For now, just log it
-    console.log(`[Email] Sending to ${to}: ${subject}`);
-    return { success: true };
+    const result = await sendEmail({
+      to,
+      subject,
+      html,
+      from: EMAIL_CONFIG.from,
+    });
+    return result;
   } catch (error) {
     console.error("[Email] Failed to send:", error);
     return {
