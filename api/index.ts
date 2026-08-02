@@ -10,6 +10,21 @@ import { handleStripeWebhook } from "../server/stripe";
 
 const app = express();
 
+// Vercel invokes this function at /api/index. Restore the original nested API
+// path passed by vercel.json before Express and tRPC perform route matching.
+app.use((req, _res, next) => {
+  const requestUrl = new URL(req.url, "http://vercel.internal");
+  const forwardedPath = requestUrl.searchParams.get("__path");
+
+  if (forwardedPath) {
+    requestUrl.searchParams.delete("__path");
+    const query = requestUrl.searchParams.toString();
+    req.url = `/api/${forwardedPath}${query ? `?${query}` : ""}`;
+  }
+
+  next();
+});
+
 app.post(
   "/api/stripe/webhook",
   express.raw({ type: "application/json" }),
