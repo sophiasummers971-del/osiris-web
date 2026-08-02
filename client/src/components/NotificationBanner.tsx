@@ -3,16 +3,22 @@ import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { Notification, useNotification } from "@/contexts/NotificationContext";
 
 const bannerStyles = {
-  success: "bg-green-100 dark:bg-green-900/40 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100",
-  error: "bg-red-100 dark:bg-red-900/40 border-red-300 dark:border-red-700 text-red-900 dark:text-red-100",
-  warning: "bg-yellow-100 dark:bg-yellow-900/40 border-yellow-300 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100",
+  success:
+    "bg-green-100 dark:bg-green-900/40 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100",
+  error:
+    "bg-red-100 dark:bg-red-900/40 border-red-300 dark:border-red-700 text-red-900 dark:text-red-100",
+  warning:
+    "bg-yellow-100 dark:bg-yellow-900/40 border-yellow-300 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100",
   info: "bg-blue-100 dark:bg-blue-900/40 border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-100",
 };
 
 const iconStyles = {
   success: { icon: CheckCircle, color: "text-green-600 dark:text-green-400" },
   error: { icon: AlertCircle, color: "text-red-600 dark:text-red-400" },
-  warning: { icon: AlertTriangle, color: "text-yellow-600 dark:text-yellow-400" },
+  warning: {
+    icon: AlertTriangle,
+    color: "text-yellow-600 dark:text-yellow-400",
+  },
   info: { icon: Info, color: "text-blue-600 dark:text-blue-400" },
 };
 
@@ -53,13 +59,13 @@ function BannerNotification({ notification }: { notification: Notification }) {
 
 export function BannerContainer() {
   const { notifications } = useNotification();
-  const banners = notifications.filter((n) => n.displayLocation === "banner");
+  const banners = notifications.filter(n => n.displayLocation === "banner");
 
   if (banners.length === 0) return null;
 
   return (
     <div className="fixed top-0 left-0 right-0 z-40 flex flex-col gap-0 pointer-events-auto">
-      {banners.map((notification) => (
+      {banners.map(notification => (
         <BannerNotification key={notification.id} notification={notification} />
       ))}
     </div>

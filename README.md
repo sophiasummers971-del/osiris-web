@@ -70,6 +70,7 @@ Only touch the files under "←" markers. Anything under `server/_core` or other
 **DO NOT** store images, videos, or large assets in `client/public/` or `client/src/assets/`. Local media files will cause deployment timeouts.
 
 **Required workflow:**
+
 1. Upload assets using the CLI: `manus-upload-file --webdev path/to/image.png`
 2. Use the returned storage path directly in your code: `<img src="/manus-storage/image_a1b2c3d4.png" />`
 3. Store the original local file in `/home/ubuntu/webdev-static-assets/` (outside the project directory)
@@ -92,6 +93,7 @@ Files in `client/public` are available at the root of your site—reference them
 ## Environment Variables
 
 Available pre-defined system envs:
+
 - `DATABASE_URL`: MySQL/TiDB connection string
 - `SUPABASE_DATABASE_URL`: server-only pooled Postgres connection string used by the Evidence Vault. Never prefix this variable with `VITE_` or expose it to browser code.
 - `VITE_SUPABASE_URL`: public Supabase project URL used for operator authentication.
@@ -115,9 +117,11 @@ The envs above are system envs, when use env in website code, refer `server/_cor
 
 1. Choose a design style before you write any frontend code according to Design Guide (color, font, shadow, art style). Remember to edit `client/src/index.css` for global theming and add needed font using google font cdn in `client/index.html`.
 2. Design the layout and navigation structure based on app purpose. Establish navigation in App.tsx accordingly:
-  - **Personal tools & internal dashboards** (finance trackers, task managers, admin panels, personal finance apps, analytics): Use DashboardLayout with sidebar navigation for consistent experience.
-  - **Public-facing products** (marketing sites, e-commerce, communities): Design custom navigation (top nav, contextual nav) and landing page to attract users.
-3. Start by updating `client/src/pages/Home.tsx` (the landing page shell) using shadcn/ui components to introduce links, CTAs, or feature entry points. 
+
+- **Personal tools & internal dashboards** (finance trackers, task managers, admin panels, personal finance apps, analytics): Use DashboardLayout with sidebar navigation for consistent experience.
+- **Public-facing products** (marketing sites, e-commerce, communities): Design custom navigation (top nav, contextual nav) and landing page to attract users.
+
+3. Start by updating `client/src/pages/Home.tsx` (the landing page shell) using shadcn/ui components to introduce links, CTAs, or feature entry points.
 4. Create or update additional components under `client/src/pages/FeatureName.tsx`, continuing to leverage shadcn/ui + Tailwind for consistent styling.
 5. Register the route (or navigation entry) in `client/src/App.tsx`.
 6. Read data with `const { data, isLoading } = trpc.feature.useQuery(params);`.
@@ -130,12 +134,14 @@ The envs above are system envs, when use env in website code, refer `server/_cor
 ## Frontend Development Guidelines
 
 **tRPC & Data Management:**
+
 - Use `trpc.*.useQuery/useMutation` for all backend calls—never introduce Axios/fetch wrappers.
 - **Use optimistic updates for instant feedback**: ideal for adding/editing/deleting list items, toggling states, updating profiles. Use `onMutate` to update cache, `onError` to rollback (The onMutate/onError/onSettled pattern). For critical operations (payments, auth), prefer `invalidate` with explicit loading states.
 - When using `invalidate` as fallback: call `trpc.useUtils().feature.invalidate()` in mutation's `onSuccess`.
 - Auth state comes from `useAuth()`; do not manipulate cookies manually.
 
 **UI & Styling:**
+
 - Prefer shadcn/ui components for interactions to keep a modern, consistent look; import from `@/components/ui/*` (e.g., `button`, `card`, `dialog`).
 - Compose Tailwind utilities with component variants for layout and states; avoid excessive custom CSS. Use built-in `variant`, `size`, etc. where available.
 - Preserve design tokens: keep the `@layer base` rules in `client/src/index.css`. Utilities like `border-border` and `font-sans` depend on them.
@@ -147,10 +153,12 @@ The envs above are system envs, when use env in website code, refer `server/_cor
 - Placeholder UI elements: When adding structural placeholders (nav items, table actions) for not-yet-implemented features, show toast on click ("Feature coming soon"). Inform user which elements are placeholders when presenting work.
 
 **React Best Practices:**
+
 - Never call setState/navigation in render phase → wrap in `useEffect`
 
 **Customized Defaults:**
 This template customizes some Tailwind/shadcn defaults for simplified usage:
+
 - `.container` is customized to auto-center and add responsive padding (see `index.css`). Use directly without `mx-auto`/`px-*`. For custom widths, use `max-w-*` with `mx-auto px-4`.
 - `.flex` is customized to have `min-width:0` and `min-height:0` by default
 - `button` variant `outline` uses transparent background (not `bg-background`). Add bg color class manually if needed.
@@ -160,6 +168,7 @@ This template customizes some Tailwind/shadcn defaults for simplified usage:
 ## 🎨 Design Guide
 
 When generating frontend UI, avoid generic patterns that lack visual distinction:
+
 - Avoid generic full-page centered layouts—prefer asymmetric/sidebar/grid structures for landing pages and dashboards
 - Avoid applying dashboard/sidebar patterns to public-facing apps (forums, communities, e-commerce)—reserve those for internal tools
 - When user provides vague requirements, make creative design decisions (choose specific color palette, typography, layout approach)
@@ -172,6 +181,7 @@ When generating frontend UI, avoid generic patterns that lack visual distinction
 ## Animation Guide
 
 Bake motion taste in from the first line of code. Snappy, physically intuitive interactions are not a polish pass — they are part of the initial build.
+
 - Decide whether to animate at all: keyboard-initiated actions (command palettes, shortcuts) must be instant — never animate them. High-frequency interactions (hover, list nav) should be minimal. Reserve richer motion for occasional events (modals, drawers, toasts) and rare delight moments (onboarding).
 - Keep UI animations under 300ms. A 180ms dropdown feels significantly better than a 400ms one. Typical ranges: button press 100–160ms, tooltips 125–200ms, dropdowns 150–250ms, modals/drawers 200–500ms.
 - Use strong custom easings, not the weak CSS defaults. Default to a snappy ease-out for entering/exiting UI: `--ease-out: cubic-bezier(0.23, 1, 0.32, 1);`. For moving/morphing use `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);`. NEVER use `ease-in` for UI animations — it feels sluggish.
@@ -201,13 +211,16 @@ Bake motion taste in from the first line of code. Snappy, physically intuitive i
 Before implementing UI features, check if these components already exist:
 
 Dashboard & Layout:
+
 - `client/src/components/DashboardLayout.tsx` - Full dashboard layout with sidebar navigation, auth handling, and user profile. Use this for any admin panel or dashboard-style app instead of building from scratch.
 - `client/src/components/DashboardLayoutSkeleton.tsx` - Loading skeleton for dashboard during auth checks
 
 Chat & Messaging:
+
 - `client/src/components/AIChatBox.tsx` - Full-featured chat interface with message history, streaming support, and markdown rendering. Use this for any chat/conversation UI instead of building from scratch.
 
 Maps:
+
 - `client/src/components/Map.tsx` - Google Maps integration with proxy authentication. Provides MapView component with onMapReady callback for initializing Google Maps services (Places, Geocoder, Directions, Drawing, etc.). All map functionality works directly in the browser.
 
 When implementing features that match these categories, MUST evaluate the component first to decide whether to use or customize it.
@@ -219,27 +232,32 @@ When implementing features that match these categories, MUST evaluate the compon
 For certain app types, this template provides DashboardLayout—a standardized sidebar pattern.
 
 **Use DashboardLayout for:**
+
 - Admin/management dashboards
 - Personal productivity apps (task managers, note-taking)
 - Analytics/monitoring tools
 
 **Do NOT use for:**
+
 - Public content platforms (forums, blogs, social networks)
 - E-commerce storefronts
 - Marketing/landing sites
 
 **Layout & Navigation**
+
 - Use `DashboardLayout` component from `client/src/components/DashboardLayout.tsx` and remove any page-level headers to avoid duplication.
 - When use DashboardLayout, read its content before making changes and preserve its core structure by default.
 
 **Role-based Access Control**
 When building apps with distinct access levels (e.g., e-commerce with public home, user account, admin panel):
+
 - The `user` table includes a `role` field (enum: `admin` | `user`) for identity separation
 - Use `ctx.user.role` in procedures to gate admin-only operations
 - Wrap admin-only backend logic in `adminProcedure`
 - Frontend can conditionally render navigation/routes based on `useAuth().user?.role`
 
 Example procedure pattern:
+
 ```ts
 adminOnlyProcedure: protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== 'admin') throw new TRPCError({ code: 'FORBIDDEN' });
@@ -248,6 +266,7 @@ adminOnlyProcedure: protectedProcedure.use(({ ctx, next }) => {
 ```
 
 **Managing Admins**
+
 - To promote a user to admin, update the `role` field directly in the database via the system UI or SQL
 - If you need additional roles beyond `admin`/`user`, extend the enum in `drizzle/schema.ts` and push the migration
 
@@ -306,6 +325,7 @@ const response = await invokeLLM({
 ```
 
 Tips
+
 - Always call llm functions from server-side code (e.g., inside tRPC procedures), to avoid exposing your API key.
 - You don't need to manually set the model; the helper uses a sensible default.
 - LLM responses often contain markdown. Use `<Streamdown>{content}</Streamdown>` (imported from `streamdown`) to render markdown content with proper formatting and streaming support.
@@ -319,8 +339,15 @@ import { invokeLLM } from "./server/_core/llm";
 
 const structured = await invokeLLM({
   messages: [
-    { role: "system", content: "You are a helpful assistant designed to output JSON." },
-    { role: "user", content: "Extract the name and age from the following text: \"My name is Alice and I am 30 years old.\"" },
+    {
+      role: "system",
+      content: "You are a helpful assistant designed to output JSON.",
+    },
+    {
+      role: "user",
+      content:
+        'Extract the name and age from the following text: "My name is Alice and I am 30 years old."',
+    },
   ],
   response_format: {
     type: "json_schema",
@@ -343,6 +370,7 @@ const structured = await invokeLLM({
 // The model responds with JSON content matching the schema.
 // Access via `structured.choices[0].message.content` and JSON.parse if needed.
 ```
+
 The helpers mirror the Python SDK semantics but produce JavaScript-first code, keeping credentials inside the server and ensuring every environment has access to the same token.
 
 ---
@@ -352,13 +380,14 @@ The helpers mirror the Python SDK semantics but produce JavaScript-first code, k
 Use the preconfigured voice transcription helper that converts speech to text using Whisper API, no manual setup required.
 
 Example usage:
+
 ```ts
 import { transcribeAudio } from "./server/_core/voiceTranscription";
 
 const result = await transcribeAudio({
   audioUrl: "https://storage.example.com/audio/recording.mp3",
   language: "en", // Optional: helps improve accuracy
-  prompt: "Transcribe meeting notes" // Optional: context hint
+  prompt: "Transcribe meeting notes", // Optional: context hint
 });
 
 // Returns native Whisper API response
@@ -368,6 +397,7 @@ const result = await transcribeAudio({
 ```
 
 Tips
+
 - Accepts URL to pre-uploaded audio file
 - 16MB file size limit enforced during transcription, size flag to be set by frontend
 - Supported formats: webm, mp3, wav, ogg, m4a
@@ -381,23 +411,27 @@ Tips
 Use the preconfigured image generation helper that connects to the internal ImageService, no manual setup required.
 
 Example usage:
+
 ```ts
 import { generateImage } from "./server/_core/imageGeneration.ts";
 
 const { url: imageUrl } = await generateImage({
-  prompt: "A serene landscape with mountains"
+  prompt: "A serene landscape with mountains",
 });
 // For editing:
 const { url: imageUrl } = await generateImage({
   prompt: "Add a rainbow to this landscape",
-  originalImages: [{
-    url: "https://example.com/original.jpg",
-    mimeType: "image/jpeg"
-  }]
+  originalImages: [
+    {
+      url: "https://example.com/original.jpg",
+      mimeType: "image/jpeg",
+    },
+  ],
 });
 ```
 
 Tips
+
 - Always call from server-side code (e.g., inside tRPC procedures) to avoid exposing API keys
 - Image generation can take 5-20 seconds, implement proper loading states
 - Implement proper error handling as image generation can fail
@@ -412,7 +446,7 @@ Use the preconfigured storage helpers in `server/storage.ts`. Credentials are in
 import { storagePut } from "./server/storage";
 
 // Upload bytes to storage
-const fileKey = `${userId}-files/${fileName}.png`
+const fileKey = `${userId}-files/${fileName}.png`;
 const { key, url } = await storagePut(
   fileKey,
   fileBuffer, // Buffer | Uint8Array | string
@@ -423,6 +457,7 @@ const { key, url } = await storagePut(
 ```
 
 Tips
+
 - Save the `key` or `url` in your database; use storage for the actual file bytes. This applies to all files including images, documents, and media.
 - For file uploads, have the client POST to your server, then call `storagePut` from your backend.
 - The returned `url` (e.g. `/manus-storage/...`) is automatically served via signed redirect — no manual URL signing needed.
@@ -434,19 +469,20 @@ Tips
 
 **CRITICAL: The Manus proxy provides FULL access to ALL Google Maps features** - including advanced drawing, heatmaps, Street View, all layers, Places API, etc. Do ask users for Google Map API keys - authentication is automatic.
 
-**Default: Use Frontend SDK** - Import MapView from `client/src/components/Map.tsx` and initialize ANY Google Maps service (geocoding, directions, places, drawing, visualization, geometry, etc.) in the onMapReady callback. 
+**Default: Use Frontend SDK** - Import MapView from `client/src/components/Map.tsx` and initialize ANY Google Maps service (geocoding, directions, places, drawing, visualization, geometry, etc.) in the onMapReady callback.
 
 **Use Backend API only when:**
+
 - Persisting data (save routes/locations to database)
 - Bulk operations (1000+ addresses)
 - Server-side needs (caching, scheduled jobs, hiding business logic)
 
 **Implementation:**
+
 - Frontend: See `client/src/components/Map.tsx` for component usage - ALL Google Maps JavaScript API features work
 - Backend: Create tRPC procedures using `makeRequest` from `server/_core/map.ts`
 
 NEVER use external map libraries or request API keys from users - the Manus proxy handles everything automatically with no feature limitations.
-
 
 ---
 
@@ -486,6 +522,7 @@ Frontend display: In React components, always convert UTC timestamps to the user
 Note: All TODO comments are remarks for the agent (you), not for the user.
 
 `package.json`
+
 ```ts
 {
   "name": "{{project_name}}",
@@ -605,8 +642,16 @@ Note: All TODO comments are remarks for the agent (you), not for the user.
 ```
 
 `drizzle/schema.ts`
+
 ```ts
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -637,11 +682,12 @@ export type InsertUser = typeof users.$inferInsert;
 ```
 
 `server/db.ts`
+
 ```ts
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -696,8 +742,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -724,7 +770,11 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }
@@ -733,6 +783,7 @@ export async function getUserByOpenId(openId: string) {
 ```
 
 `server/routers.ts`
+
 ```ts
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -740,7 +791,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
+  // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -765,6 +816,7 @@ export type AppRouter = typeof appRouter;
 ```
 
 `client/src/App.tsx`
+
 ```tsx
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -811,6 +863,7 @@ export default App;
 ```
 
 `client/src/lib/trpc.ts`
+
 ```ts
 import { createTRPCReact } from "@trpc/react-query";
 import type { AppRouter } from "../../../server/routers";
@@ -819,12 +872,13 @@ export const trpc = createTRPCReact<AppRouter>();
 ```
 
 `client/src/pages/Home.tsx`
+
 ```tsx
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { getLoginUrl } from "@/const";
-import { Streamdown } from 'streamdown';
+import { Streamdown } from "streamdown";
 
 /**
  * All content in this page are only for example, replace with your own feature implementation
@@ -854,6 +908,7 @@ export default function Home() {
 ```
 
 `server/auth.logout.test.ts`
+
 ```ts
 import { describe, expect, it } from "vitest";
 import { appRouter } from "./routers";
@@ -867,7 +922,10 @@ type CookieCall = {
 
 type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
 
-function createAuthContext(): { ctx: TrpcContext; clearedCookies: CookieCall[] } {
+function createAuthContext(): {
+  ctx: TrpcContext;
+  clearedCookies: CookieCall[];
+} {
   const clearedCookies: CookieCall[] = [];
 
   const user: AuthenticatedUser = {
@@ -918,12 +976,15 @@ describe("auth.logout", () => {
   });
 });
 ```
+
 ---
 
 ## Common Pitfalls
 
 ### Infinite loading loops from unstable references
+
 **Anti-pattern:** Creating new objects/arrays in render that are used as query inputs
+
 ```tsx
 // ❌ Bad: New Date() creates new reference every render → infinite queries
 const { data } = trpc.items.getByDate.useQuery({
@@ -937,6 +998,7 @@ const { data } = trpc.items.getByIds.useQuery({
 ```
 
 **Correct approach:** Stabilize references with useState/useMemo
+
 ```tsx
 // ✅ Good: Initialize once with useState
 const [date] = useState(() => new Date());
@@ -950,20 +1012,23 @@ const { data } = trpc.items.getByIds.useQuery({ ids });
 **Why this happens:** TRPC queries trigger when input references change. Objects/arrays created in render have new references each time, causing infinite re-fetches.
 
 ### Storing file bytes in database columns
+
 **Anti-pattern:** Adding BLOB/BYTEA columns to store file content
+
 ```ts
 // ❌ Bad: Database bloat and slow queries
-export const files = sqliteTable('files', {
-  content: blob('content'), // Never store file bytes
+export const files = sqliteTable("files", {
+  content: blob("content"), // Never store file bytes
 });
 ```
 
 **Correct approach:** Store S3 reference only, upload file bytes to S3
+
 ```ts
 // ✅ Good: Store metadata + S3 reference
-export const files = sqliteTable('files', {
-  url: text('url').notNull(), // Url to reference the file in s3
-  fileKey: text('file_key').notNull(), // also save file_key for clarity
+export const files = sqliteTable("files", {
+  url: text("url").notNull(), // Url to reference the file in s3
+  fileKey: text("file_key").notNull(), // also save file_key for clarity
   // optional, save other metadata if needed
   // filename: text('filename'),
   // mimeType: text('mime_type'),
@@ -973,6 +1038,7 @@ export const files = sqliteTable('files', {
 Use `storagePut()` to upload files (see S3 File Storage section).
 
 ### Navigation dead-ends in subpages
+
 **Problem:** Creating nested routes without escape routes—no header nav, no sidebar, no back button.
 
 **Root cause:** Implementing individual pages before establishing global layout structure.
@@ -989,6 +1055,7 @@ Use `storagePut()` to upload files (see S3 File Storage section).
 2. **Always pair bg with text:** When using `bg-{semantic}`, MUST also use `text-{semantic}-foreground` (not automatic - text inherits from parent otherwise)
 
 **Quick reference:**
+
 ```tsx
 // ✅ Theme + CSS alignment
 <ThemeProvider defaultTheme="dark">  {/* Must match .dark in index.css */}
@@ -1002,15 +1069,18 @@ Use `storagePut()` to upload files (see S3 File Storage section).
 ```
 
 ### Nested anchor tags in Link components
+
 **Problem:** Wrapping `<a>` tags inside another `<a>` or wouter's `<Link>` creates nested anchors and runtime errors.
 
 **Solution:** Pass children directly to Link—it already renders an `<a>` internally.
+
 ```tsx
 // ❌ Bad: <Link><a>...</a></Link> or <a><a>...</a></a>
 // ✅ Good: <Link>...</Link> or just <a>...</a>
 ```
 
 ### Empty `Select.Item` values
+
 **Rule:** Every `<Select.Item>` must have a non-empty `value` prop—never `""`, `undefined`, or omitted.
 
 ---
@@ -1022,6 +1092,7 @@ Use `storagePut()` to upload files (see S3 File Storage section).
 **Unsupported browsers:** Safari Private Browsing, Firefox Strict ETP, Brave Aggressive Shields, or any browser blocking cookies.
 
 **Anti-patterns:**
+
 ```ts
 // ❌ Never construct URLs from env vars or patterns
 const url = `https://${projectName}.manus.space/callback`;
@@ -1029,14 +1100,19 @@ const url = `https://${process.env.APP_SUBDOMAIN}.example.com/verify`;
 ```
 
 **Correct approach:** This template already implements the pattern correctly:
+
 - `client/src/const.ts`: `getLoginUrl(returnPath?)` encodes origin + returnPath in state
 - `server/_core/oauth.ts`: `parseState()` extracts origin from state for redirects
 
 **For invite/magic links:** When backend generates URLs, frontend must pass origin in the request:
+
 ```ts
 // Frontend
 const createInvite = trpc.invites.create.useMutation();
-await createInvite.mutateAsync({ eventId: "123", origin: window.location.origin });
+await createInvite.mutateAsync({
+  eventId: "123",
+  origin: window.location.origin,
+});
 
 // Backend - use input.origin to build the URL
 const inviteUrl = `${input.origin}/events/${eventId}/join?token=${token}`;

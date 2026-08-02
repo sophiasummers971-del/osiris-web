@@ -20,9 +20,10 @@ export default function Auth() {
     setPending(true);
     try {
       const supabase = getSupabaseClient();
-      const result = mode === "signin"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
+      const result =
+        mode === "signin"
+          ? await supabase.auth.signInWithPassword({ email, password })
+          : await supabase.auth.signUp({ email, password });
 
       if (result.error) throw result.error;
 
@@ -33,7 +34,9 @@ export default function Auth() {
 
       toast.success("Check your email to confirm the OSIRIS account");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Authentication failed");
+      toast.error(
+        error instanceof Error ? error.message : "Authentication failed"
+      );
     } finally {
       setPending(false);
     }
@@ -44,28 +47,64 @@ export default function Auth() {
       <Card className="mx-auto max-w-md border-primary/30 bg-card/80">
         <CardHeader className="border-b border-border/60 text-center">
           <ShieldCheck className="mx-auto h-9 w-9 text-primary" />
-          <CardTitle className="mt-3 text-2xl">Operator authentication</CardTitle>
-          <p className="text-sm leading-6 text-muted-foreground">Supabase verifies the identity. OSIRIS applies case ownership separately.</p>
+          <CardTitle className="mt-3 text-2xl">
+            Operator authentication
+          </CardTitle>
+          <p className="text-sm leading-6 text-muted-foreground">
+            Supabase verifies the identity. OSIRIS applies case ownership
+            separately.
+          </p>
         </CardHeader>
         <CardContent className="pt-6">
           {!isSupabaseConfigured ? (
-            <p className="text-sm text-chart-3">Supabase Auth variables are missing from this deployment.</p>
+            <p className="text-sm text-chart-3">
+              Supabase Auth variables are missing from this deployment.
+            </p>
           ) : (
             <form className="space-y-5" onSubmit={submit}>
               <div className="space-y-2">
                 <Label htmlFor="operator-email">Email</Label>
-                <Input id="operator-email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} />
+                <Input
+                  id="operator-email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={event => setEmail(event.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="operator-password">Password</Label>
-                <Input id="operator-password" type="password" minLength={8} autoComplete={mode === "signin" ? "current-password" : "new-password"} required value={password} onChange={event => setPassword(event.target.value)} />
+                <Input
+                  id="operator-password"
+                  type="password"
+                  minLength={8}
+                  autoComplete={
+                    mode === "signin" ? "current-password" : "new-password"
+                  }
+                  required
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                />
               </div>
               <Button className="w-full" type="submit" disabled={pending}>
                 <Fingerprint className="mr-2 h-4 w-4" />
-                {pending ? "VERIFYING…" : mode === "signin" ? "Authenticate" : "Create operator account"}
+                {pending
+                  ? "VERIFYING…"
+                  : mode === "signin"
+                    ? "Authenticate"
+                    : "Create operator account"}
               </Button>
-              <button className="w-full font-mono text-xs text-muted-foreground hover:text-primary" type="button" onClick={() => setMode(value => value === "signin" ? "signup" : "signin")}>
-                {mode === "signin" ? "No account? Create one" : "Already registered? Sign in"}
+              <button
+                className="w-full font-mono text-xs text-muted-foreground hover:text-primary"
+                type="button"
+                onClick={() =>
+                  setMode(value => (value === "signin" ? "signup" : "signin"))
+                }
+              >
+                {mode === "signin"
+                  ? "No account? Create one"
+                  : "Already registered? Sign in"}
               </button>
             </form>
           )}

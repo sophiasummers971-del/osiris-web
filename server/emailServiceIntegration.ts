@@ -24,7 +24,8 @@ interface EmailResult {
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   const emailService = process.env.EMAIL_SERVICE || "console";
-  const fromEmail = options.from || process.env.EMAIL_FROM || "noreply@osirisweb.com";
+  const fromEmail =
+    options.from || process.env.EMAIL_FROM || "noreply@osirisweb.com";
 
   try {
     if (emailService === "sendgrid") {
@@ -107,7 +108,9 @@ async function sendViaMailgun(
   const domain = process.env.MAILGUN_DOMAIN;
 
   if (!apiKey || !domain) {
-    throw new Error("MAILGUN_API_KEY or MAILGUN_DOMAIN environment variable not set");
+    throw new Error(
+      "MAILGUN_API_KEY or MAILGUN_DOMAIN environment variable not set"
+    );
   }
 
   const formData = new URLSearchParams();
@@ -122,13 +125,16 @@ async function sendViaMailgun(
     formData.append("h:Reply-To", options.replyTo);
   }
 
-  const response = await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${Buffer.from(`api:${apiKey}`).toString("base64")}`,
-    },
-    body: formData,
-  });
+  const response = await fetch(
+    `https://api.mailgun.net/v3/${domain}/messages`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`api:${apiKey}`).toString("base64")}`,
+      },
+      body: formData,
+    }
+  );
 
   if (!response.ok) {
     const error = await response.text();
@@ -166,8 +172,11 @@ function renderEmailTemplate(
   templateName: string,
   data: Record<string, string | number | boolean>
 ): string {
-  const templates: Record<string, (data: Record<string, string | number | boolean>) => string> = {
-    "notification-alert": (data) => `
+  const templates: Record<
+    string,
+    (data: Record<string, string | number | boolean>) => string
+  > = {
+    "notification-alert": data => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>${data.title}</h2>
         <p>${data.message}</p>
@@ -176,7 +185,7 @@ function renderEmailTemplate(
         <p style="font-size: 12px; color: #6b7280;">OpenOSINT Notifications</p>
       </div>
     `,
-    "payment-confirmation": (data) => `
+    "payment-confirmation": data => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Payment Confirmation</h2>
         <p>Thank you for your purchase!</p>
@@ -186,7 +195,7 @@ function renderEmailTemplate(
         <a href="${data.receiptUrl}" style="background-color: #0ea5e9; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">View Receipt</a>
       </div>
     `,
-    "welcome": (data) => `
+    welcome: data => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Welcome to OpenOSINT!</h2>
         <p>Hi ${data.name},</p>

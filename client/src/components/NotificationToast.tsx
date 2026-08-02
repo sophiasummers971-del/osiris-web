@@ -48,7 +48,9 @@ function ToastNotification({ notification }: { notification: Notification }) {
       role="alert"
     >
       <div className="flex gap-3">
-        <IconComponent className={`${style.iconColor} h-5 w-5 flex-shrink-0 mt-0.5`} />
+        <IconComponent
+          className={`${style.iconColor} h-5 w-5 flex-shrink-0 mt-0.5`}
+        />
         <div className="flex-1 min-w-0">
           <h3 className={`${style.title} font-semibold text-sm`}>
             {notification.title}
@@ -79,13 +81,13 @@ function ToastNotification({ notification }: { notification: Notification }) {
 
 export function ToastContainer() {
   const { notifications } = useNotification();
-  const toasts = notifications.filter((n) => n.displayLocation === "toast");
+  const toasts = notifications.filter(n => n.displayLocation === "toast");
 
   if (toasts.length === 0) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-auto">
-      {toasts.map((notification) => (
+      {toasts.map(notification => (
         <ToastNotification key={notification.id} notification={notification} />
       ))}
     </div>

@@ -92,7 +92,7 @@ function escapeHtml(text: string): string {
     '"': "&quot;",
     "'": "&#039;",
   };
-  return text.replace(/[&<>"']/g, (m) => map[m]);
+  return text.replace(/[&<>"']/g, m => map[m]);
 }
 
 /**
@@ -132,7 +132,9 @@ export async function processPendingEmails(): Promise<{
             failed++;
           } else {
             // Will retry on next run
-            console.log(`[Email] Retrying email ${email.id} (attempt ${email.attemptCount + 1})`);
+            console.log(
+              `[Email] Retrying email ${email.id} (attempt ${email.attemptCount + 1})`
+            );
           }
         }
       } catch (error) {
@@ -141,9 +143,7 @@ export async function processPendingEmails(): Promise<{
       }
     }
 
-    console.log(
-      `[Email] Processed ${processed} emails, ${failed} failed`
-    );
+    console.log(`[Email] Processed ${processed} emails, ${failed} failed`);
     return { processed, failed };
   } catch (error) {
     console.error("[Email] Failed to process pending emails:", error);
@@ -183,11 +183,7 @@ export async function sendNotificationEmail(
     const htmlBody = buildEmailTemplate(title, message, actionUrl, actionLabel);
 
     // Send immediately (or queue for later processing)
-    const result = await sendEmailViaService(
-      user[0].email,
-      title,
-      htmlBody
-    );
+    const result = await sendEmailViaService(user[0].email, title, htmlBody);
 
     return result.success;
   } catch (error) {

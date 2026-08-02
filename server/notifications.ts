@@ -157,7 +157,9 @@ export const notificationRouter = router({
           updates.quietHoursEnd = input.quietHoursEnd;
         }
         if (input.categoryPreferences !== undefined) {
-          updates.categoryPreferences = JSON.stringify(input.categoryPreferences);
+          updates.categoryPreferences = JSON.stringify(
+            input.categoryPreferences
+          );
         }
 
         await updateNotificationPreferences(ctx.user.id, updates);
@@ -229,10 +231,10 @@ export const notificationRouter = router({
         message: z.string().min(1),
         type: z.enum(["success", "error", "warning", "info"]).default("info"),
         category: z.string().min(1).max(64),
-        channels: z.array(z.enum(["in-app", "email", "push"])).default(["in-app"]),
-        displayLocation: z
-          .enum(["toast", "banner", "center"])
-          .default("toast"),
+        channels: z
+          .array(z.enum(["in-app", "email", "push"]))
+          .default(["in-app"]),
+        displayLocation: z.enum(["toast", "banner", "center"]).default("toast"),
         duration: z.number().int().positive().optional(),
         actionUrl: z.string().url().optional(),
         actionLabel: z.string().max(64).optional(),
@@ -284,7 +286,6 @@ export const notificationRouter = router({
       }
     }),
 
-
   /**
    * Admin: Broadcast notification to all users
    */
@@ -295,7 +296,9 @@ export const notificationRouter = router({
         message: z.string().min(1),
         type: z.enum(["success", "error", "warning", "info"]).default("info"),
         category: z.string().min(1).max(64),
-        channels: z.array(z.enum(["in-app", "email", "push"])).default(["in-app"]),
+        channels: z
+          .array(z.enum(["in-app", "email", "push"]))
+          .default(["in-app"]),
         displayLocation: z
           .enum(["toast", "banner", "center"])
           .default("banner"),
