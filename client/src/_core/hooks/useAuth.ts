@@ -2,6 +2,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
+import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
@@ -26,6 +27,9 @@ export function useAuth(options?: UseAuthOptions) {
 
   const logout = useCallback(async () => {
     try {
+      if (isSupabaseConfigured) {
+        await getSupabaseClient().auth.signOut();
+      }
       await logoutMutation.mutateAsync();
     } catch (error: unknown) {
       if (
@@ -40,6 +44,14 @@ export function useAuth(options?: UseAuthOptions) {
       await utils.auth.me.invalidate();
     }
   }, [logoutMutation, utils]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const { data } = getSupabaseClient().auth.onAuthStateChange(() => {
+      void meQuery.refetch();
+    });
+    return () => data.subscription.unsubscribe();
+  }, [meQuery.refetch]);
 
   const state = useMemo(() => {
     localStorage.setItem(

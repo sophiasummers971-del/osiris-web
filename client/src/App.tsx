@@ -17,6 +17,7 @@ import { CheckoutSuccess } from "./pages/CheckoutSuccess";
 import { CheckoutCancel } from "./pages/CheckoutCancel";
 import SecurityCenter from "./pages/SecurityCenter";
 import EvidenceVault from "./pages/EvidenceVault";
+import Auth from "./pages/Auth";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/tools" component={Tools} />
       <Route path="/security" component={SecurityCenter} />
       <Route path="/vault" component={EvidenceVault} />
+      <Route path="/auth" component={Auth} />
       <Route path="/about" component={About} />
       <Route path="/supporters" component={SupporterHub} />
       <Route path="/notifications" component={NotificationCenter} />

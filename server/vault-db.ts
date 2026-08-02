@@ -31,11 +31,13 @@ type SessionOperator = {
 
 export async function ensureVaultOperator(db: NonNullable<ReturnType<typeof getVaultDb>>, user: SessionOperator) {
   const role = user.role === "admin" ? "admin" : "operator";
+  const authUserId = user.openId.startsWith("supabase:") ? user.openId.slice("supabase:".length) : null;
 
   const [operator] = await db
     .insert(osirisOperators)
     .values({
       externalId: user.openId,
+      authUserId,
       displayName: user.name,
       email: user.email,
       role,
@@ -47,6 +49,7 @@ export async function ensureVaultOperator(db: NonNullable<ReturnType<typeof getV
         displayName: user.name,
         email: user.email,
         role,
+        authUserId,
         updatedAt: new Date(),
       },
     })
