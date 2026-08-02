@@ -5,7 +5,22 @@ import { getDb } from "./db";
 import { orders, products, subscriptions, stripeCustomers } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+let stripeClient: Stripe | undefined;
+
+/**
+ * Initialise Stripe only when a payment operation is actually requested.
+ * Importing the application router must remain safe in tests and in local
+ * environments where payments are not configured.
+ */
+const getStripeClient = () => {
+  const apiKey = process.env.STRIPE_SECRET_KEY;
+  if (!apiKey) {
+    throw new Error("Stripe is not configured: STRIPE_SECRET_KEY is missing");
+  }
+
+  stripeClient ??= new Stripe(apiKey);
+  return stripeClient;
+};
 
 /**
  * Get or create a Stripe customer for the current user
@@ -26,7 +41,7 @@ export const getOrCreateStripeCustomer = async (userId: number, email: string, n
   }
 
   // Create new Stripe customer
-  const customer = await stripeClient.customers.create({
+  const customer = await getStripeClient().customers.create({
     email,
     name: name || email,
     metadata: {
@@ -76,7 +91,7 @@ export const createCheckoutSession = protectedProcedure
     const customerId = await getOrCreateStripeCustomer(user.id, user.email || "", user.name || undefined);
 
     // Create checkout session
-    const session = await stripeClient.checkout.sessions.create({
+    const session = await getStripeClient().checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
       line_items: [
@@ -171,7 +186,7 @@ export const handleStripeWebhook = async (event: Stripe.Event) => {
 
       if (session.mode === "payment") {
         // One-time payment
-        const paymentIntent = await stripeClient.paymentIntents.retrieve(
+        const paymentIntent = await getStripeClient().paymentIntents.retrieve(
           session.payment_intent as string
         );
 
@@ -187,7 +202,7 @@ export const handleStripeWebhook = async (event: Stripe.Event) => {
         });
       } else if (session.mode === "subscription") {
         // Subscription
-        const subscription = await stripeClient.subscriptions.retrieve(
+        const subscription = await getStripeClient().subscriptions.retrieve(
           session.subscription as string
         );
         const sub = subscription as any;
@@ -209,7 +224,7 @@ export const handleStripeWebhook = async (event: Stripe.Event) => {
       const invoice = event.data.object as Stripe.Invoice;
       const subId = (invoice as any).subscription;
       if (!subId) break;
-      const subscription = await stripeClient.subscriptions.retrieve(subId as string);
+      const subscription = await getStripeClient().subscriptions.retrieve(subId as string);
 
       // Update subscription status
       const sub = subscription as any;
@@ -241,7 +256,7 @@ export const handleStripeWebhook = async (event: Stripe.Event) => {
       const invoice = event.data.object as Stripe.Invoice;
       const subId = (invoice as any).subscription;
       if (!subId) break;
-      const subscription = await stripeClient.subscriptions.retrieve(subId as string);
+      const subscription = await getStripeClient().subscriptions.retrieve(subId as string);
 
       await db
         .update(subscriptions)
