@@ -1,393 +1,189 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import KoFiSection from "@/components/KoFiSection";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getLoginUrl } from "@/const";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, User, Globe, Server, Shield, Zap, Github, ExternalLink } from "lucide-react";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { trpc } from "@/lib/trpc";
+import {
+  Activity,
+  BellRing,
+  Binary,
+  CheckCircle2,
+  CircleDashed,
+  Database,
+  Eye,
+  Fingerprint,
+  LockKeyhole,
+  Radar,
+  ShieldAlert,
+  ShieldCheck,
+  Siren,
+} from "lucide-react";
+import { Link } from "wouter";
 
-const TOOLS = [
+const operationalLanes = [
   {
-    id: "email",
-    name: "search_email",
-    icon: Mail,
-    method: "holehe",
-    description: "Enumerate online services linked to an email address",
-    status: "active",
-    color: "cyan",
+    title: "Monitor",
+    description: "Observe system health, security controls, and alert channels without pretending that unconfigured integrations are active.",
+    icon: Radar,
+    href: "/security",
+    state: "LIVE",
   },
   {
-    id: "username",
-    name: "search_username",
-    icon: User,
-    method: "sherlock",
-    description: "Search for username across 300+ platforms",
-    status: "active",
-    color: "lime",
+    title: "Investigate",
+    description: "Use the OSINT capability registry for authorised intelligence gathering and evidence-led analysis.",
+    icon: Eye,
+    href: "/tools",
+    state: "CONTROLLED",
   },
   {
-    id: "domain",
-    name: "search_domain",
-    icon: Globe,
-    method: "sublist3r",
-    description: "Enumerate subdomains for a target domain",
-    status: "active",
-    color: "cyan",
-  },
-  {
-    id: "breach",
-    name: "search_breach",
-    icon: Shield,
-    method: "HaveIBeenPwned API",
-    description: "Check data breach exposure for email addresses",
-    status: "api_required",
-    color: "magenta",
-  },
-  {
-    id: "ip",
-    name: "search_ip",
-    icon: Server,
-    method: "ipinfo.io",
-    description: "Retrieve geolocation and ASN data for IP addresses",
-    status: "active",
-    color: "cyan",
-  },
-  {
-    id: "virustotal",
-    name: "search_virustotal",
-    icon: Zap,
-    method: "VirusTotal API",
-    description: "Check IP, domain, URL, or hash against 70+ antivirus engines",
-    status: "api_required",
-    color: "magenta",
+    title: "Respond",
+    description: "Route warnings through the notification centre and preserve a clear decision trail before taking action.",
+    icon: Siren,
+    href: "/notifications",
+    state: "ARMED",
   },
 ];
 
-const FEATURES = [
-  {
-    title: "Interactive REPL",
-    description: "Claude Code-style terminal where AI decides which tools to run and chains them intelligently based on findings.",
-  },
-  {
-    title: "Direct CLI",
-    description: "Run individual OSINT tools without AI for scripting or quick lookups.",
-  },
-  {
-    title: "MCP Server",
-    description: "Expose all 12 tools to any MCP-compatible AI client (Claude Code, Claude Desktop).",
-  },
-  {
-    title: "Async Architecture",
-    description: "Built on Python asyncio with hard timeout enforcement for all external binaries.",
-  },
-  {
-    title: "AI-Powered",
-    description: "Uses Anthropic native tool use API or local Ollama models for intelligent investigation.",
-  },
-  {
-    title: "No Hallucination",
-    description: "Real tool output goes back to the AI—hallucination in tool results is structurally impossible.",
-  },
+const doctrine = [
+  "Verify before escalation",
+  "Separate evidence from assumptions",
+  "Expose degraded systems honestly",
+  "Keep secrets on the server",
 ];
 
 export default function Home() {
-  // The userAuth hooks provides authentication state
-  // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
-  let { user, loading, error, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+  const health = trpc.system.health.useQuery({ timestamp: 0 });
+  const posture = trpc.system.posture.useQuery(undefined, {
+    enabled: isAuthenticated,
+    retry: false,
+  });
 
-  const [expandedTool, setExpandedTool] = useState<string | null>(null);
+  const systemState = health.data?.ok ? "ONLINE" : health.isError ? "FAULT" : "CHECKING";
+  const postureState = posture.data?.status ?? (isAuthenticated ? "CHECKING" : "LOCKED");
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20 pb-32">
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 z-0 opacity-40"
-          style={{
-            backgroundImage: "url('https://d2xsxph8kpxj0f.cloudfront.net/310519663330074234/2Gqv98JeaGjkNNNZLvxRr8/hero-grid-background-hkggqSHNuFVSDFM6moWyzL.webp')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/0 via-background/50 to-background" />
+    <main className="min-h-screen bg-background text-foreground">
+      <section className="relative overflow-hidden border-b border-border/70 pt-20">
+        <div className="osiris-grid absolute inset-0 opacity-40" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,oklch(0.65_0.15_200_/_0.12),transparent_32%),linear-gradient(to_bottom,transparent,var(--background))]" />
 
-        {/* Content */}
-        <div className="container relative z-10 mx-auto max-w-5xl px-4">
-          <div className="mb-6 inline-block">
-            <Badge className="bg-accent text-accent-foreground border-accent/50">
-              AI-Powered OSINT Framework
-            </Badge>
-          </div>
-
-          <h1 className="mb-6 text-5xl font-bold tracking-tight text-primary">
-            OpenOSINT
-          </h1>
-
-          <p className="mb-8 max-w-2xl text-lg text-muted-foreground">
-            An AI-powered OSINT agent, MCP server, and CLI for Open Source Intelligence. Investigate targets across email, usernames, domains, IPs, and more with intelligent tool chaining.
-          </p>
-
-          <div className="flex flex-wrap gap-4">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Github className="mr-2 h-4 w-4" />
-              View on GitHub
-            </Button>
-            <Button size="lg" variant="outline" className="border-primary/50 text-primary hover:bg-primary/10">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Documentation
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section className="border-t border-border/50 py-20">
-        <div className="container mx-auto max-w-6xl px-4">
-          <h2 className="mb-12 text-3xl font-bold text-foreground">Key Features</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((feature, idx) => (
-              <Card key={idx} className="bg-card/50 border-border/50 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="text-lg text-foreground">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Tools Showcase */}
-      <section className="border-t border-border/50 py-20">
-        <div className="container mx-auto max-w-6xl px-4">
-          <h2 className="mb-12 text-3xl font-bold text-foreground">12 Integrated Tools</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {TOOLS.map((tool) => {
-              const Icon = tool.icon;
-              const isExpanded = expandedTool === tool.id;
-              const statusColor = tool.status === "active" ? "bg-chart-1/20 text-chart-1" : "bg-chart-3/20 text-chart-3";
-
-              return (
-                <Card
-                  key={tool.id}
-                  className="cursor-pointer bg-card/50 border-border/50 backdrop-blur transition-all hover:border-primary/50 hover:shadow-lg"
-                  onClick={() => setExpandedTool(isExpanded ? null : tool.id)}
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <Icon className="h-5 w-5 text-primary mt-1" />
-                        <div>
-                          <CardTitle className="text-base font-mono text-foreground">{tool.name}</CardTitle>
-                          <CardDescription className="text-xs text-muted-foreground">{tool.method}</CardDescription>
-                        </div>
-                      </div>
-                      <Badge className={statusColor} variant="secondary">
-                        {tool.status === "active" ? "Active" : "API Key"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  {isExpanded && (
-                    <CardContent className="pt-0">
-                      <p className="text-sm text-muted-foreground">{tool.description}</p>
-                    </CardContent>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Demo Section */}
-      <section className="border-t border-border/50 py-20">
-        <div className="container mx-auto max-w-6xl px-4">
-          <h2 className="mb-12 text-3xl font-bold text-foreground">Interactive Demo</h2>
-          <div className="rounded-lg border border-border/50 bg-card/30 p-8 backdrop-blur">
-            <div className="aspect-video bg-background/50 rounded-lg border border-border/30 flex items-center justify-center">
-              <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663330074234/2Gqv98JeaGjkNNNZLvxRr8/hero-grid-background-hkggqSHNuFVSDFM6moWyzL.webp"
-                alt="Demo"
-                className="rounded-lg w-full h-full object-cover"
-              />
-            </div>
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-              Interactive REPL session showing email investigation with breach check and username tracing
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Installation Section */}
-      <section className="border-t border-border/50 py-20">
-        <div className="container mx-auto max-w-6xl px-4">
-          <h2 className="mb-12 text-3xl font-bold text-foreground">Quick Start</h2>
-          <Tabs defaultValue="install" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-card/50 border-border/50">
-              <TabsTrigger value="install">Installation</TabsTrigger>
-              <TabsTrigger value="usage">Usage</TabsTrigger>
-              <TabsTrigger value="config">Configuration</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="install" className="mt-6">
-              <Card className="bg-card/50 border-border/50">
-                <CardHeader>
-                  <CardTitle>Install OpenOSINT</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <pre className="bg-background/50 p-4 rounded-lg overflow-x-auto text-sm font-mono text-chart-1">
-{`$ git clone https://github.com/OpenOSINT/OpenOSINT.git
-$ cd OpenOSINT
-$ pip install -e .
-$ export ANTHROPIC_API_KEY=sk-ant-...`}
-                  </pre>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="usage" className="mt-6">
-              <Card className="bg-card/50 border-border/50">
-                <CardHeader>
-                  <CardTitle>Start the Interactive REPL</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <pre className="bg-background/50 p-4 rounded-lg overflow-x-auto text-sm font-mono text-chart-1">
-{`$ openosint
-openosint ❯ investigate target@example.com
-
-  → generate_dorks('target@example.com')
-  → search_email('target@example.com')
-  ✓ Found: Spotify, WordPress, Gravatar, Office365
-
-  → search_breach('target@example.com')
-  ✓ Found in 2 breaches: LinkedIn (2016), Adobe (2013)
-
-  ✓ Report saved → reports/2026-05-11_report.md`}
-                  </pre>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="config" className="mt-6">
-              <Card className="bg-card/50 border-border/50">
-                <CardHeader>
-                  <CardTitle>Environment Variables</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 text-sm">
-                    <div className="font-mono">
-                      <span className="text-chart-1">ANTHROPIC_API_KEY</span>
-                      <span className="text-muted-foreground"> — Anthropic API key (required)</span>
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-chart-1">HIBP_API_KEY</span>
-                      <span className="text-muted-foreground"> — HaveIBeenPwned API key</span>
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-chart-1">SHODAN_API_KEY</span>
-                      <span className="text-muted-foreground"> — Shodan API key</span>
-                    </div>
-                    <div className="font-mono">
-                      <span className="text-chart-1">VIRUSTOTAL_API_KEY</span>
-                      <span className="text-muted-foreground"> — VirusTotal API key</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* Architecture Section */}
-      <section className="border-t border-border/50 py-20">
-        <div className="container mx-auto max-w-6xl px-4">
-          <h2 className="mb-12 text-3xl font-bold text-foreground">Architecture</h2>
-          <div className="rounded-lg border border-border/50 bg-card/30 p-8 backdrop-blur">
-            <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663330074234/2Gqv98JeaGjkNNNZLvxRr8/architecture-diagram-visual-PrEYoBWSX9FWWWatYWxfEM.webp"
-              alt="Architecture Diagram"
-              className="w-full rounded-lg"
-            />
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            {[
-              { layer: "Core Tools", desc: "Async wrappers around OSINT binaries" },
-              { layer: "AI Agent", desc: "Anthropic tool use loop" },
-              { layer: "REPL", desc: "Interactive terminal session" },
-              { layer: "MCP Server", desc: "Tool schema exposure" },
-              { layer: "CLI", desc: "Entry point & commands" },
-            ].map((item, idx) => (
-              <Card key={idx} className="bg-card/50 border-border/50">
-                <CardHeader>
-                  <CardTitle className="text-sm font-mono">{item.layer}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Ko-Fi Supporter Section */}
-      <KoFiSection />
-
-      {/* CTA Section */}
-      <section className="border-t border-border/50 py-20 bg-card/30">
-        <div className="container mx-auto max-w-4xl px-4 text-center">
-          <h2 className="mb-6 text-3xl font-bold text-foreground">Ready to Investigate?</h2>
-          <p className="mb-8 text-lg text-muted-foreground">
-            Start using OpenOSINT today. It's free, open-source, and designed for security professionals.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button size="lg" className="bg-primary hover:bg-primary/90">
-              Get Started
-            </Button>
-            <Button size="lg" variant="outline" className="border-primary/50">
-              Read Docs
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-12 bg-background/50">
-        <div className="container mx-auto max-w-6xl px-4">
-          <div className="grid gap-8 md:grid-cols-3">
+        <div className="container relative py-14 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
             <div>
-              <h3 className="mb-4 font-mono font-bold text-foreground">OpenOSINT</h3>
-              <p className="text-sm text-muted-foreground">
-                AI-powered OSINT framework for intelligent investigation.
+              <div className="mb-6 flex flex-wrap items-center gap-3 font-mono text-xs tracking-[0.22em]">
+                <Badge variant="outline" className="border-primary/50 bg-primary/10 text-primary">
+                  OSIRIS // COMMAND LAYER
+                </Badge>
+                <span className="text-muted-foreground">SECURITY • INTELLIGENCE • RESPONSE</span>
+              </div>
+
+              <h1 className="max-w-4xl text-5xl font-bold leading-[0.95] tracking-[-0.06em] sm:text-7xl lg:text-8xl">
+                See clearly.
+                <span className="block text-foreground">Act deliberately.</span>
+              </h1>
+
+              <p className="mt-8 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+                OSIRIS is an operational security workspace. It gathers signals, exposes weak controls,
+                supports authorised investigation, and keeps response decisions tied to evidence.
               </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button asChild size="lg" className="font-mono tracking-wide">
+                  <Link href="/security">
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Open security centre
+                  </Link>
+                </Button>
+                {!loading && !isAuthenticated && (
+                  <Button asChild size="lg" variant="outline" className="font-mono">
+                    <a href={getLoginUrl()}>
+                      <Fingerprint className="mr-2 h-4 w-4" />
+                      Authenticate
+                    </a>
+                  </Button>
+                )}
+              </div>
             </div>
-            <div>
-              <h4 className="mb-4 font-mono font-semibold text-foreground">Resources</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-primary hover:underline">GitHub</a></li>
-                <li><a href="#" className="text-primary hover:underline">Documentation</a></li>
-                <li><a href="#" className="text-primary hover:underline">Issues</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="mb-4 font-mono font-semibold text-foreground">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-primary hover:underline">License (MIT)</a></li>
-                <li><a href="#" className="text-primary hover:underline">Disclaimer</a></li>
-                <li><a href="#" className="text-primary hover:underline">Sponsors</a></li>
-              </ul>
-            </div>
+
+            <Card className="border-primary/30 bg-card/75 shadow-[0_0_50px_oklch(0.65_0.15_200_/_0.08)] backdrop-blur">
+              <CardHeader className="border-b border-border/60 pb-4">
+                <div className="flex items-center justify-between gap-4">
+                  <CardTitle className="text-sm tracking-[0.18em]">SYSTEM POSTURE</CardTitle>
+                  <Activity className="h-4 w-4 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-5 pt-6 font-mono text-sm">
+                <StatusRow label="Core service" value={systemState} healthy={systemState === "ONLINE"} />
+                <StatusRow label="Security controls" value={postureState} healthy={postureState === "READY"} />
+                <StatusRow label="Identity" value={user ? user.name || user.email || "VERIFIED" : "GUEST"} healthy={Boolean(user)} />
+                <div className="border-t border-border/60 pt-4 text-xs leading-5 text-muted-foreground">
+                  {isAuthenticated
+                    ? "Configuration status is measured server-side. Secret values are never returned to this screen."
+                    : "Authenticate to reveal protected configuration posture. Public health remains visible."}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div className="mt-8 border-t border-border/30 pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2026 OpenOSINT. Sponsored by IP2Location. Licensed under MIT.</p>
+
+          <div className="mt-14 grid border-x border-t border-border/60 md:grid-cols-3">
+            {operationalLanes.map(({ title, description, icon: Icon, href, state }) => (
+              <Link
+                key={title}
+                href={href}
+                className="group border-b border-border/60 bg-card/25 p-6 transition duration-200 hover:bg-primary/[0.06] md:border-r last:md:border-r-0"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <Icon className="h-5 w-5 text-primary" />
+                  <span className="font-mono text-[10px] tracking-[0.18em] text-chart-1">{state}</span>
+                </div>
+                <h2 className="mt-8 text-xl text-foreground">{title}</h2>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
+              </Link>
+            ))}
           </div>
         </div>
-      </footer>
+      </section>
+
+      <section className="container grid gap-8 py-14 lg:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <div className="flex items-center gap-3 text-primary">
+            <Binary className="h-5 w-5" />
+            <span className="font-mono text-xs tracking-[0.2em]">OPERATING DOCTRINE</span>
+          </div>
+          <h2 className="mt-5 max-w-md text-3xl leading-tight">Strength comes from disciplined structure, not feature count.</h2>
+        </div>
+
+        <div className="grid gap-px overflow-hidden border border-border/60 bg-border/60 sm:grid-cols-2">
+          {doctrine.map((item, index) => (
+            <div key={item} className="flex min-h-28 items-start gap-4 bg-card p-5">
+              <span className="font-mono text-xs text-primary">0{index + 1}</span>
+              <div>
+                <CheckCircle2 className="mb-3 h-4 w-4 text-chart-1" />
+                <p className="text-sm leading-6 text-foreground">{item}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function StatusRow({ label, value, healthy }: { label: string; value: string; healthy: boolean }) {
+  const Icon = healthy ? CheckCircle2 : value === "CHECKING" ? CircleDashed : ShieldAlert;
+
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="flex items-center gap-2 text-muted-foreground">
+        {label === "Identity" ? <LockKeyhole className="h-4 w-4" /> : label === "Core service" ? <Database className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+        {label}
+      </span>
+      <span className={healthy ? "flex items-center gap-2 text-chart-1" : "flex items-center gap-2 text-chart-3"}>
+        <Icon className="h-4 w-4" />
+        {value}
+      </span>
     </div>
   );
 }
