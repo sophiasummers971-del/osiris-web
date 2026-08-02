@@ -166,7 +166,11 @@ export default function EvidenceVault() {
                     {detail.data.audit.map(event => (
                       <div key={event.id} className="grid gap-2 border-l border-primary/40 pl-4 sm:grid-cols-[150px_1fr]">
                         <time className="font-mono text-[10px] text-muted-foreground">{new Date(event.createdAt).toLocaleString()}</time>
-                        <div><p className="font-mono text-xs text-primary">{event.action}</p>{event.details && <p className="mt-1 break-words text-xs text-muted-foreground">{event.details}</p>}</div>
+                        <div>
+                          <p className="font-mono text-xs text-primary">{event.action}</p>
+                          <p className="mt-1 break-words text-xs text-muted-foreground">{JSON.stringify(event.details)}</p>
+                          {event.eventHash && <p className="mt-1 break-all font-mono text-[9px] text-muted-foreground">SEAL {event.eventHash}</p>}
+                        </div>
                       </div>
                     ))}
                   </CardContent>
