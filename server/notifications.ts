@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, adminProcedure, router } from "./_core/trpc";
+import { protectedProcedure, adminProcedure, router } from "./_core/trpc.js";
 import {
   createNotification,
   getUserNotifications,
@@ -12,7 +12,7 @@ import {
   savePushSubscription,
   getUserPushSubscriptions,
   queueEmail,
-} from "./db";
+} from "./db.js";
 
 /**
  * Notification Router - handles all notification operations
