@@ -75,14 +75,12 @@ export const casesRouter = router({
             code: "INTERNAL_SERVER_ERROR",
             message: "Case creation failed",
           });
-        await tx
-          .insert(vaultCaseAuditEvents)
-          .values({
-            caseId: created.id,
-            operatorId: operator.id,
-            action: "CASE_CREATED",
-            details: { severity: input.severity, confidence: input.confidence },
-          });
+        await tx.insert(vaultCaseAuditEvents).values({
+          caseId: created.id,
+          operatorId: operator.id,
+          action: "CASE_CREATED",
+          details: { severity: input.severity, confidence: input.confidence },
+        });
         return { id: created.id };
       });
     }),
@@ -148,18 +146,16 @@ export const casesRouter = router({
             code: "INTERNAL_SERVER_ERROR",
             message: "Evidence creation failed",
           });
-        await tx
-          .insert(vaultCaseAuditEvents)
-          .values({
-            caseId: input.caseId,
-            operatorId: operator.id,
-            action: "EVIDENCE_ADDED",
-            details: {
-              evidenceId: created.id,
-              label: input.label,
-              sourceType: input.sourceType,
-            },
-          });
+        await tx.insert(vaultCaseAuditEvents).values({
+          caseId: input.caseId,
+          operatorId: operator.id,
+          action: "EVIDENCE_ADDED",
+          details: {
+            evidenceId: created.id,
+            label: input.label,
+            sourceType: input.sourceType,
+          },
+        });
         return { id: created.id };
       });
     }),
