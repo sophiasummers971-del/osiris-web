@@ -1,6 +1,6 @@
 import { eq, desc } from "drizzle-orm";
-import { getDb } from "./db";
-import { supporters, supporterTiers, exclusiveContent, supporterAccessLog, InsertSupporter, SupporterTier, ExclusiveContent } from "../drizzle/schema";
+import { getDb } from "./db.js";
+import { supporters, supporterTiers, exclusiveContent, supporterAccessLog, InsertSupporter, SupporterTier, ExclusiveContent } from "../drizzle/schema.js";
 
 /**
  * Get all supporter tiers
