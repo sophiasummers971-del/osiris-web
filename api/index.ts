@@ -38,14 +38,19 @@ app.post(
 
     try {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
-      const event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
+      const event = stripe.webhooks.constructEvent(
+        req.body,
+        signature,
+        webhookSecret
+      );
       await handleStripeWebhook(event);
       return res.json({ received: true });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown webhook error";
+      const message =
+        error instanceof Error ? error.message : "Unknown webhook error";
       return res.status(400).send(`Webhook Error: ${message}`);
     }
-  },
+  }
 );
 
 app.use(express.json({ limit: "50mb" }));
@@ -63,10 +68,11 @@ app.use(
         path: path ?? "unknown",
         code: error.code,
         message: error.message,
-        cause: cause instanceof Error ? cause.message : cause ? String(cause) : "",
+        cause:
+          cause instanceof Error ? cause.message : cause ? String(cause) : "",
       });
     },
-  }),
+  })
 );
 
 export default app;

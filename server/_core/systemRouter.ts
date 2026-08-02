@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { notifyOwner } from "./notification.js";
-import { adminProcedure, protectedProcedure, publicProcedure, router } from "./trpc.js";
+import {
+  adminProcedure,
+  protectedProcedure,
+  publicProcedure,
+  router,
+} from "./trpc.js";
 import { ENV } from "./env.js";
 
 export const systemRouter = router({

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
 interface StripeCheckoutProps {
@@ -20,7 +26,8 @@ export function StripeCheckout({
   interval,
 }: StripeCheckoutProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const createCheckoutMutation = trpc.stripe.createCheckoutSession.useMutation();
+  const createCheckoutMutation =
+    trpc.stripe.createCheckoutSession.useMutation();
 
   const handleCheckout = async () => {
     setIsLoading(true);
@@ -52,12 +59,18 @@ export function StripeCheckout({
     <Card className="w-full">
       <CardHeader>
         <CardTitle>{productName}</CardTitle>
-        {productDescription && <CardDescription>{productDescription}</CardDescription>}
+        {productDescription && (
+          <CardDescription>{productDescription}</CardDescription>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="text-2xl font-bold">
           {displayAmount}
-          {displayInterval && <span className="text-sm font-normal text-muted-foreground">{displayInterval}</span>}
+          {displayInterval && (
+            <span className="text-sm font-normal text-muted-foreground">
+              {displayInterval}
+            </span>
+          )}
         </div>
         <Button
           onClick={handleCheckout}

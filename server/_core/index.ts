@@ -33,7 +33,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  
+
   // Stripe webhook route - MUST be before express.json()
   const stripeClient = new stripe(process.env.STRIPE_SECRET_KEY || "");
   app.post(
@@ -57,7 +57,9 @@ async function startServer() {
 
         // Handle test events
         if (event.id.startsWith("evt_test_")) {
-          console.log("[Webhook] Test event detected, returning verification response");
+          console.log(
+            "[Webhook] Test event detected, returning verification response"
+          );
           return res.json({ verified: true });
         }
 
@@ -70,7 +72,7 @@ async function startServer() {
       }
     }
   );
-  
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));

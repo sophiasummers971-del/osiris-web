@@ -1,6 +1,14 @@
 import { eq, desc } from "drizzle-orm";
 import { getDb } from "./db.js";
-import { supporters, supporterTiers, exclusiveContent, supporterAccessLog, InsertSupporter, SupporterTier, ExclusiveContent } from "../drizzle/schema.js";
+import {
+  supporters,
+  supporterTiers,
+  exclusiveContent,
+  supporterAccessLog,
+  InsertSupporter,
+  SupporterTier,
+  ExclusiveContent,
+} from "../drizzle/schema.js";
 
 /**
  * Get all supporter tiers
@@ -8,7 +16,11 @@ import { supporters, supporterTiers, exclusiveContent, supporterAccessLog, Inser
 export async function getSupporterTiers(): Promise<SupporterTier[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(supporterTiers).where(eq(supporterTiers.active, true)).orderBy(supporterTiers.order);
+  return db
+    .select()
+    .from(supporterTiers)
+    .where(eq(supporterTiers.active, true))
+    .orderBy(supporterTiers.order);
 }
 
 /**
@@ -17,7 +29,11 @@ export async function getSupporterTiers(): Promise<SupporterTier[]> {
 export async function getSupporterByEmail(email: string) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(supporters).where(eq(supporters.kofiEmail, email)).limit(1);
+  const result = await db
+    .select()
+    .from(supporters)
+    .where(eq(supporters.kofiEmail, email))
+    .limit(1);
   return result[0];
 }
 
@@ -27,14 +43,17 @@ export async function getSupporterByEmail(email: string) {
 export async function upsertSupporter(data: InsertSupporter) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  
-  await db.insert(supporters).values(data).onDuplicateKeyUpdate({
-    set: {
-      status: data.status,
-      monthlyAmount: data.monthlyAmount,
-      updatedAt: new Date(),
-    },
-  });
+
+  await db
+    .insert(supporters)
+    .values(data)
+    .onDuplicateKeyUpdate({
+      set: {
+        status: data.status,
+        monthlyAmount: data.monthlyAmount,
+        updatedAt: new Date(),
+      },
+    });
 }
 
 /**
@@ -43,29 +62,37 @@ export async function upsertSupporter(data: InsertSupporter) {
 export async function getExclusiveContent(): Promise<ExclusiveContent[]> {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(exclusiveContent).where(eq(exclusiveContent.published, true)).orderBy(desc(exclusiveContent.publishedAt));
+  return db
+    .select()
+    .from(exclusiveContent)
+    .where(eq(exclusiveContent.published, true))
+    .orderBy(desc(exclusiveContent.publishedAt));
 }
 
 /**
  * Get exclusive content by tier requirement
  */
-export async function getContentByTier(minTier: string): Promise<ExclusiveContent[]> {
+export async function getContentByTier(
+  minTier: string
+): Promise<ExclusiveContent[]> {
   const db = await getDb();
   if (!db) return [];
-  
+
   // Map tier names to access levels
   const tierHierarchy: Record<string, number> = {
     coffee: 1,
     patron: 2,
     vip: 3,
   };
-  
+
   const minLevel = tierHierarchy[minTier] || 0;
   const accessibleTiers = Object.entries(tierHierarchy)
     .filter(([_, level]) => level >= minLevel)
     .map(([tier, _]) => tier);
-  
-  return db.select().from(exclusiveContent)
+
+  return db
+    .select()
+    .from(exclusiveContent)
     .where(eq(exclusiveContent.published, true))
     .orderBy(desc(exclusiveContent.publishedAt));
 }
@@ -76,7 +103,7 @@ export async function getContentByTier(minTier: string): Promise<ExclusiveConten
 export async function logContentAccess(supporterId: number, contentId: number) {
   const db = await getDb();
   if (!db) return;
-  
+
   await db.insert(supporterAccessLog).values({
     supporterId,
     contentId,
@@ -88,16 +115,17 @@ export async function logContentAccess(supporterId: number, contentId: number) {
  */
 export async function getSupporterStats() {
   const db = await getDb();
-  if (!db) return { totalSupporters: 0, activeSupporters: 0, monthlyRevenue: 0 };
-  
+  if (!db)
+    return { totalSupporters: 0, activeSupporters: 0, monthlyRevenue: 0 };
+
   const allSupporters = await db.select().from(supporters);
-  const activeSupporters = allSupporters.filter(s => s.status === 'active');
-  
+  const activeSupporters = allSupporters.filter(s => s.status === "active");
+
   const monthlyRevenue = activeSupporters.reduce((sum, s) => {
-    const amount = parseFloat(s.monthlyAmount?.toString() || '0');
+    const amount = parseFloat(s.monthlyAmount?.toString() || "0");
     return sum + amount;
   }, 0);
-  
+
   return {
     totalSupporters: allSupporters.length,
     activeSupporters: activeSupporters.length,

@@ -8,7 +8,9 @@ let vaultDb: ReturnType<typeof drizzle> | null = null;
 
 export function normalizeSupabaseDatabaseUrl(rawValue: string) {
   let value = rawValue.trim();
-  const assignment = value.match(/^(?:SUPABASE_)?DATABASE_URL\s*=\s*([\s\S]+)$/i);
+  const assignment = value.match(
+    /^(?:SUPABASE_)?DATABASE_URL\s*=\s*([\s\S]+)$/i
+  );
   if (assignment) value = assignment[1].trim();
 
   const wrapped = value.match(/^(["'])([\s\S]*)\1$/);
@@ -16,17 +18,27 @@ export function normalizeSupabaseDatabaseUrl(rawValue: string) {
 
   // Supabase examples render the password placeholder in square brackets.
   // Accept a copied-and-replaced bracketed password without retaining brackets.
-  value = value.replace(/^(postgres(?:ql)?:\/\/[^:]+):\[([^\]]*)\]@/i, "$1:$2@");
+  value = value.replace(
+    /^(postgres(?:ql)?:\/\/[^:]+):\[([^\]]*)\]@/i,
+    "$1:$2@"
+  );
 
   let parsed: URL;
   try {
     parsed = new URL(value);
   } catch {
-    throw new Error("SUPABASE_DATABASE_URL must contain only a valid PostgreSQL connection URL");
+    throw new Error(
+      "SUPABASE_DATABASE_URL must contain only a valid PostgreSQL connection URL"
+    );
   }
 
-  if (!['postgres:', 'postgresql:'].includes(parsed.protocol) || !parsed.hostname) {
-    throw new Error("SUPABASE_DATABASE_URL must use the postgresql:// connection format");
+  if (
+    !["postgres:", "postgresql:"].includes(parsed.protocol) ||
+    !parsed.hostname
+  ) {
+    throw new Error(
+      "SUPABASE_DATABASE_URL must use the postgresql:// connection format"
+    );
   }
 
   return value;
@@ -56,9 +68,14 @@ type SessionOperator = {
   role: "user" | "admin";
 };
 
-export async function ensureVaultOperator(db: NonNullable<ReturnType<typeof getVaultDb>>, user: SessionOperator) {
+export async function ensureVaultOperator(
+  db: NonNullable<ReturnType<typeof getVaultDb>>,
+  user: SessionOperator
+) {
   const role = user.role === "admin" ? "admin" : "operator";
-  const authUserId = user.openId.startsWith("supabase:") ? user.openId.slice("supabase:".length) : null;
+  const authUserId = user.openId.startsWith("supabase:")
+    ? user.openId.slice("supabase:".length)
+    : null;
 
   const [operator] = await db
     .insert(osirisOperators)

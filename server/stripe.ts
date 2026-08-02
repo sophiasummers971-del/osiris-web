@@ -2,7 +2,12 @@ import { protectedProcedure, publicProcedure } from "./_core/trpc.js";
 import { z } from "zod";
 import Stripe from "stripe";
 import { getDb } from "./db.js";
-import { orders, products, subscriptions, stripeCustomers } from "../drizzle/schema.js";
+import {
+  orders,
+  products,
+  subscriptions,
+  stripeCustomers,
+} from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 let stripeClient: Stripe | undefined;
@@ -25,7 +30,11 @@ const getStripeClient = () => {
 /**
  * Get or create a Stripe customer for the current user
  */
-export const getOrCreateStripeCustomer = async (userId: number, email: string, name?: string) => {
+export const getOrCreateStripeCustomer = async (
+  userId: number,
+  email: string,
+  name?: string
+) => {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -88,7 +97,11 @@ export const createCheckoutSession = protectedProcedure
     const prod = product[0];
 
     // Get or create Stripe customer
-    const customerId = await getOrCreateStripeCustomer(user.id, user.email || "", user.name || undefined);
+    const customerId = await getOrCreateStripeCustomer(
+      user.id,
+      user.email || "",
+      user.name || undefined
+    );
 
     // Create checkout session
     const session = await getStripeClient().checkout.sessions.create({
@@ -224,7 +237,9 @@ export const handleStripeWebhook = async (event: Stripe.Event) => {
       const invoice = event.data.object as Stripe.Invoice;
       const subId = (invoice as any).subscription;
       if (!subId) break;
-      const subscription = await getStripeClient().subscriptions.retrieve(subId as string);
+      const subscription = await getStripeClient().subscriptions.retrieve(
+        subId as string
+      );
 
       // Update subscription status
       const sub = subscription as any;
@@ -256,7 +271,9 @@ export const handleStripeWebhook = async (event: Stripe.Event) => {
       const invoice = event.data.object as Stripe.Invoice;
       const subId = (invoice as any).subscription;
       if (!subId) break;
-      const subscription = await getStripeClient().subscriptions.retrieve(subId as string);
+      const subscription = await getStripeClient().subscriptions.retrieve(
+        subId as string
+      );
 
       await db
         .update(subscriptions)

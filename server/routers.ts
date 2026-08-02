@@ -1,12 +1,19 @@
-
-
 import { getSessionCookieOptions } from "./_core/cookies.js";
 import { systemRouter } from "./_core/systemRouter.js";
 import { publicProcedure, router } from "./_core/trpc.js";
 import { COOKIE_NAME } from "../shared/const.js";
-import { getSupporterTiers, getExclusiveContent, getSupporterStats } from "./supporters.js";
+import {
+  getSupporterTiers,
+  getExclusiveContent,
+  getSupporterStats,
+} from "./supporters.js";
 import { notificationRouter } from "./notifications.js";
-import { createCheckoutSession, getUserOrders, getUserSubscription, getProducts } from "./stripe.js";
+import {
+  createCheckoutSession,
+  getUserOrders,
+  getUserSubscription,
+  getProducts,
+} from "./stripe.js";
 import { casesRouter } from "./cases.js";
 
 export const appRouter = router({
@@ -27,11 +34,11 @@ export const appRouter = router({
     getTiers: publicProcedure.query(async () => {
       return getSupporterTiers();
     }),
-    
+
     getContent: publicProcedure.query(async () => {
       return getExclusiveContent();
     }),
-    
+
     getStats: publicProcedure.query(async () => {
       return getSupporterStats();
     }),

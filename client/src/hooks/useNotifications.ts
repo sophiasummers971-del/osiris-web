@@ -1,5 +1,9 @@
 import { useEffect } from "react";
-import { useNotification, type NotificationType, type DisplayLocation } from "@/contexts/NotificationContext";
+import {
+  useNotification,
+  type NotificationType,
+  type DisplayLocation,
+} from "@/contexts/NotificationContext";
 import { trpc } from "@/lib/trpc";
 
 /**
