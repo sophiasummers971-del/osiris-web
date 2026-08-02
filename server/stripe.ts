@@ -1,8 +1,8 @@
-import { protectedProcedure, publicProcedure } from "./_core/trpc";
+import { protectedProcedure, publicProcedure } from "./_core/trpc.js";
 import { z } from "zod";
 import Stripe from "stripe";
-import { getDb } from "./db";
-import { orders, products, subscriptions, stripeCustomers } from "../drizzle/schema";
+import { getDb } from "./db.js";
+import { orders, products, subscriptions, stripeCustomers } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
 let stripeClient: Stripe | undefined;
