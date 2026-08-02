@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { osirisOperators } from "../drizzle/vault-schema";
+import { osirisOperators } from "../drizzle/vault-schema.js";
 
 let client: ReturnType<typeof postgres> | null = null;
 let vaultDb: ReturnType<typeof drizzle> | null = null;
