@@ -3,7 +3,11 @@ import { StripeCheckout } from "./StripeCheckout";
 import { Loader2 } from "lucide-react";
 
 export function ProductsList() {
-  const { data: products, isLoading, error } = trpc.stripe.getProducts.useQuery();
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = trpc.stripe.getProducts.useQuery();
 
   if (isLoading) {
     return (
@@ -31,7 +35,7 @@ export function ProductsList() {
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {products.map((product) => (
+      {products.map(product => (
         <StripeCheckout
           key={product.id}
           productId={product.id}

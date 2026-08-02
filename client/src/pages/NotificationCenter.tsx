@@ -1,6 +1,12 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNotifications } from "@/hooks/useNotifications";
 import { trpc } from "@/lib/trpc";
@@ -37,7 +43,8 @@ export default function NotificationCenter() {
   const [activeTab, setActiveTab] = useState("all");
 
   const preferencesQuery = trpc.notifications.getPreferences.useQuery();
-  const updatePreferencesMutation = trpc.notifications.updatePreferences.useMutation();
+  const updatePreferencesMutation =
+    trpc.notifications.updatePreferences.useMutation();
 
   if (authLoading) {
     return (
@@ -68,7 +75,7 @@ export default function NotificationCenter() {
     }
   };
 
-  const filteredNotifications = notifications.filter((n) => {
+  const filteredNotifications = notifications.filter(n => {
     if (activeTab === "unread") return n.inAppStatus === "pending";
     if (activeTab === "read") return n.inAppStatus === "read";
     return true;
@@ -78,7 +85,9 @@ export default function NotificationCenter() {
     <div className="min-h-screen bg-background pt-20 pb-12">
       <div className="container mx-auto max-w-4xl px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Notification Center</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Notification Center
+          </h1>
           <p className="text-muted-foreground">
             Manage your notifications and notification preferences
           </p>
@@ -125,7 +134,7 @@ export default function NotificationCenter() {
                   </Button>
                 </div>
 
-                {filteredNotifications.map((notification) => {
+                {filteredNotifications.map(notification => {
                   const IconComponent = typeIcons[notification.type];
                   return (
                     <Card
@@ -171,13 +180,15 @@ export default function NotificationCenter() {
                               </a>
                             )}
                             <p className="text-xs text-muted-foreground mt-2">
-                              {new Date(notification.createdAt).toLocaleString()}
+                              {new Date(
+                                notification.createdAt
+                              ).toLocaleString()}
                             </p>
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
                               dismiss(notification.id);
                             }}
@@ -207,7 +218,9 @@ export default function NotificationCenter() {
                   <div className="flex items-center gap-3">
                     <Bell className="h-5 w-5 text-blue-600" />
                     <div>
-                      <p className="font-semibold text-foreground">In-App Notifications</p>
+                      <p className="font-semibold text-foreground">
+                        In-App Notifications
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         Receive notifications within the app
                       </p>
@@ -216,7 +229,7 @@ export default function NotificationCenter() {
                   <input
                     type="checkbox"
                     checked={preferencesQuery.data?.inAppEnabled ?? true}
-                    onChange={(e) =>
+                    onChange={e =>
                       handleTogglePreference("inAppEnabled", e.target.checked)
                     }
                     className="w-5 h-5"
@@ -227,7 +240,9 @@ export default function NotificationCenter() {
                   <div className="flex items-center gap-3">
                     <Mail className="h-5 w-5 text-green-600" />
                     <div>
-                      <p className="font-semibold text-foreground">Email Notifications</p>
+                      <p className="font-semibold text-foreground">
+                        Email Notifications
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         Receive notifications via email
                       </p>
@@ -236,7 +251,7 @@ export default function NotificationCenter() {
                   <input
                     type="checkbox"
                     checked={preferencesQuery.data?.emailEnabled ?? true}
-                    onChange={(e) =>
+                    onChange={e =>
                       handleTogglePreference("emailEnabled", e.target.checked)
                     }
                     className="w-5 h-5"
@@ -247,7 +262,9 @@ export default function NotificationCenter() {
                   <div className="flex items-center gap-3">
                     <Smartphone className="h-5 w-5 text-purple-600" />
                     <div>
-                      <p className="font-semibold text-foreground">Push Notifications</p>
+                      <p className="font-semibold text-foreground">
+                        Push Notifications
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         Receive browser push notifications
                       </p>
@@ -256,7 +273,7 @@ export default function NotificationCenter() {
                   <input
                     type="checkbox"
                     checked={preferencesQuery.data?.pushEnabled ?? true}
-                    onChange={(e) =>
+                    onChange={e =>
                       handleTogglePreference("pushEnabled", e.target.checked)
                     }
                     className="w-5 h-5"
@@ -273,22 +290,31 @@ export default function NotificationCenter() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                {["immediate", "daily", "weekly", "never"].map((freq) => (
-                  <label key={freq} className="flex items-center gap-3 p-3 cursor-pointer hover:bg-background/50 rounded">
-                  <input
-                    type="radio"
-                    name="emailFrequency"
-                    value={freq}
-                    checked={preferencesQuery.data?.emailFrequency === freq}
-                    onChange={(e) =>
-                      updatePreferencesMutation.mutate({
-                        emailFrequency: e.target.value as "immediate" | "daily" | "weekly" | "never",
-                      })
-                    }
-                    className="w-4 h-4"
-                  />
+                {["immediate", "daily", "weekly", "never"].map(freq => (
+                  <label
+                    key={freq}
+                    className="flex items-center gap-3 p-3 cursor-pointer hover:bg-background/50 rounded"
+                  >
+                    <input
+                      type="radio"
+                      name="emailFrequency"
+                      value={freq}
+                      checked={preferencesQuery.data?.emailFrequency === freq}
+                      onChange={e =>
+                        updatePreferencesMutation.mutate({
+                          emailFrequency: e.target.value as
+                            | "immediate"
+                            | "daily"
+                            | "weekly"
+                            | "never",
+                        })
+                      }
+                      className="w-4 h-4"
+                    />
                     <span className="capitalize text-foreground">
-                      {freq === "never" ? "Never" : `${freq.charAt(0).toUpperCase() + freq.slice(1)}`}
+                      {freq === "never"
+                        ? "Never"
+                        : `${freq.charAt(0).toUpperCase() + freq.slice(1)}`}
                     </span>
                   </label>
                 ))}

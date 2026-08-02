@@ -11,11 +11,12 @@ export function CheckoutCancel() {
         <div className="flex justify-center">
           <AlertCircle className="h-16 w-16 text-amber-500" />
         </div>
-        
+
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Payment Cancelled</h1>
           <p className="text-muted-foreground">
-            Your payment was cancelled. No charges have been made to your account.
+            Your payment was cancelled. No charges have been made to your
+            account.
           </p>
         </div>
 
@@ -27,7 +28,7 @@ export function CheckoutCancel() {
           >
             Try Again
           </Button>
-          
+
           <Button
             onClick={() => setLocation("/")}
             variant="outline"

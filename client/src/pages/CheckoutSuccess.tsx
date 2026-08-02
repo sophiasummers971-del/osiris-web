@@ -21,11 +21,12 @@ export function CheckoutSuccess() {
         <div className="flex justify-center">
           <CheckCircle className="h-16 w-16 text-green-500" />
         </div>
-        
+
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Payment Successful!</h1>
           <p className="text-muted-foreground">
-            Thank you for your purchase. You'll be redirected to your account shortly.
+            Thank you for your purchase. You'll be redirected to your account
+            shortly.
           </p>
         </div>
 
@@ -37,7 +38,7 @@ export function CheckoutSuccess() {
           >
             Go to Supporters Page
           </Button>
-          
+
           <Button
             onClick={() => setLocation("/")}
             variant="outline"

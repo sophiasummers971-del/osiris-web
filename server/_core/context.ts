@@ -10,33 +10,46 @@ type SupabaseAuthUser = {
   user_metadata?: { name?: string; full_name?: string };
 };
 
-async function authenticateSupabaseRequest(req: CreateExpressContextOptions["req"]): Promise<User | null> {
+async function authenticateSupabaseRequest(
+  req: CreateExpressContextOptions["req"]
+): Promise<User | null> {
   const authorization = req.headers.authorization;
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const publishableKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-  if (!authorization?.startsWith("Bearer ") || !supabaseUrl || !publishableKey) return null;
+  if (!authorization?.startsWith("Bearer ") || !supabaseUrl || !publishableKey)
+    return null;
 
-  const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/user`, {
-    headers: {
-      apikey: publishableKey,
-      Authorization: authorization,
-    },
-  });
+  const response = await fetch(
+    `${supabaseUrl.replace(/\/$/, "")}/auth/v1/user`,
+    {
+      headers: {
+        apikey: publishableKey,
+        Authorization: authorization,
+      },
+    }
+  );
 
   if (!response.ok) return null;
 
-  const identity = await response.json() as SupabaseAuthUser;
+  const identity = (await response.json()) as SupabaseAuthUser;
   if (!identity.id) return null;
 
-  const createdAt = identity.created_at ? new Date(identity.created_at) : new Date();
+  const createdAt = identity.created_at
+    ? new Date(identity.created_at)
+    : new Date();
   const configuredOwner = process.env.OWNER_EMAIL?.toLowerCase();
-  const isAdmin = identity.app_metadata?.role === "admin" || Boolean(configuredOwner && identity.email?.toLowerCase() === configuredOwner);
+  const isAdmin =
+    identity.app_metadata?.role === "admin" ||
+    Boolean(
+      configuredOwner && identity.email?.toLowerCase() === configuredOwner
+    );
 
   return {
     id: 0,
     openId: `supabase:${identity.id}`,
-    name: identity.user_metadata?.full_name ?? identity.user_metadata?.name ?? null,
+    name:
+      identity.user_metadata?.full_name ?? identity.user_metadata?.name ?? null,
     email: identity.email ?? null,
     loginMethod: "supabase",
     role: isAdmin ? "admin" : "user",
