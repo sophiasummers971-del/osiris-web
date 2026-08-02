@@ -139,10 +139,10 @@ export default function Tools() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background pt-16 text-foreground">
       <Helmet>
-        <title>OSINT Tools Reference - OpenOSINT</title>
-        <meta name="description" content="Complete reference for all 12 integrated OpenOSINT tools including holehe, sherlock, sublist3r, and more with usage examples." />
+        <title>Intelligence Capability Registry — OSIRIS</title>
+        <meta name="description" content="Candidate OSINT capabilities for authorised OSIRIS investigations, including their requirements and sample output." />
         <script type="application/ld+json">
           {JSON.stringify(breadcrumbSchema)}
         </script>
@@ -150,9 +150,9 @@ export default function Tools() {
       {/* Header */}
       <section className="border-b border-border/50 py-12">
         <div className="container mx-auto max-w-6xl px-4">
-          <h1 className="mb-4 text-4xl font-bold text-primary">12 Integrated Tools</h1>
+          <h1 className="mb-4 text-4xl font-bold text-primary">Intelligence capability registry</h1>
           <p className="text-lg text-muted-foreground">
-            Complete reference for all OpenOSINT tools with usage examples and output samples.
+            Documented investigation capabilities and requirements. A listing here does not claim that a connector is currently deployed.
           </p>
         </div>
       </section>
@@ -177,7 +177,7 @@ export default function Tools() {
                         </div>
                       </div>
                       <Badge className={statusColor} variant="secondary">
-                        {tool.status === "active" ? "Active" : "API Key"}
+                        {tool.status === "active" ? "Reference" : "Credential required"}
                       </Badge>
                     </div>
                   </CardHeader>
