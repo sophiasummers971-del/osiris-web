@@ -1,9 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { vaultCaseAuditEvents, vaultEvidenceRecords, vaultSecurityCases } from "../drizzle/vault-schema";
-import { ensureVaultOperator, getVaultDb } from "./vault-db";
-import { protectedProcedure, router } from "./_core/trpc";
+import { vaultCaseAuditEvents, vaultEvidenceRecords, vaultSecurityCases } from "../drizzle/vault-schema.js";
+import { ensureVaultOperator, getVaultDb } from "./vault-db.js";
+import { protectedProcedure, router } from "./_core/trpc.js";
 
 async function requireDb() {
   const db = getVaultDb();
