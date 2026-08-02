@@ -1,24 +1,42 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
 
 export function NotificationPreferences() {
-  const { data: preferences, isLoading } = trpc.notifications.getPreferences.useQuery();
-  const updatePreferencesMutation = trpc.notifications.updatePreferences.useMutation();
+  const { data: preferences, isLoading } =
+    trpc.notifications.getPreferences.useQuery();
+  const updatePreferencesMutation =
+    trpc.notifications.updatePreferences.useMutation();
 
   const [emailEnabled, setEmailEnabled] = useState(true);
   const [pushEnabled, setPushEnabled] = useState(true);
   const [inAppEnabled, setInAppEnabled] = useState(true);
-  const [emailFrequency, setEmailFrequency] = useState<"immediate" | "daily" | "weekly" | "never">("daily");
+  const [emailFrequency, setEmailFrequency] = useState<
+    "immediate" | "daily" | "weekly" | "never"
+  >("daily");
   const [quietHoursStart, setQuietHoursStart] = useState("22:00");
   const [quietHoursEnd, setQuietHoursEnd] = useState("08:00");
-  const [categoryPreferences, setCategoryPreferences] = useState<Record<string, boolean>>({
+  const [categoryPreferences, setCategoryPreferences] = useState<
+    Record<string, boolean>
+  >({
     supporter: true,
     content: true,
     system: true,
@@ -30,8 +48,19 @@ export function NotificationPreferences() {
       setEmailEnabled(preferences.emailEnabled);
       setPushEnabled(preferences.pushEnabled);
       setInAppEnabled(preferences.inAppEnabled);
-      if (preferences.emailFrequency && ["immediate", "daily", "weekly", "never"].includes(preferences.emailFrequency)) {
-        setEmailFrequency(preferences.emailFrequency as "immediate" | "daily" | "weekly" | "never");
+      if (
+        preferences.emailFrequency &&
+        ["immediate", "daily", "weekly", "never"].includes(
+          preferences.emailFrequency
+        )
+      ) {
+        setEmailFrequency(
+          preferences.emailFrequency as
+            | "immediate"
+            | "daily"
+            | "weekly"
+            | "never"
+        );
       }
       setQuietHoursStart(preferences.quietHoursStart || "22:00");
       setQuietHoursEnd(preferences.quietHoursEnd || "08:00");
@@ -64,7 +93,7 @@ export function NotificationPreferences() {
   };
 
   const toggleCategory = (category: string) => {
-    setCategoryPreferences((prev) => ({
+    setCategoryPreferences(prev => ({
       ...prev,
       [category]: !prev[category],
     }));
@@ -84,14 +113,20 @@ export function NotificationPreferences() {
       <Card>
         <CardHeader>
           <CardTitle>Notification Channels</CardTitle>
-          <CardDescription>Choose how you want to receive notifications</CardDescription>
+          <CardDescription>
+            Choose how you want to receive notifications
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Email */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label className="text-base font-medium">Email Notifications</Label>
-              <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+              <Label className="text-base font-medium">
+                Email Notifications
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Receive notifications via email
+              </p>
             </div>
             <Switch checked={emailEnabled} onCheckedChange={setEmailEnabled} />
           </div>
@@ -102,7 +137,14 @@ export function NotificationPreferences() {
               <Label htmlFor="email-frequency" className="text-sm">
                 Email Frequency
               </Label>
-              <Select value={emailFrequency} onValueChange={(value) => setEmailFrequency(value as "immediate" | "daily" | "weekly" | "never")}>
+              <Select
+                value={emailFrequency}
+                onValueChange={value =>
+                  setEmailFrequency(
+                    value as "immediate" | "daily" | "weekly" | "never"
+                  )
+                }
+              >
                 <SelectTrigger id="email-frequency" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
@@ -121,8 +163,12 @@ export function NotificationPreferences() {
           {/* Push Notifications */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label className="text-base font-medium">Push Notifications</Label>
-              <p className="text-sm text-muted-foreground">Browser push notifications</p>
+              <Label className="text-base font-medium">
+                Push Notifications
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Browser push notifications
+              </p>
             </div>
             <Switch checked={pushEnabled} onCheckedChange={setPushEnabled} />
           </div>
@@ -132,8 +178,12 @@ export function NotificationPreferences() {
           {/* In-App Notifications */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <Label className="text-base font-medium">In-App Notifications</Label>
-              <p className="text-sm text-muted-foreground">Toasts and banners on the website</p>
+              <Label className="text-base font-medium">
+                In-App Notifications
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Toasts and banners on the website
+              </p>
             </div>
             <Switch checked={inAppEnabled} onCheckedChange={setInAppEnabled} />
           </div>
@@ -144,7 +194,9 @@ export function NotificationPreferences() {
       <Card>
         <CardHeader>
           <CardTitle>Quiet Hours</CardTitle>
-          <CardDescription>Don't receive notifications during these hours</CardDescription>
+          <CardDescription>
+            Don't receive notifications during these hours
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -156,7 +208,7 @@ export function NotificationPreferences() {
                 id="quiet-start"
                 type="time"
                 value={quietHoursStart}
-                onChange={(e) => setQuietHoursStart(e.target.value)}
+                onChange={e => setQuietHoursStart(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
               />
             </div>
@@ -168,7 +220,7 @@ export function NotificationPreferences() {
                 id="quiet-end"
                 type="time"
                 value={quietHoursEnd}
-                onChange={(e) => setQuietHoursEnd(e.target.value)}
+                onChange={e => setQuietHoursEnd(e.target.value)}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground"
               />
             </div>
@@ -180,12 +232,16 @@ export function NotificationPreferences() {
       <Card>
         <CardHeader>
           <CardTitle>Notification Categories</CardTitle>
-          <CardDescription>Choose which types of notifications you want to receive</CardDescription>
+          <CardDescription>
+            Choose which types of notifications you want to receive
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {Object.entries(categoryPreferences).map(([category, enabled]) => (
             <div key={category} className="flex items-center justify-between">
-              <Label className="capitalize text-base font-medium">{category} Notifications</Label>
+              <Label className="capitalize text-base font-medium">
+                {category} Notifications
+              </Label>
               <Switch
                 checked={enabled as boolean}
                 onCheckedChange={() => toggleCategory(category)}

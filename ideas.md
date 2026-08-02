@@ -1,6 +1,7 @@
 # OpenOSINT Showcase Website - Design Brainstorm
 
 ## Project Overview
+
 OpenOSINT is an **AI-powered OSINT (Open Source Intelligence) framework** with 12+ tools for investigating targets across email, usernames, domains, IPs, and more. The website must showcase this sophisticated tool ecosystem in a way that feels **technical, powerful, and trustworthy**.
 
 ---
@@ -8,6 +9,7 @@ OpenOSINT is an **AI-powered OSINT (Open Source Intelligence) framework** with 1
 ## Design Approach Selected: **Cybersecurity Noir with Data Visualization**
 
 ### Design Movement
+
 **Cybersecurity Noir** — inspired by hacker culture aesthetics, security dashboards, and intelligence platforms. Think: dark, sophisticated, data-driven interfaces with neon accents and technical typography. This is NOT generic dark mode; it's intentionally styled around the OSINT/security domain.
 
 ### Core Principles
@@ -19,19 +21,20 @@ OpenOSINT is an **AI-powered OSINT (Open Source Intelligence) framework** with 1
 
 ### Color Philosophy
 
-| Role | Color | OKLCH | Reasoning |
-|------|-------|-------|-----------|
-| **Background** | Deep Navy | `oklch(0.12 0.01 260)` | Professional, reduces eye strain, establishes authority |
-| **Primary Accent** | Cyan | `oklch(0.65 0.15 200)` | Hacker aesthetic, high contrast, signals "active" state |
-| **Secondary Accent** | Lime Green | `oklch(0.75 0.18 140)` | Terminal/matrix vibes, highlights key data |
-| **Tertiary Accent** | Magenta | `oklch(0.60 0.18 320)` | Danger/alert signaling, draws attention to critical tools |
-| **Text Primary** | Off-White | `oklch(0.95 0.01 260)` | Readable, not harsh white |
-| **Text Secondary** | Muted Cyan | `oklch(0.55 0.08 200)` | Subtle, technical feel |
-| **Borders/Dividers** | Dark Cyan | `oklch(0.20 0.04 200)` | Subtle structure without visual noise |
+| Role                 | Color      | OKLCH                  | Reasoning                                                 |
+| -------------------- | ---------- | ---------------------- | --------------------------------------------------------- |
+| **Background**       | Deep Navy  | `oklch(0.12 0.01 260)` | Professional, reduces eye strain, establishes authority   |
+| **Primary Accent**   | Cyan       | `oklch(0.65 0.15 200)` | Hacker aesthetic, high contrast, signals "active" state   |
+| **Secondary Accent** | Lime Green | `oklch(0.75 0.18 140)` | Terminal/matrix vibes, highlights key data                |
+| **Tertiary Accent**  | Magenta    | `oklch(0.60 0.18 320)` | Danger/alert signaling, draws attention to critical tools |
+| **Text Primary**     | Off-White  | `oklch(0.95 0.01 260)` | Readable, not harsh white                                 |
+| **Text Secondary**   | Muted Cyan | `oklch(0.55 0.08 200)` | Subtle, technical feel                                    |
+| **Borders/Dividers** | Dark Cyan  | `oklch(0.20 0.04 200)` | Subtle structure without visual noise                     |
 
 ### Layout Paradigm
 
 **Asymmetric Grid with Sidebar Navigation**
+
 - Left sidebar: Sticky navigation with tool categories (Email, Domain, IP, Breach, etc.)
 - Main content: Hero section → Tool showcase grid → Interactive demo → Documentation
 - Hero: Full-width with animated background (subtle grid pattern or data visualization)
@@ -61,14 +64,14 @@ OpenOSINT is an **AI-powered OSINT (Open Source Intelligence) framework** with 1
 
 ### Typography System
 
-| Element | Font | Weight | Size | OKLCH Color |
-|---------|------|--------|------|-------------|
-| **H1 (Hero Title)** | IBM Plex Mono Bold | 700 | 3.5rem | Cyan `oklch(0.65 0.15 200)` |
-| **H2 (Section)** | IBM Plex Mono SemiBold | 600 | 2rem | Off-White `oklch(0.95 0.01 260)` |
-| **H3 (Card Title)** | IBM Plex Mono Medium | 500 | 1.25rem | Off-White |
-| **Body** | Inter Regular | 400 | 1rem | Muted Cyan `oklch(0.55 0.08 200)` |
-| **Code/CLI** | IBM Plex Mono Regular | 400 | 0.875rem | Lime Green `oklch(0.75 0.18 140)` |
-| **Labels** | IBM Plex Mono Bold | 700 | 0.75rem | Cyan (uppercase) |
+| Element             | Font                   | Weight | Size     | OKLCH Color                       |
+| ------------------- | ---------------------- | ------ | -------- | --------------------------------- |
+| **H1 (Hero Title)** | IBM Plex Mono Bold     | 700    | 3.5rem   | Cyan `oklch(0.65 0.15 200)`       |
+| **H2 (Section)**    | IBM Plex Mono SemiBold | 600    | 2rem     | Off-White `oklch(0.95 0.01 260)`  |
+| **H3 (Card Title)** | IBM Plex Mono Medium   | 500    | 1.25rem  | Off-White                         |
+| **Body**            | Inter Regular          | 400    | 1rem     | Muted Cyan `oklch(0.55 0.08 200)` |
+| **Code/CLI**        | IBM Plex Mono Regular  | 400    | 0.875rem | Lime Green `oklch(0.75 0.18 140)` |
+| **Labels**          | IBM Plex Mono Bold     | 700    | 0.75rem  | Cyan (uppercase)                  |
 
 **Font Pairing Rationale:** IBM Plex Mono for headings creates a technical, authoritative feel. Inter for body text ensures readability. Monospace throughout reinforces the hacker/developer aesthetic.
 

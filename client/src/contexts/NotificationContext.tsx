@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 
 export type NotificationType = "success" | "error" | "warning" | "info";
 export type DisplayLocation = "toast" | "banner" | "center";
@@ -44,7 +50,7 @@ export function NotificationProvider({
         timestamp: Date.now(),
       };
 
-      setNotifications((prev) => [...prev, newNotification]);
+      setNotifications(prev => [...prev, newNotification]);
 
       // Auto-remove toast notifications after duration
       if (
@@ -62,7 +68,7 @@ export function NotificationProvider({
   );
 
   const removeNotification = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
 
   const clearNotifications = useCallback(() => {
@@ -86,9 +92,7 @@ export function NotificationProvider({
 export function useNotification() {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error(
-      "useNotification must be used within NotificationProvider"
-    );
+    throw new Error("useNotification must be used within NotificationProvider");
   }
   return context;
 }

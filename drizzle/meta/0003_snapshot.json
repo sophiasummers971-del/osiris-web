@@ -56,9 +56,7 @@
       "compositePrimaryKeys": {
         "case_audit_events_id": {
           "name": "case_audit_events_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -124,9 +122,7 @@
       "compositePrimaryKeys": {
         "contact_submissions_id": {
           "name": "contact_submissions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -221,9 +217,7 @@
       "compositePrimaryKeys": {
         "email_queue_id": {
           "name": "email_queue_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -309,9 +303,7 @@
       "compositePrimaryKeys": {
         "evidence_records_id": {
           "name": "evidence_records_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -400,9 +392,7 @@
       "compositePrimaryKeys": {
         "exclusive_content_id": {
           "name": "exclusive_content_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -502,17 +492,13 @@
       "compositePrimaryKeys": {
         "notification_preferences_id": {
           "name": "notification_preferences_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "notification_preferences_userId_unique": {
           "name": "notification_preferences_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         }
       },
       "checkConstraint": {}
@@ -681,9 +667,7 @@
       "compositePrimaryKeys": {
         "notifications_id": {
           "name": "notifications_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -780,17 +764,13 @@
       "compositePrimaryKeys": {
         "orders_id": {
           "name": "orders_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "orders_stripePaymentIntentId_unique": {
           "name": "orders_stripePaymentIntentId_unique",
-          "columns": [
-            "stripePaymentIntentId"
-          ]
+          "columns": ["stripePaymentIntentId"]
         }
       },
       "checkConstraint": {}
@@ -901,23 +881,17 @@
       "compositePrimaryKeys": {
         "products_id": {
           "name": "products_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "products_stripeProductId_unique": {
           "name": "products_stripeProductId_unique",
-          "columns": [
-            "stripeProductId"
-          ]
+          "columns": ["stripeProductId"]
         },
         "products_stripePriceId_unique": {
           "name": "products_stripePriceId_unique",
-          "columns": [
-            "stripePriceId"
-          ]
+          "columns": ["stripePriceId"]
         }
       },
       "checkConstraint": {}
@@ -998,17 +972,13 @@
       "compositePrimaryKeys": {
         "push_subscriptions_id": {
           "name": "push_subscriptions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "push_subscriptions_endpoint_unique": {
           "name": "push_subscriptions_endpoint_unique",
-          "columns": [
-            "endpoint"
-          ]
+          "columns": ["endpoint"]
         }
       },
       "checkConstraint": {}
@@ -1091,9 +1061,7 @@
       "compositePrimaryKeys": {
         "security_cases_id": {
           "name": "security_cases_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1146,23 +1114,17 @@
       "compositePrimaryKeys": {
         "stripe_customers_id": {
           "name": "stripe_customers_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "stripe_customers_userId_unique": {
           "name": "stripe_customers_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         },
         "stripe_customers_stripeCustomerId_unique": {
           "name": "stripe_customers_stripeCustomerId_unique",
-          "columns": [
-            "stripeCustomerId"
-          ]
+          "columns": ["stripeCustomerId"]
         }
       },
       "checkConstraint": {}
@@ -1257,23 +1219,17 @@
       "compositePrimaryKeys": {
         "subscriptions_id": {
           "name": "subscriptions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "subscriptions_userId_unique": {
           "name": "subscriptions_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         },
         "subscriptions_stripeSubscriptionId_unique": {
           "name": "subscriptions_stripeSubscriptionId_unique",
-          "columns": [
-            "stripeSubscriptionId"
-          ]
+          "columns": ["stripeSubscriptionId"]
         }
       },
       "checkConstraint": {}
@@ -1316,9 +1272,7 @@
       "compositePrimaryKeys": {
         "supporter_access_log_id": {
           "name": "supporter_access_log_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1408,9 +1362,7 @@
       "compositePrimaryKeys": {
         "supporter_tiers_id": {
           "name": "supporter_tiers_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1514,17 +1466,13 @@
       "compositePrimaryKeys": {
         "supporters_id": {
           "name": "supporters_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "supporters_kofiEmail_unique": {
           "name": "supporters_kofiEmail_unique",
-          "columns": [
-            "kofiEmail"
-          ]
+          "columns": ["kofiEmail"]
         }
       },
       "checkConstraint": {}
@@ -1596,9 +1544,7 @@
       "compositePrimaryKeys": {
         "tool_usage_log_id": {
           "name": "tool_usage_log_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1681,17 +1627,13 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         }
       },
       "checkConstraint": {}

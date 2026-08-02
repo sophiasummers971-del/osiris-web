@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users } from "../drizzle/schema.js";
-import { ENV } from './_core/env.js';
+import { ENV } from "./_core/env.js";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -56,8 +56,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = "admin";
+      updateSet.role = "admin";
     }
 
     if (!values.lastSignedIn) {
@@ -84,17 +84,21 @@ export async function getUserByOpenId(openId: string) {
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
 
   return result.length > 0 ? result[0] : undefined;
 }
 
 // TODO: add feature queries here as your schema grows.
 
-import { 
-  notifications, 
-  notificationPreferences, 
-  pushSubscriptions, 
+import {
+  notifications,
+  notificationPreferences,
+  pushSubscriptions,
   emailQueue,
   InsertNotification,
   InsertNotificationPreference,
@@ -103,24 +107,32 @@ import {
   Notification,
   NotificationPreference,
   PushSubscription,
-  EmailQueue
+  EmailQueue,
 } from "../drizzle/schema.js";
 import { desc, and, gt } from "drizzle-orm";
 
 /**
  * Create a new notification
  */
-export async function createNotification(data: InsertNotification): Promise<Notification | undefined> {
+export async function createNotification(
+  data: InsertNotification
+): Promise<Notification | undefined> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot create notification: database not available");
+    console.warn(
+      "[Database] Cannot create notification: database not available"
+    );
     return undefined;
   }
 
   try {
     const result = await db.insert(notifications).values(data);
     const id = result[0].insertId;
-    const created = await db.select().from(notifications).where(eq(notifications.id, Number(id))).limit(1);
+    const created = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.id, Number(id)))
+      .limit(1);
     return created[0];
   } catch (error) {
     console.error("[Database] Failed to create notification:", error);
@@ -131,7 +143,11 @@ export async function createNotification(data: InsertNotification): Promise<Noti
 /**
  * Get notifications for a user (with pagination)
  */
-export async function getUserNotifications(userId: number, limit: number = 20, offset: number = 0) {
+export async function getUserNotifications(
+  userId: number,
+  limit: number = 20,
+  offset: number = 0
+) {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot get notifications: database not available");
@@ -155,7 +171,9 @@ export async function getUserNotifications(userId: number, limit: number = 20, o
 /**
  * Get unread notification count for a user
  */
-export async function getUnreadNotificationCount(userId: number): Promise<number> {
+export async function getUnreadNotificationCount(
+  userId: number
+): Promise<number> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot get unread count: database not available");
@@ -182,7 +200,9 @@ export async function getUnreadNotificationCount(userId: number): Promise<number
 /**
  * Mark notification as read
  */
-export async function markNotificationAsRead(notificationId: number): Promise<void> {
+export async function markNotificationAsRead(
+  notificationId: number
+): Promise<void> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot mark notification: database not available");
@@ -192,9 +212,9 @@ export async function markNotificationAsRead(notificationId: number): Promise<vo
   try {
     await db
       .update(notifications)
-      .set({ 
+      .set({
         inAppStatus: "read",
-        readAt: new Date()
+        readAt: new Date(),
       })
       .where(eq(notifications.id, notificationId));
   } catch (error) {
@@ -206,19 +226,23 @@ export async function markNotificationAsRead(notificationId: number): Promise<vo
 /**
  * Dismiss notification
  */
-export async function dismissNotification(notificationId: number): Promise<void> {
+export async function dismissNotification(
+  notificationId: number
+): Promise<void> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot dismiss notification: database not available");
+    console.warn(
+      "[Database] Cannot dismiss notification: database not available"
+    );
     return;
   }
 
   try {
     await db
       .update(notifications)
-      .set({ 
+      .set({
         inAppStatus: "dismissed",
-        dismissedAt: new Date()
+        dismissedAt: new Date(),
       })
       .where(eq(notifications.id, notificationId));
   } catch (error) {
@@ -230,7 +254,9 @@ export async function dismissNotification(notificationId: number): Promise<void>
 /**
  * Get or create user notification preferences
  */
-export async function getOrCreateNotificationPreferences(userId: number): Promise<NotificationPreference | undefined> {
+export async function getOrCreateNotificationPreferences(
+  userId: number
+): Promise<NotificationPreference | undefined> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot get preferences: database not available");
@@ -272,10 +298,15 @@ export async function getOrCreateNotificationPreferences(userId: number): Promis
 /**
  * Update notification preferences
  */
-export async function updateNotificationPreferences(userId: number, updates: Partial<InsertNotificationPreference>): Promise<void> {
+export async function updateNotificationPreferences(
+  userId: number,
+  updates: Partial<InsertNotificationPreference>
+): Promise<void> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot update preferences: database not available");
+    console.warn(
+      "[Database] Cannot update preferences: database not available"
+    );
     return;
   }
 
@@ -285,7 +316,10 @@ export async function updateNotificationPreferences(userId: number, updates: Par
       .set(updates)
       .where(eq(notificationPreferences.userId, userId));
   } catch (error) {
-    console.error("[Database] Failed to update notification preferences:", error);
+    console.error(
+      "[Database] Failed to update notification preferences:",
+      error
+    );
     throw error;
   }
 }
@@ -293,20 +327,27 @@ export async function updateNotificationPreferences(userId: number, updates: Par
 /**
  * Save push subscription
  */
-export async function savePushSubscription(data: InsertPushSubscription): Promise<PushSubscription | undefined> {
+export async function savePushSubscription(
+  data: InsertPushSubscription
+): Promise<PushSubscription | undefined> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot save push subscription: database not available");
+    console.warn(
+      "[Database] Cannot save push subscription: database not available"
+    );
     return undefined;
   }
 
   try {
-    await db.insert(pushSubscriptions).values(data).onDuplicateKeyUpdate({
-      set: {
-        isActive: true,
-        updatedAt: new Date(),
-      },
-    });
+    await db
+      .insert(pushSubscriptions)
+      .values(data)
+      .onDuplicateKeyUpdate({
+        set: {
+          isActive: true,
+          updatedAt: new Date(),
+        },
+      });
 
     const result = await db
       .select()
@@ -324,10 +365,14 @@ export async function savePushSubscription(data: InsertPushSubscription): Promis
 /**
  * Get user's push subscriptions
  */
-export async function getUserPushSubscriptions(userId: number): Promise<PushSubscription[]> {
+export async function getUserPushSubscriptions(
+  userId: number
+): Promise<PushSubscription[]> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot get push subscriptions: database not available");
+    console.warn(
+      "[Database] Cannot get push subscriptions: database not available"
+    );
     return [];
   }
 
@@ -350,7 +395,9 @@ export async function getUserPushSubscriptions(userId: number): Promise<PushSubs
 /**
  * Add email to queue
  */
-export async function queueEmail(data: InsertEmailQueue): Promise<EmailQueue | undefined> {
+export async function queueEmail(
+  data: InsertEmailQueue
+): Promise<EmailQueue | undefined> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot queue email: database not available");
@@ -360,7 +407,11 @@ export async function queueEmail(data: InsertEmailQueue): Promise<EmailQueue | u
   try {
     const result = await db.insert(emailQueue).values(data);
     const id = result[0].insertId;
-    const queued = await db.select().from(emailQueue).where(eq(emailQueue.id, Number(id))).limit(1);
+    const queued = await db
+      .select()
+      .from(emailQueue)
+      .where(eq(emailQueue.id, Number(id)))
+      .limit(1);
     return queued[0];
   } catch (error) {
     console.error("[Database] Failed to queue email:", error);
@@ -371,10 +422,14 @@ export async function queueEmail(data: InsertEmailQueue): Promise<EmailQueue | u
 /**
  * Get pending emails
  */
-export async function getPendingEmails(limit: number = 50): Promise<EmailQueue[]> {
+export async function getPendingEmails(
+  limit: number = 50
+): Promise<EmailQueue[]> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot get pending emails: database not available");
+    console.warn(
+      "[Database] Cannot get pending emails: database not available"
+    );
     return [];
   }
 
@@ -401,7 +456,9 @@ export async function updateEmailStatus(
 ): Promise<void> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot update email status: database not available");
+    console.warn(
+      "[Database] Cannot update email status: database not available"
+    );
     return;
   }
 

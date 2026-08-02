@@ -1,4 +1,13 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean } from "drizzle-orm/mysql-core";
+import {
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+  decimal,
+  boolean,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -31,8 +40,12 @@ export const securityCases = mysqlTable("security_cases", {
   userId: int("userId").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   summary: text("summary"),
-  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).notNull().default("medium"),
-  status: mysqlEnum("status", ["open", "monitoring", "contained", "closed"]).notNull().default("open"),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"])
+    .notNull()
+    .default("medium"),
+  status: mysqlEnum("status", ["open", "monitoring", "contained", "closed"])
+    .notNull()
+    .default("open"),
   confidence: int("confidence").notNull().default(50),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -47,7 +60,13 @@ export const evidenceRecords = mysqlTable("evidence_records", {
   caseId: int("caseId").notNull(),
   userId: int("userId").notNull(),
   label: varchar("label", { length: 255 }).notNull(),
-  sourceType: mysqlEnum("sourceType", ["observation", "document", "message", "system", "external"]).notNull(),
+  sourceType: mysqlEnum("sourceType", [
+    "observation",
+    "document",
+    "message",
+    "system",
+    "external",
+  ]).notNull(),
   sourceReference: text("sourceReference"),
   contentHash: varchar("contentHash", { length: 128 }),
   notes: text("notes"),
@@ -100,7 +119,9 @@ export const supporters = mysqlTable("supporters", {
   tierId: int("tierId").notNull(),
   tierName: varchar("tierName", { length: 64 }).notNull(), // denormalized for quick access
   kofiId: varchar("kofiId", { length: 255 }), // Ko-Fi transaction ID
-  status: mysqlEnum("status", ["active", "paused", "cancelled"]).notNull().default("active"),
+  status: mysqlEnum("status", ["active", "paused", "cancelled"])
+    .notNull()
+    .default("active"),
   monthlyAmount: decimal("monthlyAmount", { precision: 10, scale: 2 }),
   subscribedAt: timestamp("subscribedAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt"),
@@ -119,7 +140,13 @@ export const exclusiveContent = mysqlTable("exclusive_content", {
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   content: text("content"), // Markdown content
-  type: mysqlEnum("type", ["video", "tutorial", "article", "resource", "tool"]).notNull(),
+  type: mysqlEnum("type", [
+    "video",
+    "tutorial",
+    "article",
+    "resource",
+    "tool",
+  ]).notNull(),
   minTierRequired: varchar("minTierRequired", { length: 64 }).notNull(), // "coffee", "patron", "vip"
   published: boolean("published").notNull().default(false),
   publishedAt: timestamp("publishedAt"),
@@ -152,7 +179,9 @@ export const contactSubmissions = mysqlTable("contact_submissions", {
   email: varchar("email", { length: 320 }).notNull(),
   subject: varchar("subject", { length: 255 }).notNull(),
   message: text("message").notNull(),
-  status: mysqlEnum("status", ["new", "read", "responded"]).notNull().default("new"),
+  status: mysqlEnum("status", ["new", "read", "responded"])
+    .notNull()
+    .default("new"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
@@ -176,7 +205,6 @@ export const toolUsageLog = mysqlTable("tool_usage_log", {
 export type ToolUsageLog = typeof toolUsageLog.$inferSelect;
 export type InsertToolUsageLog = typeof toolUsageLog.$inferInsert;
 
-
 /**
  * Notifications table - stores all notifications for users
  * Supports multiple channels: in-app, email, push
@@ -186,27 +214,49 @@ export const notifications = mysqlTable("notifications", {
   userId: int("userId"), // null for system-wide notifications
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),
-  type: mysqlEnum("type", ["success", "error", "warning", "info"]).notNull().default("info"),
+  type: mysqlEnum("type", ["success", "error", "warning", "info"])
+    .notNull()
+    .default("info"),
   category: varchar("category", { length: 64 }).notNull(), // "supporter", "system", "content", "admin", etc.
-  source: mysqlEnum("source", ["system", "admin", "user", "realtime"]).notNull().default("system"),
-  
+  source: mysqlEnum("source", ["system", "admin", "user", "realtime"])
+    .notNull()
+    .default("system"),
+
   // Channels this notification should be sent through
   channels: varchar("channels", { length: 255 }).notNull().default("in-app"), // JSON array: ["in-app", "email", "push"]
-  
+
   // Status tracking per channel
-  inAppStatus: mysqlEnum("inAppStatus", ["pending", "sent", "read", "dismissed"]).notNull().default("pending"),
-  emailStatus: mysqlEnum("emailStatus", ["pending", "sent", "failed", "skipped"]).notNull().default("skipped"),
-  pushStatus: mysqlEnum("pushStatus", ["pending", "sent", "failed", "skipped"]).notNull().default("skipped"),
-  
+  inAppStatus: mysqlEnum("inAppStatus", [
+    "pending",
+    "sent",
+    "read",
+    "dismissed",
+  ])
+    .notNull()
+    .default("pending"),
+  emailStatus: mysqlEnum("emailStatus", [
+    "pending",
+    "sent",
+    "failed",
+    "skipped",
+  ])
+    .notNull()
+    .default("skipped"),
+  pushStatus: mysqlEnum("pushStatus", ["pending", "sent", "failed", "skipped"])
+    .notNull()
+    .default("skipped"),
+
   // Display options
-  displayLocation: varchar("displayLocation", { length: 64 }).notNull().default("toast"), // "toast", "banner", "center"
+  displayLocation: varchar("displayLocation", { length: 64 })
+    .notNull()
+    .default("toast"), // "toast", "banner", "center"
   duration: int("duration"), // milliseconds for toast (null = persistent)
   actionUrl: varchar("actionUrl", { length: 512 }), // CTA link
   actionLabel: varchar("actionLabel", { length: 64 }), // CTA button text
-  
+
   // Metadata
   metadata: text("metadata"), // JSON object for extra data
-  
+
   // Timestamps
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   sentAt: timestamp("sentAt"),
@@ -224,28 +274,37 @@ export type InsertNotification = typeof notifications.$inferInsert;
 export const notificationPreferences = mysqlTable("notification_preferences", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
-  
+
   // Channel preferences
   emailEnabled: boolean("emailEnabled").notNull().default(true),
   pushEnabled: boolean("pushEnabled").notNull().default(true),
   inAppEnabled: boolean("inAppEnabled").notNull().default(true),
-  
+
   // Category preferences (JSON object: { "supporter": true, "content": false, ... })
   categoryPreferences: text("categoryPreferences").notNull().default("{}"),
-  
+
   // Frequency preferences
-  emailFrequency: mysqlEnum("emailFrequency", ["immediate", "daily", "weekly", "never"]).notNull().default("daily"),
-  
+  emailFrequency: mysqlEnum("emailFrequency", [
+    "immediate",
+    "daily",
+    "weekly",
+    "never",
+  ])
+    .notNull()
+    .default("daily"),
+
   // Quiet hours (HH:MM format)
   quietHoursStart: varchar("quietHoursStart", { length: 5 }), // "22:00"
   quietHoursEnd: varchar("quietHoursEnd", { length: 5 }), // "08:00"
-  
+
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export type NotificationPreference = typeof notificationPreferences.$inferSelect;
-export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+export type NotificationPreference =
+  typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference =
+  typeof notificationPreferences.$inferInsert;
 
 /**
  * Push subscriptions - stores browser push notification subscriptions
@@ -274,7 +333,9 @@ export const emailQueue = mysqlTable("email_queue", {
   recipientEmail: varchar("recipientEmail", { length: 320 }).notNull(),
   subject: varchar("subject", { length: 255 }).notNull(),
   htmlBody: text("htmlBody").notNull(),
-  status: mysqlEnum("status", ["pending", "sent", "failed", "bounced"]).notNull().default("pending"),
+  status: mysqlEnum("status", ["pending", "sent", "failed", "bounced"])
+    .notNull()
+    .default("pending"),
   attemptCount: int("attemptCount").notNull().default(0),
   lastAttemptAt: timestamp("lastAttemptAt"),
   error: text("error"),
@@ -293,12 +354,22 @@ export const products = mysqlTable("products", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  type: mysqlEnum("type", ["consulting", "subscription", "report", "training", "custom"]).notNull(),
-  stripeProductId: varchar("stripeProductId", { length: 255 }).notNull().unique(),
+  type: mysqlEnum("type", [
+    "consulting",
+    "subscription",
+    "report",
+    "training",
+    "custom",
+  ]).notNull(),
+  stripeProductId: varchar("stripeProductId", { length: 255 })
+    .notNull()
+    .unique(),
   stripePriceId: varchar("stripePriceId", { length: 255 }).notNull().unique(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(), // in cents (e.g., 9900 = $99.00)
   currency: varchar("currency", { length: 3 }).notNull().default("usd"),
-  interval: mysqlEnum("interval", ["one_time", "month", "year"]).notNull().default("one_time"),
+  interval: mysqlEnum("interval", ["one_time", "month", "year"])
+    .notNull()
+    .default("one_time"),
   active: boolean("active").notNull().default(true),
   metadata: text("metadata"), // JSON for custom data
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -316,11 +387,15 @@ export const orders = mysqlTable("orders", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   productId: int("productId").notNull(),
-  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }).notNull().unique(),
+  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 })
+    .notNull()
+    .unique(),
   stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).notNull().default("usd"),
-  status: mysqlEnum("status", ["pending", "succeeded", "failed", "cancelled"]).notNull().default("pending"),
+  status: mysqlEnum("status", ["pending", "succeeded", "failed", "cancelled"])
+    .notNull()
+    .default("pending"),
   metadata: text("metadata"), // JSON for custom data (service details, etc.)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -337,9 +412,13 @@ export const subscriptions = mysqlTable("subscriptions", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
   productId: int("productId").notNull(),
-  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }).notNull().unique(),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 })
+    .notNull()
+    .unique(),
   stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull(),
-  status: mysqlEnum("status", ["active", "past_due", "cancelled", "paused"]).notNull().default("active"),
+  status: mysqlEnum("status", ["active", "past_due", "cancelled", "paused"])
+    .notNull()
+    .default("active"),
   currentPeriodStart: timestamp("currentPeriodStart"),
   currentPeriodEnd: timestamp("currentPeriodEnd"),
   cancelledAt: timestamp("cancelledAt"),
@@ -357,7 +436,9 @@ export type InsertSubscription = typeof subscriptions.$inferInsert;
 export const stripeCustomers = mysqlTable("stripe_customers", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
-  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 })
+    .notNull()
+    .unique(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

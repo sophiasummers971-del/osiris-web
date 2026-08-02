@@ -48,16 +48,16 @@
   --primary-foreground: oklch(0.12 0.01 260); /* Deep Navy */
   --sidebar-primary: oklch(0.65 0.15 200);
   --sidebar-primary-foreground: oklch(0.12 0.01 260);
-  
+
   /* Accent Colors */
   --chart-1: oklch(0.75 0.18 140); /* Lime Green */
   --chart-2: oklch(0.65 0.15 200); /* Cyan */
-  --chart-3: oklch(0.60 0.18 320); /* Magenta */
+  --chart-3: oklch(0.6 0.18 320); /* Magenta */
   --chart-4: oklch(0.55 0.08 200); /* Muted Cyan */
   --chart-5: oklch(0.75 0.18 140); /* Lime Green */
-  
+
   --radius: 0.5rem;
-  
+
   /* Dark Theme - Cybersecurity Noir */
   --background: oklch(0.12 0.01 260); /* Deep Navy */
   --foreground: oklch(0.95 0.01 260); /* Off-White */
@@ -65,28 +65,28 @@
   --card-foreground: oklch(0.95 0.01 260);
   --popover: oklch(0.18 0.02 260);
   --popover-foreground: oklch(0.95 0.01 260);
-  
-  --secondary: oklch(0.20 0.04 200); /* Dark Cyan */
+
+  --secondary: oklch(0.2 0.04 200); /* Dark Cyan */
   --secondary-foreground: oklch(0.65 0.15 200); /* Bright Cyan */
-  
+
   --muted: oklch(0.25 0.03 260); /* Muted Navy */
   --muted-foreground: oklch(0.55 0.08 200); /* Muted Cyan */
-  
+
   --accent: oklch(0.65 0.15 200); /* Cyan */
   --accent-foreground: oklch(0.12 0.01 260); /* Deep Navy */
-  
-  --destructive: oklch(0.60 0.18 320); /* Magenta */
+
+  --destructive: oklch(0.6 0.18 320); /* Magenta */
   --destructive-foreground: oklch(0.95 0.01 260);
-  
-  --border: oklch(0.20 0.04 200); /* Dark Cyan Border */
+
+  --border: oklch(0.2 0.04 200); /* Dark Cyan Border */
   --input: oklch(0.18 0.02 260); /* Card-like input */
   --ring: oklch(0.65 0.15 200); /* Cyan ring */
-  
+
   --sidebar: oklch(0.12 0.01 260);
   --sidebar-foreground: oklch(0.95 0.01 260);
   --sidebar-accent: oklch(0.65 0.15 200);
   --sidebar-accent-foreground: oklch(0.12 0.01 260);
-  --sidebar-border: oklch(0.20 0.04 200);
+  --sidebar-border: oklch(0.2 0.04 200);
   --sidebar-ring: oklch(0.65 0.15 200);
 }
 
@@ -100,11 +100,20 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
-    background-image: radial-gradient(circle at 50% -20%, oklch(0.65 0.15 200 / 0.07), transparent 36%);
+    font-family: "Inter", sans-serif;
+    background-image: radial-gradient(
+      circle at 50% -20%,
+      oklch(0.65 0.15 200 / 0.07),
+      transparent 36%
+    );
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'IBM Plex Mono', monospace;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "IBM Plex Mono", monospace;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
@@ -121,8 +130,9 @@
     font-size: 1.25rem;
     font-weight: 500;
   }
-  code, pre {
-    font-family: 'IBM Plex Mono', monospace;
+  code,
+  pre {
+    font-family: "IBM Plex Mono", monospace;
     color: oklch(0.75 0.18 140);
   }
   button:not(:disabled),
@@ -153,8 +163,16 @@
 }
 
 @keyframes osiris-grid-drift {
-  from { background-position: 0 0, 0 0; }
-  to { background-position: 0 44px, 44px 0; }
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 44px,
+      44px 0;
+  }
 }
 
 @layer components {
