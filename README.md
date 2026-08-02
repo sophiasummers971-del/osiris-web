@@ -93,6 +93,7 @@ Files in `client/public` are available at the root of your site—reference them
 
 Available pre-defined system envs:
 - `DATABASE_URL`: MySQL/TiDB connection string
+- `SUPABASE_DATABASE_URL`: server-only pooled Postgres connection string used by the Evidence Vault. Never prefix this variable with `VITE_` or expose it to browser code.
 - `JWT_SECRET`: Session cookie signing secret
 - `VITE_APP_ID`: Manus OAuth application ID
 - `OAUTH_SERVER_URL`: Manus OAuth backend base URL

@@ -1,27 +1,29 @@
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { caseAuditEvents, evidenceRecords, securityCases } from "../drizzle/schema";
-import { getDb } from "./db";
+import { vaultCaseAuditEvents, vaultEvidenceRecords, vaultSecurityCases } from "../drizzle/vault-schema";
+import { ensureVaultOperator, getVaultDb } from "./vault-db";
 import { protectedProcedure, router } from "./_core/trpc";
 
 async function requireDb() {
-  const db = await getDb();
-  if (!db) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Operational database is not configured" });
+  const db = getVaultDb();
+  if (!db) throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Supabase Vault is not configured" });
   return db;
 }
 
-async function requireOwnedCase(caseId: number, userId: number) {
+async function requireOwnedCase(caseId: number, user: Parameters<typeof ensureVaultOperator>[1]) {
   const db = await requireDb();
-  const rows = await db.select().from(securityCases).where(and(eq(securityCases.id, caseId), eq(securityCases.userId, userId))).limit(1);
+  const operator = await ensureVaultOperator(db, user);
+  const rows = await db.select().from(vaultSecurityCases).where(and(eq(vaultSecurityCases.id, caseId), eq(vaultSecurityCases.ownerId, operator.id))).limit(1);
   if (!rows[0]) throw new TRPCError({ code: "NOT_FOUND", message: "Case not found" });
-  return { db, securityCase: rows[0] };
+  return { db, operator, securityCase: rows[0] };
 }
 
 export const casesRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     const db = await requireDb();
-    return db.select().from(securityCases).where(eq(securityCases.userId, ctx.user.id)).orderBy(desc(securityCases.updatedAt));
+    const operator = await ensureVaultOperator(db, ctx.user);
+    return db.select().from(vaultSecurityCases).where(eq(vaultSecurityCases.ownerId, operator.id)).orderBy(desc(vaultSecurityCases.updatedAt));
   }),
 
   create: protectedProcedure
@@ -33,19 +35,22 @@ export const casesRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await requireDb();
-      const result = await db.insert(securityCases).values({ ...input, userId: ctx.user.id });
-      const caseId = Number(result[0].insertId);
-      await db.insert(caseAuditEvents).values({ caseId, userId: ctx.user.id, action: "CASE_CREATED", details: JSON.stringify({ severity: input.severity, confidence: input.confidence }) });
-      return { id: caseId };
+      const operator = await ensureVaultOperator(db, ctx.user);
+      return db.transaction(async tx => {
+        const [created] = await tx.insert(vaultSecurityCases).values({ ...input, ownerId: operator.id }).returning({ id: vaultSecurityCases.id });
+        if (!created) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Case creation failed" });
+        await tx.insert(vaultCaseAuditEvents).values({ caseId: created.id, operatorId: operator.id, action: "CASE_CREATED", details: { severity: input.severity, confidence: input.confidence } });
+        return { id: created.id };
+      });
     }),
 
   detail: protectedProcedure
     .input(z.object({ caseId: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
-      const { db, securityCase } = await requireOwnedCase(input.caseId, ctx.user.id);
+      const { db, operator, securityCase } = await requireOwnedCase(input.caseId, ctx.user);
       const [evidence, audit] = await Promise.all([
-        db.select().from(evidenceRecords).where(and(eq(evidenceRecords.caseId, input.caseId), eq(evidenceRecords.userId, ctx.user.id))).orderBy(desc(evidenceRecords.capturedAt)),
-        db.select().from(caseAuditEvents).where(and(eq(caseAuditEvents.caseId, input.caseId), eq(caseAuditEvents.userId, ctx.user.id))).orderBy(desc(caseAuditEvents.createdAt)),
+        db.select().from(vaultEvidenceRecords).where(and(eq(vaultEvidenceRecords.caseId, input.caseId), eq(vaultEvidenceRecords.ownerId, operator.id))).orderBy(desc(vaultEvidenceRecords.capturedAt)),
+        db.select().from(vaultCaseAuditEvents).where(eq(vaultCaseAuditEvents.caseId, input.caseId)).orderBy(desc(vaultCaseAuditEvents.createdAt)),
       ]);
       return { case: securityCase, evidence, audit };
     }),
@@ -56,14 +61,17 @@ export const casesRouter = router({
       label: z.string().trim().min(2).max(255),
       sourceType: z.enum(["observation", "document", "message", "system", "external"]),
       sourceReference: z.string().trim().max(5000).optional(),
-      contentHash: z.string().trim().max(128).optional(),
+      contentHash: z.string().trim().regex(/^[0-9a-f]{64}$/, "Use a lowercase SHA-256 hash").optional(),
       notes: z.string().trim().max(10000).optional(),
       capturedAt: z.date(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { db } = await requireOwnedCase(input.caseId, ctx.user.id);
-      const result = await db.insert(evidenceRecords).values({ ...input, userId: ctx.user.id });
-      await db.insert(caseAuditEvents).values({ caseId: input.caseId, userId: ctx.user.id, action: "EVIDENCE_ADDED", details: JSON.stringify({ evidenceId: Number(result[0].insertId), label: input.label, sourceType: input.sourceType }) });
-      return { id: Number(result[0].insertId) };
+      const { db, operator } = await requireOwnedCase(input.caseId, ctx.user);
+      return db.transaction(async tx => {
+        const [created] = await tx.insert(vaultEvidenceRecords).values({ ...input, ownerId: operator.id }).returning({ id: vaultEvidenceRecords.id });
+        if (!created) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Evidence creation failed" });
+        await tx.insert(vaultCaseAuditEvents).values({ caseId: input.caseId, operatorId: operator.id, action: "EVIDENCE_ADDED", details: { evidenceId: created.id, label: input.label, sourceType: input.sourceType } });
+        return { id: created.id };
+      });
     }),
 });
