@@ -98,6 +98,7 @@ export default function EvidenceVault() {
               <CardHeader className="pb-3"><CardTitle className="text-sm tracking-wide">CASE REGISTER</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {cases.isLoading && <p className="font-mono text-xs text-muted-foreground">LOADING REGISTER…</p>}
+                {cases.error && <p className="text-sm leading-6 text-chart-3">Vault unavailable: {cases.error.message}</p>}
                 {cases.data?.length === 0 && <p className="text-sm leading-6 text-muted-foreground">No cases yet. Open one only when there is a real event or investigation to preserve.</p>}
                 {cases.data?.map(item => (
                   <button
