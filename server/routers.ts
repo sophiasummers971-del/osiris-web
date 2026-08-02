@@ -1,13 +1,13 @@
 
 
-import { getSessionCookieOptions } from "./_core/cookies";
-import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
-import { COOKIE_NAME } from "@shared/const";
-import { getSupporterTiers, getExclusiveContent, getSupporterStats } from "./supporters";
-import { notificationRouter } from "./notifications";
-import { createCheckoutSession, getUserOrders, getUserSubscription, getProducts } from "./stripe";
-import { casesRouter } from "./cases";
+import { getSessionCookieOptions } from "./_core/cookies.js";
+import { systemRouter } from "./_core/systemRouter.js";
+import { publicProcedure, router } from "./_core/trpc.js";
+import { COOKIE_NAME } from "../shared/const.js";
+import { getSupporterTiers, getExclusiveContent, getSupporterStats } from "./supporters.js";
+import { notificationRouter } from "./notifications.js";
+import { createCheckoutSession, getUserOrders, getUserSubscription, getProducts } from "./stripe.js";
+import { casesRouter } from "./cases.js";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
