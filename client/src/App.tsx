@@ -15,6 +15,8 @@ import SupporterHub from "./pages/SupporterHub";
 import NotificationCenter from "./pages/NotificationCenter";
 import { CheckoutSuccess } from "./pages/CheckoutSuccess";
 import { CheckoutCancel } from "./pages/CheckoutCancel";
+import SecurityCenter from "./pages/SecurityCenter";
+import EvidenceVault from "./pages/EvidenceVault";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -22,6 +24,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/tools" component={Tools} />
+      <Route path="/security" component={SecurityCenter} />
+      <Route path="/vault" component={EvidenceVault} />
       <Route path="/about" component={About} />
       <Route path="/supporters" component={SupporterHub} />
       <Route path="/notifications" component={NotificationCenter} />

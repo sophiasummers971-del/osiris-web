@@ -25,6 +25,52 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
+/** Security incidents and investigations owned by an authenticated operator. */
+export const securityCases = mysqlTable("security_cases", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  summary: text("summary"),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).notNull().default("medium"),
+  status: mysqlEnum("status", ["open", "monitoring", "contained", "closed"]).notNull().default("open"),
+  confidence: int("confidence").notNull().default(50),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SecurityCase = typeof securityCases.$inferSelect;
+export type InsertSecurityCase = typeof securityCases.$inferInsert;
+
+/** Evidence is append-only source material attached to a security case. */
+export const evidenceRecords = mysqlTable("evidence_records", {
+  id: int("id").autoincrement().primaryKey(),
+  caseId: int("caseId").notNull(),
+  userId: int("userId").notNull(),
+  label: varchar("label", { length: 255 }).notNull(),
+  sourceType: mysqlEnum("sourceType", ["observation", "document", "message", "system", "external"]).notNull(),
+  sourceReference: text("sourceReference"),
+  contentHash: varchar("contentHash", { length: 128 }),
+  notes: text("notes"),
+  capturedAt: timestamp("capturedAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EvidenceRecord = typeof evidenceRecords.$inferSelect;
+export type InsertEvidenceRecord = typeof evidenceRecords.$inferInsert;
+
+/** Immutable operator activity associated with a case. */
+export const caseAuditEvents = mysqlTable("case_audit_events", {
+  id: int("id").autoincrement().primaryKey(),
+  caseId: int("caseId").notNull(),
+  userId: int("userId").notNull(),
+  action: varchar("action", { length: 128 }).notNull(),
+  details: text("details"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CaseAuditEvent = typeof caseAuditEvents.$inferSelect;
+export type InsertCaseAuditEvent = typeof caseAuditEvents.$inferInsert;
+
 /**
  * Supporter tiers table - tracks Ko-Fi supporters
  */

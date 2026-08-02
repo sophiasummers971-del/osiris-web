@@ -14,7 +14,7 @@ self.addEventListener("push", (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || "OpenOSINT", options)
+    self.registration.showNotification(data.title || "OSIRIS", options)
   );
 });
 
