@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getVaultConnectionString,
   normalizeSupabaseDatabaseUrl,
+  probeVaultDatabase,
 } from "./vault-db.js";
 
 const url =
@@ -53,5 +54,24 @@ describe("getVaultConnectionString", () => {
 
   it("returns null when no database connection is configured", () => {
     expect(getVaultConnectionString({})).toBeNull();
+  });
+});
+
+describe("probeVaultDatabase", () => {
+  it("reports a successful read-only database probe", async () => {
+    await expect(
+      probeVaultDatabase(async () => [{ ok: 1 }])
+    ).resolves.toEqual({ ready: true });
+  });
+
+  it("sanitizes a failed database probe", async () => {
+    await expect(
+      probeVaultDatabase(async () => {
+        throw new Error("postgresql://user:password@secret-host");
+      })
+    ).resolves.toEqual({
+      ready: false,
+      reason: "Operational database is unreachable",
+    });
   });
 });

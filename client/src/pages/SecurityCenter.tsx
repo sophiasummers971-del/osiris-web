@@ -140,6 +140,11 @@ export default function SecurityCenter() {
                 >
                   {control.ready ? "CONFIGURED" : "ACTION REQUIRED"}
                 </p>
+                {!control.ready && control.reason && (
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                    {control.reason}
+                  </p>
+                )}
               </CardContent>
             </Card>
           ))}
