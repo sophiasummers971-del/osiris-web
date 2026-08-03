@@ -45,6 +45,7 @@ export function normalizeSupabaseDatabaseUrl(rawValue: string) {
 }
 
 type VaultEnvironment = {
+  [key: string]: string | undefined;
   POSTGRES_URL?: string;
   SUPABASE_DATABASE_URL?: string;
 };
