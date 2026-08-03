@@ -15,6 +15,7 @@ import {
   getProducts,
 } from "./stripe.js";
 import { casesRouter } from "./cases.js";
+import { intelligenceRouter } from "./intelligence.js";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -46,6 +47,7 @@ export const appRouter = router({
 
   notifications: notificationRouter,
   cases: casesRouter,
+  intelligence: intelligenceRouter,
 
   stripe: router({
     createCheckoutSession,
