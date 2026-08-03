@@ -7,6 +7,8 @@ import {
   router,
 } from "./trpc.js";
 import { ENV } from "./env.js";
+import { assemblePosture, evaluateStaticPosture } from "./posture.js";
+import { probeVaultDatabase } from "../vault-db.js";
 
 export const systemRouter = router({
   health: publicProcedure
@@ -19,51 +21,14 @@ export const systemRouter = router({
       ok: true,
     })),
 
-  posture: protectedProcedure.query(({ ctx }) => {
-    const controls = [
-      {
-        id: "session",
-        label: "Session signing",
-        ready: Boolean(ENV.cookieSecret),
-        critical: true,
-      },
-      {
-        id: "identity",
-        label: "Identity gateway",
-        ready: Boolean(ENV.appId && ENV.oAuthServerUrl),
-        critical: true,
-      },
-      {
-        id: "database",
-        label: "Operational database",
-        ready: Boolean(ENV.databaseUrl),
-        critical: true,
-      },
-      {
-        id: "intelligence",
-        label: "AI intelligence gateway",
-        ready: Boolean(ENV.forgeApiUrl && ENV.forgeApiKey),
-        critical: false,
-      },
-      {
-        id: "payments",
-        label: "Payment isolation",
-        ready: Boolean(process.env.STRIPE_SECRET_KEY),
-        critical: false,
-      },
-    ];
-
-    const criticalReady = controls
-      .filter(control => control.critical)
-      .every(control => control.ready);
-
-    return {
-      status: criticalReady ? "READY" : "DEGRADED",
-      authenticated: Boolean(ctx.user),
-      environment: ENV.isProduction ? "PRODUCTION" : "DEVELOPMENT",
+  posture: protectedProcedure.query(async ({ ctx }) => {
+    const [database] = await Promise.all([probeVaultDatabase()]);
+    return assemblePosture({
+      controls: evaluateStaticPosture(process.env, Boolean(ctx.user)),
+      database,
+      isProduction: ENV.isProduction,
       checkedAt: new Date(),
-      controls,
-    } as const;
+    });
   }),
 
   notifyOwner: adminProcedure
