@@ -77,6 +77,29 @@ export function getVaultDb() {
   return vaultDb;
 }
 
+type DatabaseProbe = () => Promise<unknown>;
+
+export async function probeVaultDatabase(
+  probe: DatabaseProbe = async () => {
+    getVaultDb();
+    if (!client) throw new Error("Database client unavailable");
+    return client`select 1 as ok`;
+  }
+) {
+  try {
+    await probe();
+    return { ready: true } as const;
+  } catch (error) {
+    console.error("[Posture] Database probe failed", {
+      type: error instanceof Error ? error.name : "UnknownError",
+    });
+    return {
+      ready: false,
+      reason: "Operational database is unreachable",
+    } as const;
+  }
+}
+
 type SessionOperator = {
   openId: string;
   name: string | null;
