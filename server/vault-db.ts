@@ -44,8 +44,23 @@ export function normalizeSupabaseDatabaseUrl(rawValue: string) {
   return value;
 }
 
+type VaultEnvironment = {
+  POSTGRES_URL?: string;
+  SUPABASE_DATABASE_URL?: string;
+};
+
+export function getVaultConnectionString(
+  environment: VaultEnvironment = process.env
+) {
+  return (
+    environment.POSTGRES_URL ??
+    environment.SUPABASE_DATABASE_URL ??
+    null
+  );
+}
+
 export function getVaultDb() {
-  const rawConnectionString = process.env.SUPABASE_DATABASE_URL;
+  const rawConnectionString = getVaultConnectionString();
   if (!rawConnectionString) return null;
 
   if (!client || !vaultDb) {
