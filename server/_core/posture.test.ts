@@ -10,6 +10,9 @@ const configured = {
   VERCEL_OIDC_TOKEN: "signed-oidc-token",
   STRIPE_SECRET_KEY: "sk_test_secret",
   STRIPE_WEBHOOK_SECRET: "whsec_secret",
+  COINBASE_API_KEY_NAME: "organizations/test/apiKeys/key",
+  COINBASE_API_PRIVATE_KEY: "private-key-secret",
+  COINBASE_PORTFOLIO_ID: "portfolio-id",
 };
 
 describe("evaluateStaticPosture", () => {
@@ -24,6 +27,10 @@ describe("evaluateStaticPosture", () => {
     expect(controls.find(control => control.id === "payments")?.ready).toBe(
       true
     );
+    expect(controls.find(control => control.id === "treasury")).toMatchObject({
+      ready: true,
+      critical: false,
+    });
   });
 
   it("requires both Stripe server boundaries", () => {
@@ -44,6 +51,20 @@ describe("evaluateStaticPosture", () => {
     expect(serialized).not.toContain("signed-oidc-token");
     expect(serialized).not.toContain("sk_test_secret");
     expect(serialized).not.toContain("whsec_secret");
+    expect(serialized).not.toContain("private-key-secret");
+  });
+
+  it("requires every Coinbase treasury boundary", () => {
+    const controls = evaluateStaticPosture(
+      { ...configured, COINBASE_PORTFOLIO_ID: undefined },
+      true
+    );
+
+    expect(controls.find(control => control.id === "treasury")).toMatchObject({
+      ready: false,
+      critical: false,
+      reason: "Coinbase treasury credentials are not configured",
+    });
   });
 });
 

@@ -1,6 +1,6 @@
 import { getSessionCookieOptions } from "./_core/cookies.js";
 import { systemRouter } from "./_core/systemRouter.js";
-import { publicProcedure, router } from "./_core/trpc.js";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc.js";
 import { COOKIE_NAME } from "../shared/const.js";
 import {
   getSupporterTiers,
@@ -16,6 +16,7 @@ import {
 } from "./stripe.js";
 import { casesRouter } from "./cases.js";
 import { intelligenceRouter } from "./intelligence.js";
+import { getCoinbaseTreasury } from "./coinbase.js";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -48,6 +49,9 @@ export const appRouter = router({
   notifications: notificationRouter,
   cases: casesRouter,
   intelligence: intelligenceRouter,
+  coinbase: router({
+    treasury: protectedProcedure.query(() => getCoinbaseTreasury()),
+  }),
 
   stripe: router({
     createCheckoutSession,

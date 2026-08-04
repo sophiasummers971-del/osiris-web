@@ -1,7 +1,13 @@
 export type PostureEnvironment = Record<string, string | undefined>;
 
 export type PostureControl = {
-  id: "session" | "identity" | "database" | "intelligence" | "payments";
+  id:
+    | "session"
+    | "identity"
+    | "database"
+    | "intelligence"
+    | "payments"
+    | "treasury";
   label: string;
   ready: boolean;
   critical: boolean;
@@ -21,6 +27,11 @@ export function evaluateStaticPosture(
   );
   const stripeSecret = Boolean(environment.STRIPE_SECRET_KEY);
   const stripeWebhook = Boolean(environment.STRIPE_WEBHOOK_SECRET);
+  const coinbaseConfigured = Boolean(
+    environment.COINBASE_API_KEY_NAME &&
+      environment.COINBASE_API_PRIVATE_KEY &&
+      environment.COINBASE_PORTFOLIO_ID
+  );
 
   return [
     {
@@ -65,6 +76,15 @@ export function evaluateStaticPosture(
         : !stripeWebhook
           ? "Stripe webhook signing is not configured"
           : undefined,
+    },
+    {
+      id: "treasury",
+      label: "Coinbase treasury",
+      ready: coinbaseConfigured,
+      critical: false,
+      reason: coinbaseConfigured
+        ? undefined
+        : "Coinbase treasury credentials are not configured",
     },
   ];
 }
