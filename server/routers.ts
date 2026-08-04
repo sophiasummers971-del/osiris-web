@@ -10,6 +10,7 @@ import {
 import { notificationRouter } from "./notifications.js";
 import {
   createCheckoutSession,
+  getStripeStatus,
   getUserOrders,
   getUserSubscription,
   getProducts,
@@ -54,6 +55,7 @@ export const appRouter = router({
   }),
 
   stripe: router({
+    status: protectedProcedure.query(() => getStripeStatus()),
     createCheckoutSession,
     getUserOrders,
     getUserSubscription,

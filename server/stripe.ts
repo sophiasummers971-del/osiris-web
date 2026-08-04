@@ -27,6 +27,77 @@ const getStripeClient = () => {
   return stripeClient;
 };
 
+type StripeStatusClient = {
+  accounts: {
+    retrieve: () => Promise<Stripe.Account>;
+  };
+};
+
+export type StripeStatusResult =
+  | {
+      status: "not_configured" | "degraded";
+      checkoutConfigured: boolean;
+      webhookConfigured: boolean;
+      reason: string;
+    }
+  | {
+      status: "connected";
+      mode: "test" | "live";
+      checkoutConfigured: true;
+      webhookConfigured: true;
+      chargesEnabled: boolean;
+      payoutsEnabled: boolean;
+      detailsSubmitted: boolean;
+      checkedAt: Date;
+    };
+
+export async function getStripeStatus(
+  environment: NodeJS.ProcessEnv = process.env,
+  client?: StripeStatusClient
+): Promise<StripeStatusResult> {
+  const checkoutConfigured = Boolean(environment.STRIPE_SECRET_KEY);
+  const webhookConfigured = Boolean(environment.STRIPE_WEBHOOK_SECRET);
+
+  if (!checkoutConfigured || !webhookConfigured) {
+    return {
+      status: "not_configured",
+      checkoutConfigured,
+      webhookConfigured,
+      reason: !checkoutConfigured
+        ? "Stripe server access is not configured"
+        : "Stripe webhook signing is not configured",
+    };
+  }
+
+  try {
+    const statusClient =
+      client ?? (getStripeClient() as unknown as StripeStatusClient);
+    const account = await statusClient.accounts.retrieve();
+    return {
+      status: "connected",
+      mode: environment.STRIPE_SECRET_KEY?.startsWith("sk_live_")
+        ? "live"
+        : "test",
+      checkoutConfigured: true,
+      webhookConfigured: true,
+      chargesEnabled: Boolean(account.charges_enabled),
+      payoutsEnabled: Boolean(account.payouts_enabled),
+      detailsSubmitted: Boolean(account.details_submitted),
+      checkedAt: new Date(),
+    };
+  } catch (error) {
+    console.error("[Stripe] Account status check failed", {
+      type: error instanceof Error ? error.name : "UnknownError",
+    });
+    return {
+      status: "degraded",
+      checkoutConfigured: true,
+      webhookConfigured: true,
+      reason: "Stripe account status is temporarily unavailable",
+    };
+  }
+}
+
 /**
  * Get or create a Stripe customer for the current user
  */
