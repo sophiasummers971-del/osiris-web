@@ -2,6 +2,28 @@
 
 This template gives you a React 19 + Tailwind 4 + Express 4 + tRPC 11 stack with Manus OAuth already wired. Procedures are your contracts, types flow end to end, and authentication "just works".
 
+## Finance integrations
+
+The protected `/finance` workspace reports the read-only OSIRIS Coinbase
+treasury and Stripe payment readiness. Configure these values as server-side
+Vercel environment variables; never add their values to the repository or a
+`VITE_` variable:
+
+- `COINBASE_API_KEY_NAME`
+- `COINBASE_API_PRIVATE_KEY`
+- `COINBASE_PORTFOLIO_ID`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+The Coinbase API key must be restricted to the **OSIRIS Treasury** portfolio
+and have **View permission only**. This release contains no Coinbase trading,
+transfer, withdrawal, or deposit-address procedure.
+
+Stripe readiness confirms that the server key can read safe account flags and
+that a webhook secret is present. It is not proof that settlement works. Use a
+Stripe test-mode Checkout Session and confirm signed webhook delivery before
+enabling live payments.
+
 ---
 
 ## Quick Facts
