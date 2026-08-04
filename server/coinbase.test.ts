@@ -16,15 +16,14 @@ beforeAll(async () => {
 describe("getCoinbaseTreasury", () => {
   it("returns not_configured without revealing partial credentials", async () => {
     const result = await getCoinbaseTreasury({
-      COINBASE_API_PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----secret",
+      COINBASE_API_PRIVATE_KEY: "partial-private-material",
     } as NodeJS.ProcessEnv);
 
     expect(result).toEqual({
       status: "not_configured",
       reason: "Coinbase treasury credentials are not configured",
     });
-    expect(JSON.stringify(result)).not.toContain("PRIVATE KEY");
-    expect(JSON.stringify(result)).not.toContain("secret");
+    expect(JSON.stringify(result)).not.toContain("private-material");
   });
 
   it("reduces a Coinbase response to the safe treasury shape", async () => {

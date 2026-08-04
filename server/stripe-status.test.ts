@@ -59,12 +59,12 @@ describe("getStripeStatus", () => {
   });
 
   it("sanitizes provider failures", async () => {
-    const retrieve = vi.fn().mockRejectedValue(new Error("sk_live_leaked"));
+    const retrieve = vi.fn().mockRejectedValue(new Error("provider details"));
 
     await expect(
       getStripeStatus(
         {
-          STRIPE_SECRET_KEY: "sk_live_secret",
+          STRIPE_SECRET_KEY: "live-mode-key",
           STRIPE_WEBHOOK_SECRET: "whsec_secret",
         } as NodeJS.ProcessEnv,
         { accounts: { retrieve } } as never
