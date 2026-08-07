@@ -7,6 +7,8 @@ import { Fingerprint, ShieldCheck } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 
+const OPERATOR_SESSION_KEY = "osiris-operator-session";
+
 export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +30,19 @@ export default function Auth() {
       if (result.error) throw result.error;
 
       if (result.data.session) {
+        window.localStorage.setItem(
+          OPERATOR_SESSION_KEY,
+          JSON.stringify({
+            id: result.data.session.user.id,
+            email: result.data.session.user.email ?? email,
+            name:
+              result.data.session.user.user_metadata?.full_name ??
+              result.data.session.user.user_metadata?.name ??
+              null,
+            createdAt:
+              result.data.session.user.created_at ?? new Date().toISOString(),
+          })
+        );
         window.location.href = "/vault";
         return;
       }
