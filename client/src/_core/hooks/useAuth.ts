@@ -21,12 +21,70 @@ type SupabaseFallbackUser = {
   lastSignedIn: Date;
 };
 
+const OPERATOR_SESSION_KEY = "osiris-operator-session";
+
+function readStoredOperator(): SupabaseFallbackUser | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(OPERATOR_SESSION_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as {
+      id?: string;
+      email?: string | null;
+      name?: string | null;
+      createdAt?: string;
+    };
+
+    if (!parsed.id && !parsed.email) return null;
+
+    const createdAt = parsed.createdAt ? new Date(parsed.createdAt) : new Date();
+
+    return {
+      id: 0,
+      openId: parsed.id ? `supabase:${parsed.id}` : "supabase:operator",
+      name: parsed.name ?? null,
+      email: parsed.email ?? null,
+      loginMethod: "supabase",
+      role: "user",
+      createdAt,
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function storeOperator(user: SupabaseFallbackUser | null) {
+  if (typeof window === "undefined") return;
+
+  if (!user) {
+    window.localStorage.removeItem(OPERATOR_SESSION_KEY);
+    return;
+  }
+
+  window.localStorage.setItem(
+    OPERATOR_SESSION_KEY,
+    JSON.stringify({
+      id: user.openId.replace(/^supabase:/, ""),
+      email: user.email,
+      name: user.name,
+      createdAt: user.createdAt.toISOString(),
+    })
+  );
+}
+
 export function useAuth(options?: UseAuthOptions) {
   const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
     options ?? {};
   const utils = trpc.useUtils();
   const [supabaseUser, setSupabaseUser] = useState<SupabaseFallbackUser | null>(
     null
+  );
+  const [storedOperator, setStoredOperator] = useState<SupabaseFallbackUser | null>(
+    () => readStoredOperator()
   );
   const [supabaseLoading, setSupabaseLoading] = useState(isSupabaseConfigured);
 
@@ -83,6 +141,8 @@ export function useAuth(options?: UseAuthOptions) {
       throw error;
     } finally {
       setSupabaseUser(null);
+      setStoredOperator(null);
+      storeOperator(null);
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
     }
@@ -101,16 +161,26 @@ export function useAuth(options?: UseAuthOptions) {
       .getSession()
       .then(({ data }) => {
         if (!mounted) return;
-        setSupabaseUser(
-          data.session?.user ? toFallbackUser(data.session.user) : null
-        );
+        const fallbackUser = data.session?.user
+          ? toFallbackUser(data.session.user)
+          : null;
+        setSupabaseUser(fallbackUser);
+        if (fallbackUser) {
+          storeOperator(fallbackUser);
+          setStoredOperator(fallbackUser);
+        }
       })
       .finally(() => {
         if (mounted) setSupabaseLoading(false);
       });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSupabaseUser(session?.user ? toFallbackUser(session.user) : null);
+      const fallbackUser = session?.user ? toFallbackUser(session.user) : null;
+      setSupabaseUser(fallbackUser);
+      if (fallbackUser) {
+        storeOperator(fallbackUser);
+        setStoredOperator(fallbackUser);
+      }
       void meQuery.refetch();
     });
 
@@ -121,7 +191,7 @@ export function useAuth(options?: UseAuthOptions) {
   }, [meQuery.refetch, toFallbackUser]);
 
   const state = useMemo(() => {
-    const user = meQuery.data ?? supabaseUser;
+    const user = meQuery.data ?? supabaseUser ?? storedOperator;
 
     localStorage.setItem("manus-runtime-user-info", JSON.stringify(user));
 
@@ -130,7 +200,7 @@ export function useAuth(options?: UseAuthOptions) {
       loading:
         supabaseLoading ||
         logoutMutation.isPending ||
-        (meQuery.isLoading && !supabaseUser),
+        (meQuery.isLoading && !supabaseUser && !storedOperator),
       error: meQuery.error ?? logoutMutation.error ?? null,
       isAuthenticated: Boolean(user),
     };
@@ -140,6 +210,7 @@ export function useAuth(options?: UseAuthOptions) {
     meQuery.isLoading,
     supabaseLoading,
     supabaseUser,
+    storedOperator,
     logoutMutation.error,
     logoutMutation.isPending,
   ]);
