@@ -8,6 +8,9 @@ type AssetsBinding = {
 
 type WorkerEnvironment = {
   ASSETS: AssetsBinding;
+  VITE_SUPABASE_URL?: string;
+  VITE_SUPABASE_PUBLISHABLE_KEY?: string;
+  OWNER_EMAIL?: string;
 };
 
 export async function handleRequest(
@@ -26,7 +29,7 @@ export async function handleRequest(
       req: request,
       router: appRouter,
       createContext: ({ req, resHeaders }) =>
-        createFetchContext(req, resHeaders),
+        createFetchContext(req, resHeaders, environment),
       onError({ error, path }) {
         console.error("[tRPC] Request failed", {
           code: error.code,

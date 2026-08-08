@@ -10,11 +10,25 @@ type SupabaseAuthUser = {
   user_metadata?: { name?: string; full_name?: string };
 };
 
+export type SupabaseAuthEnvironment = {
+  VITE_SUPABASE_URL?: string;
+  VITE_SUPABASE_PUBLISHABLE_KEY?: string;
+  OWNER_EMAIL?: string;
+};
+
+const processAuthEnvironment = (): SupabaseAuthEnvironment => ({
+  VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
+  VITE_SUPABASE_PUBLISHABLE_KEY:
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+  OWNER_EMAIL: process.env.OWNER_EMAIL,
+});
+
 async function authenticateSupabaseAuthorization(
-  authorization: string | null | undefined
+  authorization: string | null | undefined,
+  environment: SupabaseAuthEnvironment = processAuthEnvironment()
 ): Promise<User | null> {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const publishableKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseUrl = environment.VITE_SUPABASE_URL;
+  const publishableKey = environment.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!authorization?.startsWith("Bearer ") || !supabaseUrl || !publishableKey)
     return null;
@@ -37,7 +51,7 @@ async function authenticateSupabaseAuthorization(
   const createdAt = identity.created_at
     ? new Date(identity.created_at)
     : new Date();
-  const configuredOwner = process.env.OWNER_EMAIL?.toLowerCase();
+  const configuredOwner = environment.OWNER_EMAIL?.toLowerCase();
   const isAdmin =
     identity.app_metadata?.role === "admin" ||
     Boolean(
@@ -95,13 +109,15 @@ export async function createContext(
 
 export async function createFetchContext(
   request: Request,
-  responseHeaders: Headers
+  responseHeaders: Headers,
+  environment: SupabaseAuthEnvironment = processAuthEnvironment()
 ): Promise<TrpcContext> {
   let user: User | null = null;
 
   try {
     user = await authenticateSupabaseAuthorization(
-      request.headers.get("authorization")
+      request.headers.get("authorization"),
+      environment
     );
   } catch {
     user = null;
