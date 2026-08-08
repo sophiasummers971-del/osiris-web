@@ -11,7 +11,7 @@ import "./index.css";
 
 const queryClient = new QueryClient();
 
-const redirectToLoginIfUnauthorized = (error: unknown) => {
+const redirectToLoginIfUnauthorized = async (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
   if (typeof window === "undefined") return;
 
@@ -19,13 +19,21 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
+  // A valid Supabase session must not be discarded just because the API is
+  // temporarily unavailable or misconfigured. Protected pages can surface the
+  // real API error while the operator remains signed in.
+  if (isSupabaseConfigured) {
+    const { data } = await getSupabaseClient().auth.getSession();
+    if (data.session) return;
+  }
+
   window.location.href = getLoginUrl();
 };
 
 queryClient.getQueryCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.query.state.error;
-    redirectToLoginIfUnauthorized(error);
+    void redirectToLoginIfUnauthorized(error);
     console.error("[API Query Error]", error);
   }
 });
@@ -33,7 +41,7 @@ queryClient.getQueryCache().subscribe(event => {
 queryClient.getMutationCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
     const error = event.mutation.state.error;
-    redirectToLoginIfUnauthorized(error);
+    void redirectToLoginIfUnauthorized(error);
     console.error("[API Mutation Error]", error);
   }
 });
