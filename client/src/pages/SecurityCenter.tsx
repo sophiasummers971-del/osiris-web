@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import {
   AlertTriangle,
+  Activity,
   BellRing,
   CheckCircle2,
   Clock3,
@@ -16,7 +17,9 @@ import {
   ServerCog,
   ShieldCheck,
   ShieldQuestion,
+  ShieldAlert,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Link } from "wouter";
 
 const responseProtocol = [
@@ -38,6 +41,18 @@ export default function SecurityCenter() {
     enabled: isAuthenticated,
     retry: false,
     refetchInterval: 60_000,
+  });
+  const pegasus = trpc.pegasus.overview.useQuery(undefined, {
+    enabled: isAuthenticated,
+    retry: false,
+    refetchInterval: 60_000,
+  });
+  const acknowledgeAlert = trpc.pegasus.acknowledgeAlert.useMutation({
+    onSuccess: async () => {
+      await pegasus.refetch();
+      toast.success("PEGASUS alert acknowledged");
+    },
+    onError: error => toast.error(error.message),
   });
 
   if (!loading && !isAuthenticated) {
@@ -148,6 +163,123 @@ export default function SecurityCenter() {
               </CardContent>
             </Card>
           ))}
+        </section>
+
+        <section className="mt-10">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2 font-mono text-xs tracking-[0.18em] text-primary">
+                <Activity className="h-4 w-4" /> PEGASUS EVIDENCE
+              </div>
+              <h2 className="mt-2 text-2xl text-foreground">
+                Defensive event record
+              </h2>
+            </div>
+            <div className="flex gap-2">
+              <Badge variant="outline">
+                {pegasus.data?.eventCount ?? 0} EVENTS
+              </Badge>
+              <Badge
+                className={
+                  pegasus.data?.integrity === false
+                    ? "bg-destructive/15 text-destructive"
+                    : "bg-chart-1/15 text-chart-1"
+                }
+              >
+                {pegasus.data?.integrity === false
+                  ? "CHAIN WARNING"
+                  : "CHAIN VERIFIED"}
+              </Badge>
+            </div>
+          </div>
+
+          {pegasus.error ? (
+            <Card className="border-chart-3/30 bg-card/60">
+              <CardContent className="flex gap-3 py-6 text-sm text-muted-foreground">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-chart-3" />
+                <span>
+                  PEGASUS storage is not online yet: {pegasus.error.message}
+                </span>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Card className="border-border/60 bg-card/45">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between text-lg">
+                    <span className="flex items-center gap-2">
+                      <ShieldAlert className="h-5 w-5 text-primary" /> Alerts
+                    </span>
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {pegasus.data?.openAlertCount ?? 0} OPEN
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {!pegasus.data?.alerts.length && (
+                    <p className="text-sm text-muted-foreground">
+                      No verified alert has been recorded. Silence means no
+                      evidence has arrived—not that every device is safe.
+                    </p>
+                  )}
+                  {pegasus.data?.alerts.map(alert => (
+                    <div
+                      key={alert.id}
+                      className="rounded-md border border-border/60 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-medium">{alert.title}</p>
+                          <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+                            {alert.ruleId} · {alert.severity.toUpperCase()} ·{" "}
+                            {alert.status.toUpperCase()}
+                          </p>
+                        </div>
+                        {alert.status === "open" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={acknowledgeAlert.isPending}
+                            onClick={() =>
+                              acknowledgeAlert.mutate({ alertId: alert.id })
+                            }
+                          >
+                            Acknowledge
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card className="border-border/60 bg-card/45">
+                <CardHeader>
+                  <CardTitle className="text-lg">Latest observations</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {!pegasus.data?.latestEvents.length && (
+                    <p className="text-sm text-muted-foreground">
+                      No collector has recorded an observation yet. PEGASUS is
+                      ready to receive evidence but does not invent it.
+                    </p>
+                  )}
+                  {pegasus.data?.latestEvents.map(event => (
+                    <div
+                      key={event.id}
+                      className="rounded-md border border-border/60 p-4"
+                    >
+                      <p className="text-sm font-medium">{event.signal}</p>
+                      <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+                        {event.source} · {event.confidence}% CONFIDENCE ·{" "}
+                        {new Date(event.observedAt).toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </section>
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
