@@ -3,6 +3,7 @@ import {
   evaluatePegasusEvent,
   sealPegasusEvent,
   verifyPegasusEventChain,
+  verifyPegasusEventLedger,
   verifyPegasusEventSeal,
   type PegasusEvent,
 } from "./pegasus.js";
@@ -89,5 +90,33 @@ describe("sealPegasusEvent", () => {
         { ...secondEvent, ...secondSeal, previousEventHash: null },
       ])
     ).resolves.toBe(false);
+  });
+
+  it("detects deletion of the newest event using the stored chain head", async () => {
+    const firstSeal = await sealPegasusEvent(event, null);
+    const secondEvent = {
+      ...event,
+      observedAt: new Date("2026-08-08T12:01:00Z"),
+    };
+    const secondSeal = await sealPegasusEvent(secondEvent, firstSeal.eventHash);
+    const completeChain = [
+      { ...event, ...firstSeal },
+      { ...secondEvent, ...secondSeal },
+    ];
+    const chainHead = { eventCount: 2, lastEventHash: secondSeal.eventHash };
+
+    await expect(
+      verifyPegasusEventLedger(completeChain, chainHead)
+    ).resolves.toBe(true);
+    await expect(
+      verifyPegasusEventLedger(completeChain.slice(0, 1), chainHead)
+    ).resolves.toBe(false);
+    await expect(
+      verifyPegasusEventLedger(completeChain, {
+        ...chainHead,
+        lastEventHash: firstSeal.eventHash,
+      })
+    ).resolves.toBe(false);
+    await expect(verifyPegasusEventLedger([], chainHead)).resolves.toBe(false);
   });
 });

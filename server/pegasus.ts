@@ -114,6 +114,11 @@ export type StoredPegasusEvent = PegasusEvent & {
   eventHash: string;
 };
 
+export type PegasusChainHead = {
+  eventCount: number;
+  lastEventHash: string;
+};
+
 export async function verifyPegasusEventChain(
   events: readonly StoredPegasusEvent[]
 ) {
@@ -134,4 +139,15 @@ export async function verifyPegasusEventChain(
     if (!(await verifyPegasusEventSeal(sealedEvent, event))) return false;
   }
   return true;
+}
+
+export async function verifyPegasusEventLedger(
+  events: readonly StoredPegasusEvent[],
+  chainHead: PegasusChainHead | null
+) {
+  if (events.length === 0) return chainHead === null;
+  if (!chainHead || chainHead.eventCount !== events.length) return false;
+  if (chainHead.lastEventHash !== events[events.length - 1].eventHash)
+    return false;
+  return verifyPegasusEventChain(events);
 }

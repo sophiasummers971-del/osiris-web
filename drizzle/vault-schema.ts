@@ -111,6 +111,16 @@ export const pegasusSecurityEvents = pgTable("pegasus_security_events", {
   eventHash: text("event_hash").notNull().unique(),
 });
 
+/** Database-maintained chain head used to detect tail truncation. */
+export const pegasusChainHeads = pgTable("pegasus_chain_heads", {
+  ownerId: bigint("owner_id", { mode: "number" }).primaryKey(),
+  eventCount: bigint("event_count", { mode: "number" }).notNull(),
+  lastEventHash: text("last_event_hash").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 export const pegasusAlerts = pgTable("pegasus_alerts", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
   ownerId: bigint("owner_id", { mode: "number" }).notNull(),
