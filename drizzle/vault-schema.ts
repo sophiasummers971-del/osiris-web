@@ -1,6 +1,7 @@
 import {
   bigint,
   bigserial,
+  boolean,
   integer,
   jsonb,
   pgTable,
@@ -83,4 +84,49 @@ export const vaultCaseAuditEvents = pgTable("case_audit_events", {
     .notNull(),
   previousEventHash: text("previous_event_hash"),
   eventHash: text("event_hash").unique(),
+});
+
+/** PEGASUS records observations; it does not claim they are confirmed threats. */
+export const pegasusSecurityEvents = pgTable("pegasus_security_events", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  ownerId: bigint("owner_id", { mode: "number" }).notNull(),
+  source: text("source").notNull(),
+  category: text("category")
+    .$type<"authentication" | "configuration" | "integration" | "system">()
+    .notNull(),
+  signal: text("signal").notNull(),
+  severity: text("severity")
+    .$type<"info" | "low" | "medium" | "high" | "critical">()
+    .notNull(),
+  confidence: integer("confidence").notNull(),
+  observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
+  recordedAt: timestamp("recorded_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  details: jsonb("details")
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  previousEventHash: text("previous_event_hash"),
+  eventHash: text("event_hash").notNull().unique(),
+});
+
+export const pegasusAlerts = pgTable("pegasus_alerts", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  ownerId: bigint("owner_id", { mode: "number" }).notNull(),
+  eventId: bigint("event_id", { mode: "number" }).notNull(),
+  ruleId: text("rule_id").notNull(),
+  title: text("title").notNull(),
+  severity: text("severity")
+    .$type<"low" | "medium" | "high" | "critical">()
+    .notNull(),
+  requiresApproval: boolean("requires_approval").notNull().default(true),
+  status: text("status")
+    .$type<"open" | "acknowledged" | "dismissed" | "resolved">()
+    .notNull()
+    .default("open"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  resolvedAt: timestamp("resolved_at", { withTimezone: true }),
 });
