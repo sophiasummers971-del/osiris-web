@@ -10,10 +10,9 @@ type SupabaseAuthUser = {
   user_metadata?: { name?: string; full_name?: string };
 };
 
-async function authenticateSupabaseRequest(
-  req: CreateExpressContextOptions["req"]
+async function authenticateSupabaseAuthorization(
+  authorization: string | null | undefined
 ): Promise<User | null> {
-  const authorization = req.headers.authorization;
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const publishableKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -59,6 +58,15 @@ async function authenticateSupabaseRequest(
   };
 }
 
+async function authenticateSupabaseRequest(
+  req: CreateExpressContextOptions["req"]
+) {
+  const authorization = req.headers.authorization;
+  return authenticateSupabaseAuthorization(
+    Array.isArray(authorization) ? authorization[0] : authorization
+  );
+}
+
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
@@ -82,5 +90,40 @@ export async function createContext(
     req: opts.req,
     res: opts.res,
     user,
+  };
+}
+
+export async function createFetchContext(
+  request: Request,
+  responseHeaders: Headers
+): Promise<TrpcContext> {
+  let user: User | null = null;
+
+  try {
+    user = await authenticateSupabaseAuthorization(
+      request.headers.get("authorization")
+    );
+  } catch {
+    user = null;
+  }
+
+  const requestUrl = new URL(request.url);
+  const headers = Object.fromEntries(request.headers.entries());
+
+  return {
+    user,
+    req: {
+      protocol: requestUrl.protocol.replace(":", ""),
+      hostname: requestUrl.hostname,
+      headers,
+    } as TrpcContext["req"],
+    res: {
+      clearCookie(name: string) {
+        responseHeaders.append(
+          "set-cookie",
+          `${name}=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None`
+        );
+      },
+    } as TrpcContext["res"],
   };
 }
