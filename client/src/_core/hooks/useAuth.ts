@@ -29,8 +29,10 @@ export function useAuth(options?: UseAuthOptions) {
     null
   );
   const [supabaseLoading, setSupabaseLoading] = useState(isSupabaseConfigured);
+  const [sessionRestored, setSessionRestored] = useState(!isSupabaseConfigured);
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
+    enabled: sessionRestored && Boolean(supabaseUser),
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -107,13 +109,16 @@ export function useAuth(options?: UseAuthOptions) {
         setSupabaseUser(fallbackUser);
       })
       .finally(() => {
-        if (mounted) setSupabaseLoading(false);
+        if (mounted) {
+          setSessionRestored(true);
+          setSupabaseLoading(false);
+        }
       });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       const fallbackUser = session?.user ? toFallbackUser(session.user) : null;
       setSupabaseUser(fallbackUser);
-      void meQuery.refetch();
+      setSessionRestored(true);
     });
 
     return () => {
@@ -124,8 +129,6 @@ export function useAuth(options?: UseAuthOptions) {
 
   const state = useMemo(() => {
     const user = meQuery.data ?? supabaseUser;
-
-    localStorage.setItem("manus-runtime-user-info", JSON.stringify(user));
 
     return {
       user,
