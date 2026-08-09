@@ -1,11 +1,9 @@
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 // Generate login URL at runtime so redirect URI reflects the current origin.
 export const getLoginUrl = () => {
-  if (
-    import.meta.env.VITE_SUPABASE_URL &&
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
-  ) {
+  if (isSupabaseConfigured) {
     return "/auth";
   }
 

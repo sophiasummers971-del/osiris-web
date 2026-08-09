@@ -28,6 +28,22 @@ describe("Cloudflare Worker", () => {
     expect(environment.ASSETS.fetch).not.toHaveBeenCalled();
   });
 
+  it("serves public Supabase runtime configuration", async () => {
+    const environment = createEnvironment();
+    const response = await handleRequest(
+      new Request("https://osiris.example/api/runtime-config"),
+      environment
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    await expect(response.json()).resolves.toEqual({
+      supabaseUrl: environment.VITE_SUPABASE_URL,
+      supabasePublishableKey: environment.VITE_SUPABASE_PUBLISHABLE_KEY,
+    });
+    expect(environment.ASSETS.fetch).not.toHaveBeenCalled();
+  });
+
   it("rejects protected tRPC calls without a verified session", async () => {
     const environment = createEnvironment();
     const input = encodeURIComponent(JSON.stringify({ json: null }));

@@ -4,53 +4,84 @@ import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
-import { getSupabaseClient, isSupabaseConfigured } from "./lib/supabase";
+import {
+  configureSupabase,
+  getSupabaseClient,
+  isSupabaseConfigured,
+} from "./lib/supabase";
 import "./index.css";
 
-const queryClient = new QueryClient();
+type RuntimeConfig = {
+  supabaseUrl?: string;
+  supabasePublishableKey?: string;
+};
 
-queryClient.getQueryCache().subscribe(event => {
-  if (event.type === "updated" && event.action.type === "error") {
-    const error = event.query.state.error;
-    console.error("[API Query Error]", error);
+async function loadRuntimeConfig() {
+  if (isSupabaseConfigured) return;
+
+  try {
+    const response = await fetch("/api/runtime-config");
+    if (!response.ok) return;
+    const config = (await response.json()) as RuntimeConfig;
+    configureSupabase(config.supabaseUrl, config.supabasePublishableKey);
+  } catch (error) {
+    console.error("[Auth] Runtime configuration unavailable", error);
   }
-});
+}
 
-queryClient.getMutationCache().subscribe(event => {
-  if (event.type === "updated" && event.action.type === "error") {
-    const error = event.mutation.state.error;
-    console.error("[API Mutation Error]", error);
-  }
-});
+async function bootstrap() {
+  await loadRuntimeConfig();
 
-const trpcClient = trpc.createClient({
-  links: [
-    httpBatchLink({
-      url: "/api/trpc",
-      transformer: superjson,
-      async fetch(input, init) {
-        const headers = new Headers(init?.headers);
-        if (isSupabaseConfigured) {
-          const { data } = await getSupabaseClient().auth.getSession();
-          if (data.session?.access_token) {
-            headers.set("Authorization", `Bearer ${data.session.access_token}`);
+  const queryClient = new QueryClient();
+
+  queryClient.getQueryCache().subscribe(event => {
+    if (event.type === "updated" && event.action.type === "error") {
+      const error = event.query.state.error;
+      console.error("[API Query Error]", error);
+    }
+  });
+
+  queryClient.getMutationCache().subscribe(event => {
+    if (event.type === "updated" && event.action.type === "error") {
+      const error = event.mutation.state.error;
+      console.error("[API Mutation Error]", error);
+    }
+  });
+
+  const trpcClient = trpc.createClient({
+    links: [
+      httpBatchLink({
+        url: "/api/trpc",
+        transformer: superjson,
+        async fetch(input, init) {
+          const headers = new Headers(init?.headers);
+          if (isSupabaseConfigured) {
+            const { data } = await getSupabaseClient().auth.getSession();
+            if (data.session?.access_token) {
+              headers.set(
+                "Authorization",
+                `Bearer ${data.session.access_token}`
+              );
+            }
           }
-        }
 
-        return globalThis.fetch(input, {
-          ...(init ?? {}),
-          headers,
-          credentials: "include",
-        });
-      },
-    }),
-  ],
-});
+          return globalThis.fetch(input, {
+            ...(init ?? {}),
+            headers,
+            credentials: "include",
+          });
+        },
+      }),
+    ],
+  });
 
-createRoot(document.getElementById("root")!).render(
-  <trpc.Provider client={trpcClient} queryClient={queryClient}>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </trpc.Provider>
-);
+  createRoot(document.getElementById("root")!).render(
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </trpc.Provider>
+  );
+}
+
+void bootstrap();

@@ -23,6 +23,16 @@ export async function handleRequest(
     return Response.json({ service: "osiris-api", status: "ok" });
   }
 
+  if (url.pathname === "/api/runtime-config") {
+    return Response.json(
+      {
+        supabaseUrl: environment.VITE_SUPABASE_URL ?? "",
+        supabasePublishableKey: environment.VITE_SUPABASE_PUBLISHABLE_KEY ?? "",
+      },
+      { headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
   if (url.pathname.startsWith("/api/trpc")) {
     return fetchRequestHandler({
       endpoint: "/api/trpc",
