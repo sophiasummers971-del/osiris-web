@@ -4,6 +4,10 @@
   "main": "worker/index.ts",
   "compatibility_date": "2026-08-07",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "VITE_SUPABASE_URL": "https://pussbwanjsrvitaxzsnh.supabase.co",
+    "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_eQ0HJJqoJ0oSOOHIp3U1lA_UVsu0Qy7"
+  },
   "observability": {
     "enabled": true
   },
