@@ -1,6 +1,6 @@
 import { getSessionCookieOptions } from "./_core/cookies.js";
 import { systemRouter } from "./_core/systemRouter.js";
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc.js";
+import { publicProcedure, router } from "./_core/trpc.js";
 import { COOKIE_NAME } from "../shared/const.js";
 import {
   getSupporterTiers,
@@ -8,16 +8,8 @@ import {
   getSupporterStats,
 } from "./supporters.js";
 import { notificationRouter } from "./notifications.js";
-import {
-  createCheckoutSession,
-  getStripeStatus,
-  getUserOrders,
-  getUserSubscription,
-  getProducts,
-} from "./stripe.js";
 import { casesRouter } from "./cases.js";
 import { intelligenceRouter } from "./intelligence.js";
-import { getCoinbaseTreasury } from "./coinbase.js";
 import { pegasusRouter } from "./pegasus-router.js";
 
 export const appRouter = router({
@@ -52,17 +44,6 @@ export const appRouter = router({
   cases: casesRouter,
   intelligence: intelligenceRouter,
   pegasus: pegasusRouter,
-  coinbase: router({
-    treasury: protectedProcedure.query(() => getCoinbaseTreasury()),
-  }),
-
-  stripe: router({
-    status: protectedProcedure.query(() => getStripeStatus()),
-    createCheckoutSession,
-    getUserOrders,
-    getUserSubscription,
-    getProducts,
-  }),
 });
 
 export type AppRouter = typeof appRouter;

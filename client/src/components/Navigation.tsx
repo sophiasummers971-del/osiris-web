@@ -9,7 +9,6 @@ const links = [
   ["Command", "/"],
   ["Security", "/security"],
   ["Vault", "/vault"],
-  ["Finance", "/finance"],
   ["Intelligence", "/tools"],
   ["Alerts", "/notifications"],
   ["About", "/about"],

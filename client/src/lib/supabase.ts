@@ -26,6 +26,32 @@ export function getSupabaseClient() {
       autoRefreshToken: true,
       detectSessionInUrl: true,
     },
+    global: {
+      fetch: async (input, init) => {
+        const requestUrl = new URL(
+          input instanceof Request ? input.url : input.toString(),
+          window.location.origin
+        );
+        const configuredOrigin = new URL(supabaseUrl).origin;
+
+        if (
+          requestUrl.origin === configuredOrigin &&
+          requestUrl.pathname.startsWith("/auth/v1/")
+        ) {
+          const proxyUrl = new URL(
+            `/api/supabase-auth${requestUrl.pathname.slice("/auth/v1".length)}`,
+            window.location.origin
+          );
+          proxyUrl.search = requestUrl.search;
+
+          return input instanceof Request
+            ? globalThis.fetch(new Request(proxyUrl, input), init)
+            : globalThis.fetch(proxyUrl, init);
+        }
+
+        return globalThis.fetch(input, init);
+      },
+    },
   });
 
   return client;

@@ -13,6 +13,68 @@ type WorkerEnvironment = {
   OWNER_EMAIL?: string;
 };
 
+const AUTH_PROXY_PREFIX = "/api/supabase-auth/";
+const AUTH_PROXY_METHODS = new Set(["GET", "POST", "PUT", "DELETE"]);
+
+async function proxySupabaseAuth(
+  request: Request,
+  environment: WorkerEnvironment
+) {
+  const supabaseUrl = environment.VITE_SUPABASE_URL;
+  const publishableKey = environment.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !publishableKey) {
+    return Response.json(
+      { error: "Authentication is not configured" },
+      { status: 503 }
+    );
+  }
+  if (!AUTH_PROXY_METHODS.has(request.method)) {
+    return Response.json({ error: "Method not allowed" }, { status: 405 });
+  }
+
+  const requestUrl = new URL(request.url);
+  const authPath = requestUrl.pathname.slice(AUTH_PROXY_PREFIX.length);
+  if (!authPath) {
+    return Response.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const upstreamUrl = new URL(
+    `/auth/v1/${authPath}${requestUrl.search}`,
+    supabaseUrl
+  );
+  const upstreamHeaders = new Headers();
+  for (const name of [
+    "authorization",
+    "content-type",
+    "x-client-info",
+    "x-supabase-api-version",
+  ]) {
+    const value = request.headers.get(name);
+    if (value) upstreamHeaders.set(name, value);
+  }
+  upstreamHeaders.set("apikey", publishableKey);
+
+  const upstream = await fetch(upstreamUrl, {
+    method: request.method,
+    headers: upstreamHeaders,
+    body:
+      request.method === "GET" || request.method === "HEAD"
+        ? undefined
+        : request.body,
+    redirect: "manual",
+  });
+  const responseHeaders = new Headers();
+  const contentType = upstream.headers.get("content-type");
+  if (contentType) responseHeaders.set("content-type", contentType);
+  responseHeaders.set("cache-control", "no-store");
+
+  return new Response(upstream.body, {
+    status: upstream.status,
+    headers: responseHeaders,
+  });
+}
+
 export async function handleRequest(
   request: Request,
   environment: WorkerEnvironment
@@ -31,6 +93,10 @@ export async function handleRequest(
       },
       { headers: { "Cache-Control": "no-store" } }
     );
+  }
+
+  if (url.pathname.startsWith(AUTH_PROXY_PREFIX)) {
+    return proxySupabaseAuth(request, environment);
   }
 
   if (url.pathname.startsWith("/api/trpc")) {

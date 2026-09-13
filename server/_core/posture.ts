@@ -1,13 +1,7 @@
 export type PostureEnvironment = Record<string, string | undefined>;
 
 export type PostureControl = {
-  id:
-    | "session"
-    | "identity"
-    | "database"
-    | "intelligence"
-    | "payments"
-    | "treasury";
+  id: "session" | "identity" | "database" | "intelligence";
   label: string;
   ready: boolean;
   critical: boolean;
@@ -19,20 +13,11 @@ export function evaluateStaticPosture(
   authenticated: boolean
 ): PostureControl[] {
   const supabaseConfigured = Boolean(
-    environment.VITE_SUPABASE_URL &&
-      environment.VITE_SUPABASE_PUBLISHABLE_KEY
+    environment.VITE_SUPABASE_URL && environment.VITE_SUPABASE_PUBLISHABLE_KEY
   );
   const aiConfigured = Boolean(
     environment.VERCEL_OIDC_TOKEN || environment.AI_GATEWAY_API_KEY
   );
-  const stripeSecret = Boolean(environment.STRIPE_SECRET_KEY);
-  const stripeWebhook = Boolean(environment.STRIPE_WEBHOOK_SECRET);
-  const coinbaseConfigured = Boolean(
-    environment.COINBASE_API_KEY_NAME &&
-      environment.COINBASE_API_PRIVATE_KEY &&
-      environment.COINBASE_PORTFOLIO_ID
-  );
-
   return [
     {
       id: "session",
@@ -66,26 +51,6 @@ export function evaluateStaticPosture(
         ? undefined
         : "Vercel AI Gateway credentials are unavailable",
     },
-    {
-      id: "payments",
-      label: "Payment isolation",
-      ready: stripeSecret && stripeWebhook,
-      critical: false,
-      reason: !stripeSecret
-        ? "Stripe server access is not configured"
-        : !stripeWebhook
-          ? "Stripe webhook signing is not configured"
-          : undefined,
-    },
-    {
-      id: "treasury",
-      label: "Coinbase treasury",
-      ready: coinbaseConfigured,
-      critical: false,
-      reason: coinbaseConfigured
-        ? undefined
-        : "Coinbase treasury credentials are not configured",
-    },
   ];
 }
 
@@ -112,7 +77,8 @@ export function assemblePosture({
   return {
     status: criticalReady ? ("READY" as const) : ("DEGRADED" as const),
     authenticated:
-      resolvedControls.find(control => control.id === "session")?.ready ?? false,
+      resolvedControls.find(control => control.id === "session")?.ready ??
+      false,
     environment: isProduction
       ? ("PRODUCTION" as const)
       : ("DEVELOPMENT" as const),

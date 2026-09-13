@@ -49,15 +49,63 @@ describe("Cloudflare Worker", () => {
     const input = encodeURIComponent(JSON.stringify({ json: null }));
 
     const response = await handleRequest(
-      new Request(
-        `https://osiris.example/api/trpc/coinbase.treasury?input=${input}`
-      ),
+      new Request(`https://osiris.example/api/trpc/cases.list?input=${input}`),
       environment
     );
 
     expect(response.status).toBe(401);
     expect(await response.text()).toContain("UNAUTHORIZED");
     expect(environment.ASSETS.fetch).not.toHaveBeenCalled();
+  });
+
+  it("proxies browser auth requests through the OSIRIS origin", async () => {
+    const environment = createEnvironment();
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(Response.json({ access_token: "test-session" }));
+
+    const response = await handleRequest(
+      new Request(
+        "https://osiris.example/api/supabase-auth/token?grant_type=password",
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-client-info": "supabase-js-test",
+          },
+          body: JSON.stringify({ email: "operator@example.com" }),
+        }
+      ),
+      environment
+    );
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledWith(
+      new URL("https://osiris.supabase.co/auth/v1/token?grant_type=password"),
+      expect.objectContaining({
+        method: "POST",
+        redirect: "manual",
+      })
+    );
+    const [, init] = fetchMock.mock.calls[0];
+    const headers = new Headers(init?.headers);
+    expect(headers.get("apikey")).toBe("sb_publishable_test");
+    expect(headers.get("x-client-info")).toBe("supabase-js-test");
+    fetchMock.mockRestore();
+  });
+
+  it("does not expose removed finance API procedures", async () => {
+    const environment = createEnvironment();
+    const input = encodeURIComponent(JSON.stringify({ json: null }));
+    const response = await handleRequest(
+      new Request(
+        `https://osiris.example/api/trpc/coinbase.treasury?input=${input}`
+      ),
+      environment
+    );
+
+    expect(response.status).toBe(404);
+    expect(await response.text()).toContain("NOT_FOUND");
   });
 
   it("passes Cloudflare runtime variables to Supabase token verification", async () => {

@@ -15,12 +15,9 @@ import Tools from "./pages/Tools";
 import About from "./pages/About";
 import SupporterHub from "./pages/SupporterHub";
 import NotificationCenter from "./pages/NotificationCenter";
-import { CheckoutSuccess } from "./pages/CheckoutSuccess";
-import { CheckoutCancel } from "./pages/CheckoutCancel";
 import SecurityCenter from "./pages/SecurityCenter";
 import EvidenceVault from "./pages/EvidenceVault";
 import Auth from "./pages/Auth";
-import Finance from "./pages/Finance";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -30,13 +27,10 @@ function Router() {
       <Route path="/tools" component={Tools} />
       <Route path="/security" component={SecurityCenter} />
       <Route path="/vault" component={EvidenceVault} />
-      <Route path="/finance" component={Finance} />
       <Route path="/auth" component={Auth} />
       <Route path="/about" component={About} />
       <Route path="/supporters" component={SupporterHub} />
       <Route path="/notifications" component={NotificationCenter} />
-      <Route path="/checkout-success" component={CheckoutSuccess} />
-      <Route path="/checkout-cancel" component={CheckoutCancel} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
