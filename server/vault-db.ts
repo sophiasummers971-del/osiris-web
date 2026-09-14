@@ -54,8 +54,8 @@ export function getVaultConnectionString(
   environment: VaultEnvironment = process.env
 ) {
   return (
-    environment.POSTGRES_URL ??
     environment.SUPABASE_DATABASE_URL ??
+    environment.POSTGRES_URL ??
     null
   );
 }

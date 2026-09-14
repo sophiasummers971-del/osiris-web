@@ -35,21 +35,29 @@ describe("normalizeSupabaseDatabaseUrl", () => {
 });
 
 describe("getVaultConnectionString", () => {
-  it("prefers the Vercel integration-managed connection", () => {
+  it("prefers the explicit Supabase connection over a stale managed URL", () => {
     expect(
       getVaultConnectionString({
         POSTGRES_URL: "postgresql://managed",
         SUPABASE_DATABASE_URL: "postgresql://manual",
       })
-    ).toBe("postgresql://managed");
+    ).toBe("postgresql://manual");
   });
 
-  it("uses the manual Supabase URL as a local-development fallback", () => {
+  it("uses the explicit Supabase URL when configured", () => {
     expect(
       getVaultConnectionString({
         SUPABASE_DATABASE_URL: "postgresql://manual",
       })
     ).toBe("postgresql://manual");
+  });
+
+  it("falls back to the managed Postgres URL", () => {
+    expect(
+      getVaultConnectionString({
+        POSTGRES_URL: "postgresql://managed",
+      })
+    ).toBe("postgresql://managed");
   });
 
   it("returns null when no database connection is configured", () => {
