@@ -5,6 +5,9 @@ function createEnvironment() {
   return {
     VITE_SUPABASE_URL: "https://osiris.supabase.co",
     VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test",
+    HYPERDRIVE: {
+      connectionString: "postgresql://hyperdrive.internal/postgres",
+    },
     ASSETS: {
       fetch: vi.fn(async () => new Response("spa", { status: 200 })),
     },
@@ -24,6 +27,7 @@ describe("Cloudflare Worker", () => {
     await expect(response.json()).resolves.toEqual({
       service: "osiris-api",
       status: "ok",
+      hyperdriveBound: true,
     });
     expect(environment.ASSETS.fetch).not.toHaveBeenCalled();
   });

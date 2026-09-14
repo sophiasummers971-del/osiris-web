@@ -85,7 +85,11 @@ export async function handleRequest(
   const url = new URL(request.url);
 
   if (url.pathname === "/api/health") {
-    return Response.json({ service: "osiris-api", status: "ok" });
+    return Response.json({
+      service: "osiris-api",
+      status: "ok",
+      hyperdriveBound: Boolean(environment.HYPERDRIVE?.connectionString),
+    });
   }
 
   if (url.pathname === "/api/runtime-config") {
