@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  classifyVaultDatabaseError,
   getVaultConnectionString,
   normalizeSupabaseDatabaseUrl,
   probeVaultDatabase,
@@ -81,5 +82,34 @@ describe("probeVaultDatabase", () => {
       ready: false,
       reason: "Operational database is unreachable",
     });
+  });
+});
+
+describe("classifyVaultDatabaseError", () => {
+  it("reports rejected credentials without exposing connection details", () => {
+    const cause = Object.assign(new Error("password authentication failed"), {
+      code: "28P01",
+    });
+    const error = new Error(
+      "postgresql://operator:secret@database.example/query",
+      { cause }
+    );
+
+    const result = classifyVaultDatabaseError(error);
+    expect(result).toBe("Supabase rejected the database credentials");
+    expect(result).not.toContain("secret");
+  });
+
+  it("reports a missing schema from a nested driver error", () => {
+    const cause = Object.assign(new Error("relation does not exist"), {
+      code: "42P01",
+    });
+    expect(classifyVaultDatabaseError(new Error("Failed query", { cause })))
+      .toBe("The Vault schema is missing from the connected database");
+  });
+
+  it("keeps unknown failures generic", () => {
+    expect(classifyVaultDatabaseError(new Error("private failure detail")))
+      .toBe("Operational database is unreachable");
   });
 });
