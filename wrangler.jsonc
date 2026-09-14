@@ -11,6 +11,12 @@
   "observability": {
     "enabled": true
   },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "48d249c984854f8b95343b8f5b808d2e"
+    }
+  ],
   "assets": {
     "directory": "./dist/public",
     "binding": "ASSETS",
