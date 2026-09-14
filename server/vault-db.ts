@@ -57,8 +57,9 @@ export function getVaultConnectionString(
   );
 }
 
-export function getVaultDb() {
-  const rawConnectionString = getVaultConnectionString();
+export function getVaultDb(
+  rawConnectionString: string | null = getVaultConnectionString()
+) {
   if (!rawConnectionString) return null;
 
   // A Worker isolate can serve unrelated requests over its lifetime, but I/O
@@ -75,8 +76,8 @@ export function getVaultDb() {
 
 type DatabaseProbe = () => Promise<unknown>;
 
-async function runVaultDatabaseProbe() {
-  const rawConnectionString = getVaultConnectionString();
+async function runVaultDatabaseProbe(rawConnectionString?: string | null) {
+  rawConnectionString ??= getVaultConnectionString();
   if (!rawConnectionString) throw new Error("Database client unavailable");
   const connectionString = normalizeSupabaseDatabaseUrl(rawConnectionString);
   const requestClient = postgres(connectionString, {
@@ -136,10 +137,11 @@ export function classifyVaultDatabaseError(error: unknown) {
 }
 
 export async function probeVaultDatabase(
-  probe: DatabaseProbe = runVaultDatabaseProbe
+  probe?: DatabaseProbe,
+  connectionString?: string | null
 ) {
   try {
-    await probe();
+    await (probe ? probe() : runVaultDatabaseProbe(connectionString));
     return { ready: true } as const;
   } catch (error) {
     console.error("[Posture] Database probe failed", {

@@ -9,8 +9,8 @@ import {
 import { ensureVaultOperator, getVaultDb } from "./vault-db.js";
 import { protectedProcedure, router } from "./_core/trpc.js";
 
-async function requireDb() {
-  const db = getVaultDb();
+async function requireDb(databaseUrl: string | null) {
+  const db = getVaultDb(databaseUrl);
   if (!db)
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
@@ -21,9 +21,10 @@ async function requireDb() {
 
 async function requireOwnedCase(
   caseId: number,
-  user: Parameters<typeof ensureVaultOperator>[1]
+  user: Parameters<typeof ensureVaultOperator>[1],
+  databaseUrl: string | null
 ) {
-  const db = await requireDb();
+  const db = await requireDb(databaseUrl);
   const operator = await ensureVaultOperator(db, user);
   const rows = await db
     .select()
@@ -42,7 +43,7 @@ async function requireOwnedCase(
 
 export const casesRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
-    const db = await requireDb();
+    const db = await requireDb(ctx.databaseUrl);
     const operator = await ensureVaultOperator(db, ctx.user);
     return db
       .select()
@@ -63,7 +64,7 @@ export const casesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await requireDb();
+      const db = await requireDb(ctx.databaseUrl);
       const operator = await ensureVaultOperator(db, ctx.user);
       return db.transaction(async tx => {
         const [created] = await tx
@@ -90,7 +91,8 @@ export const casesRouter = router({
     .query(async ({ ctx, input }) => {
       const { db, operator, securityCase } = await requireOwnedCase(
         input.caseId,
-        ctx.user
+        ctx.user,
+        ctx.databaseUrl
       );
       const [evidence, audit] = await Promise.all([
         db
@@ -135,7 +137,11 @@ export const casesRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { db, operator } = await requireOwnedCase(input.caseId, ctx.user);
+      const { db, operator } = await requireOwnedCase(
+        input.caseId,
+        ctx.user,
+        ctx.databaseUrl
+      );
       return db.transaction(async tx => {
         const [created] = await tx
           .insert(vaultEvidenceRecords)

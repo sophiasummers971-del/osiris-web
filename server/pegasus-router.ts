@@ -7,8 +7,8 @@ import {
 } from "./pegasus-store.js";
 import { protectedProcedure, router } from "./_core/trpc.js";
 
-function requireDb() {
-  const db = getVaultDb();
+function requireDb(databaseUrl: string | null) {
+  const db = getVaultDb(databaseUrl);
   if (!db)
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
@@ -19,14 +19,14 @@ function requireDb() {
 
 export const pegasusRouter = router({
   overview: protectedProcedure.query(async ({ ctx }) => {
-    const db = requireDb();
+    const db = requireDb(ctx.databaseUrl);
     const operator = await ensureVaultOperator(db, ctx.user);
     return getPegasusOverview(db, operator.id);
   }),
   acknowledgeAlert: protectedProcedure
     .input(z.object({ alertId: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {
-      const db = requireDb();
+      const db = requireDb(ctx.databaseUrl);
       const operator = await ensureVaultOperator(db, ctx.user);
       const acknowledged = await acknowledgePegasusAlert(
         db,

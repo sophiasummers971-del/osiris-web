@@ -14,6 +14,9 @@ export type SupabaseAuthEnvironment = {
   VITE_SUPABASE_URL?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   OWNER_EMAIL?: string;
+  SUPABASE_DATABASE_URL?: string;
+  POSTGRES_URL?: string;
+  HYPERDRIVE?: { connectionString: string };
 };
 
 const processAuthEnvironment = (): SupabaseAuthEnvironment => ({
@@ -21,7 +24,15 @@ const processAuthEnvironment = (): SupabaseAuthEnvironment => ({
   VITE_SUPABASE_PUBLISHABLE_KEY:
     process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
   OWNER_EMAIL: process.env.OWNER_EMAIL,
+  SUPABASE_DATABASE_URL: process.env.SUPABASE_DATABASE_URL,
+  POSTGRES_URL: process.env.POSTGRES_URL,
 });
+
+const resolveRequestDatabaseUrl = (environment: SupabaseAuthEnvironment) =>
+  environment.HYPERDRIVE?.connectionString ??
+  environment.SUPABASE_DATABASE_URL ??
+  environment.POSTGRES_URL ??
+  null;
 
 async function authenticateSupabaseAuthorization(
   authorization: string | null | undefined,
@@ -85,6 +96,7 @@ export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: User | null;
+  databaseUrl: string | null;
 };
 
 export async function createContext(
@@ -104,6 +116,7 @@ export async function createContext(
     req: opts.req,
     res: opts.res,
     user,
+    databaseUrl: resolveRequestDatabaseUrl(processAuthEnvironment()),
   };
 }
 
@@ -128,6 +141,7 @@ export async function createFetchContext(
 
   return {
     user,
+    databaseUrl: resolveRequestDatabaseUrl(environment),
     req: {
       protocol: requestUrl.protocol.replace(":", ""),
       hostname: requestUrl.hostname,

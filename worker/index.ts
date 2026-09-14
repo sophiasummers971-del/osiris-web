@@ -11,6 +11,9 @@ type WorkerEnvironment = {
   VITE_SUPABASE_URL?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   OWNER_EMAIL?: string;
+  SUPABASE_DATABASE_URL?: string;
+  POSTGRES_URL?: string;
+  HYPERDRIVE?: { connectionString: string };
 };
 
 const AUTH_PROXY_PREFIX = "/api/supabase-auth/";

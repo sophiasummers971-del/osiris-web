@@ -22,7 +22,9 @@ export const systemRouter = router({
     })),
 
   posture: protectedProcedure.query(async ({ ctx }) => {
-    const [database] = await Promise.all([probeVaultDatabase()]);
+    const [database] = await Promise.all([
+      probeVaultDatabase(undefined, ctx.databaseUrl),
+    ]);
     return assemblePosture({
       controls: evaluateStaticPosture(process.env, Boolean(ctx.user)),
       database,
