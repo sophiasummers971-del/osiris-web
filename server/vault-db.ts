@@ -3,9 +3,6 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { osirisOperators } from "../drizzle/vault-schema.js";
 
-let client: ReturnType<typeof postgres> | null = null;
-let vaultDb: ReturnType<typeof drizzle> | null = null;
-
 export function normalizeSupabaseDatabaseUrl(rawValue: string) {
   let value = rawValue.trim();
   const assignment = value.match(
@@ -64,20 +61,31 @@ export function getVaultDb() {
   const rawConnectionString = getVaultConnectionString();
   if (!rawConnectionString) return null;
 
-  if (!client || !vaultDb) {
-    const connectionString = normalizeSupabaseDatabaseUrl(rawConnectionString);
-    client = postgres(connectionString, {
-      max: 5,
-      prepare: false,
-      ssl: "require",
-    });
-    vaultDb = drizzle(client);
-  }
-
-  return vaultDb;
+  // A Worker isolate can serve unrelated requests over its lifetime, but I/O
+  // objects must not be reused across those requests. Construct the client in
+  // request scope; Cloudflare/Hyperdrive owns the underlying connection pool.
+  const connectionString = normalizeSupabaseDatabaseUrl(rawConnectionString);
+  const requestClient = postgres(connectionString, {
+    max: 1,
+    prepare: false,
+    ssl: "require",
+  });
+  return drizzle(requestClient);
 }
 
 type DatabaseProbe = () => Promise<unknown>;
+
+async function runVaultDatabaseProbe() {
+  const rawConnectionString = getVaultConnectionString();
+  if (!rawConnectionString) throw new Error("Database client unavailable");
+  const connectionString = normalizeSupabaseDatabaseUrl(rawConnectionString);
+  const requestClient = postgres(connectionString, {
+    max: 1,
+    prepare: false,
+    ssl: "require",
+  });
+  return requestClient`select 1 as ok`;
+}
 
 function collectDatabaseErrorDetails(error: unknown) {
   const details: string[] = [];
@@ -128,11 +136,7 @@ export function classifyVaultDatabaseError(error: unknown) {
 }
 
 export async function probeVaultDatabase(
-  probe: DatabaseProbe = async () => {
-    getVaultDb();
-    if (!client) throw new Error("Database client unavailable");
-    return client`select 1 as ok`;
-  }
+  probe: DatabaseProbe = runVaultDatabaseProbe
 ) {
   try {
     await probe();
