@@ -2,3 +2,4 @@ Cloudflare Workers Builds connected on 2026-08-08.
 Build watch path corrected to *.
 This marker intentionally triggers the Git-integrated production deployment.
 Rebuild requested after correcting the OSIRIS Supabase publishable key.
+Deploy owner-scoped manual monitoring check from a6da661d.
