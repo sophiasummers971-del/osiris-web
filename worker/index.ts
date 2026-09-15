@@ -151,6 +151,11 @@ export default {
           environment.POSTGRES_URL ??
           null,
         tokenEncryptionKey: environment.MONITORING_TOKEN_KEY,
+      }).then(result => {
+        console.log("[Monitoring] Scheduled run completed", result);
+        if (!result.configured) {
+          throw new Error(result.configurationError);
+        }
       })
     );
   },

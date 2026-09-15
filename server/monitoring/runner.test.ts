@@ -45,7 +45,12 @@ describe("scheduled monitoring runner", () => {
   it("does nothing until both database and encryption key are configured", async () => {
     await expect(
       runDueMonitoring({ databaseUrl: "postgresql://database", tokenEncryptionKey: undefined })
-    ).resolves.toEqual({ processed: 0, failed: 0, configured: false });
+    ).resolves.toEqual({
+      processed: 0,
+      failed: 0,
+      configured: false,
+      configurationError: "MONITORING_TOKEN_KEY_UNAVAILABLE",
+    });
     expect(mocks.claim).not.toHaveBeenCalled();
   });
 
@@ -87,7 +92,12 @@ describe("scheduled monitoring runner", () => {
         },
         new Date("2026-09-15T12:00:00.000Z")
       )
-    ).resolves.toEqual({ processed: 1, failed: 0, configured: true });
+    ).resolves.toEqual({
+      processed: 1,
+      failed: 0,
+      configured: true,
+      configurationError: null,
+    });
 
     expect(mocks.record).toHaveBeenCalledWith(
       mocks.db,
@@ -123,7 +133,12 @@ describe("scheduled monitoring runner", () => {
         databaseUrl: "postgresql://database",
         tokenEncryptionKey: "encryption-key",
       })
-    ).resolves.toEqual({ processed: 0, failed: 1, configured: true });
+    ).resolves.toEqual({
+      processed: 0,
+      failed: 1,
+      configured: true,
+      configurationError: null,
+    });
     expect(mocks.fail).toHaveBeenCalledWith(
       expect.objectContaining({ errorCode: "GITHUB_MONITORING_FAILED" })
     );

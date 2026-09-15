@@ -169,10 +169,8 @@ describe("Cloudflare Worker", () => {
     );
 
     expect(waitUntil).toHaveBeenCalledTimes(1);
-    await expect(waitUntil.mock.calls[0][0]).resolves.toEqual({
-      processed: 0,
-      failed: 0,
-      configured: false,
-    });
+    await expect(waitUntil.mock.calls[0][0]).rejects.toThrow(
+      "MONITORING_TOKEN_KEY_UNAVAILABLE"
+    );
   });
 });
