@@ -134,7 +134,8 @@ export async function claimDueMonitoringConnections(
   db: VaultDb,
   now: Date,
   nextCheckAt: Date,
-  limit = 10
+  limit = 10,
+  options: { ownerId?: number; connectionId?: number; force?: boolean } = {}
 ) {
   const due = await db
     .select()
@@ -143,7 +144,13 @@ export async function claimDueMonitoringConnections(
       and(
         eq(monitoringConnections.status, "active"),
         isNotNull(monitoringConnections.encryptedAccessToken),
-        lte(monitoringConnections.nextCheckAt, now)
+        options.ownerId === undefined
+          ? undefined
+          : eq(monitoringConnections.ownerId, options.ownerId),
+        options.connectionId === undefined
+          ? undefined
+          : eq(monitoringConnections.id, options.connectionId),
+        options.force ? undefined : lte(monitoringConnections.nextCheckAt, now)
       )
     )
     .orderBy(monitoringConnections.nextCheckAt)
@@ -158,7 +165,17 @@ export async function claimDueMonitoringConnections(
         and(
           eq(monitoringConnections.id, connection.id),
           eq(monitoringConnections.status, "active"),
-          lte(monitoringConnections.nextCheckAt, now)
+          options.ownerId === undefined
+            ? undefined
+            : eq(monitoringConnections.ownerId, options.ownerId),
+          options.connectionId === undefined
+            ? undefined
+            : eq(monitoringConnections.id, options.connectionId),
+          options.force
+            ? connection.nextCheckAt
+              ? eq(monitoringConnections.nextCheckAt, connection.nextCheckAt)
+              : isNull(monitoringConnections.nextCheckAt)
+            : lte(monitoringConnections.nextCheckAt, now)
         )
       )
       .returning();
