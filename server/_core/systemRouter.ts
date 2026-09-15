@@ -26,7 +26,11 @@ export const systemRouter = router({
       probeVaultDatabase(undefined, ctx.databaseUrl),
     ]);
     return assemblePosture({
-      controls: evaluateStaticPosture(process.env, Boolean(ctx.user)),
+      controls: evaluateStaticPosture(
+        process.env,
+        Boolean(ctx.user),
+        Boolean(ctx.ai)
+      ),
       database,
       isProduction: ENV.isProduction,
       checkedAt: new Date(),
