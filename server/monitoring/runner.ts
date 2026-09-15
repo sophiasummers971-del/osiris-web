@@ -16,6 +16,9 @@ const POLL_INTERVAL_MS = 15 * 60 * 1000;
 export type MonitoringRunnerEnvironment = {
   databaseUrl: string | null;
   tokenEncryptionKey?: string;
+  ownerId?: number;
+  connectionId?: number;
+  force?: boolean;
 };
 
 export async function runDueMonitoring(
@@ -50,7 +53,13 @@ export async function runDueMonitoring(
   const connections = await claimDueMonitoringConnections(
     db,
     now,
-    new Date(now.getTime() + POLL_INTERVAL_MS)
+    new Date(now.getTime() + POLL_INTERVAL_MS),
+    10,
+    {
+      ownerId: environment.ownerId,
+      connectionId: environment.connectionId,
+      force: environment.force,
+    }
   );
   let processed = 0;
   let failed = 0;

@@ -20,6 +20,7 @@ import {
 } from "./monitoring/connection-store.js";
 import { ensureVaultOperator, getVaultDb } from "./vault-db.js";
 import { protectedProcedure, router } from "./_core/trpc.js";
+import { runDueMonitoring } from "./monitoring/runner.js";
 
 function requireDb(databaseUrl: string | null) {
   const db = getVaultDb(databaseUrl);
@@ -51,6 +52,31 @@ export const monitoringRouter = router({
     const operator = await ensureVaultOperator(db, ctx.user);
     return listMonitoringConnections(db, operator.id);
   }),
+
+  runNow: protectedProcedure
+    .input(z.object({ connectionId: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = requireDb(ctx.databaseUrl);
+      const operator = await ensureVaultOperator(db, ctx.user);
+      const configuration = requireGitHubConfiguration(ctx.githubOAuth);
+      const result = await runDueMonitoring({
+        databaseUrl: ctx.databaseUrl,
+        tokenEncryptionKey: configuration.tokenEncryptionKey,
+        ownerId: operator.id,
+        connectionId: input.connectionId,
+        force: true,
+      });
+      if (!result.configured) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: result.configurationError,
+        });
+      }
+      return {
+        processed: result.processed,
+        failed: result.failed,
+      };
+    }),
 
   beginGitHubConnection: protectedProcedure.mutation(async ({ ctx }) => {
     const db = requireDb(ctx.databaseUrl);
@@ -140,7 +166,10 @@ export const monitoringRouter = router({
           message: "Connection not found",
         });
       }
-      if (connection.provider !== "github" || !connection.encryptedAccessToken) {
+      if (
+        connection.provider !== "github" ||
+        !connection.encryptedAccessToken
+      ) {
         throw new TRPCError({
           code: "PRECONDITION_FAILED",
           message: "GitHub connection is already disconnected",
