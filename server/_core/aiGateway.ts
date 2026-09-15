@@ -1,41 +1,57 @@
-type GatewayUsage = {
-  inputTokens?: number;
-  outputTokens?: number;
-  totalTokens?: number;
+export const WORKERS_AI_MODEL =
+  "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+
+type WorkersAiUsage = {
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  total_tokens?: number;
 };
 
-type StreamTextResult = {
-  textStream: AsyncIterable<string>;
-  usage: PromiseLike<GatewayUsage>;
+type WorkersAiResult = {
+  response?: string;
+  usage?: WorkersAiUsage;
 };
 
-type StreamText = (options: {
-  model: string;
-  prompt: string;
-}) => StreamTextResult;
+export type WorkersAiBinding = {
+  run(
+    model: string,
+    input: {
+      messages: Array<{ role: "system" | "user"; content: string }>;
+    }
+  ): Promise<WorkersAiResult>;
+};
 
-const streamFromGateway: StreamText = options => vercelStreamText(options);
-
-export async function generateGatewayText(options: {
+export async function generateWorkersAiText(options: {
   prompt: string;
-  streamText?: StreamText;
-  logUsage?: (usage: GatewayUsage) => void;
+  ai: WorkersAiBinding | null | undefined;
+  logUsage?: (usage: WorkersAiUsage) => void;
 }) {
-  const result = (options.streamText ?? streamFromGateway)({
-    model: "openai/gpt-5.4",
-    prompt: options.prompt,
+  if (!options.ai) throw new Error("Cloudflare Workers AI is not configured");
+
+  const result = await options.ai.run(WORKERS_AI_MODEL, {
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are OSIRIS Intelligence. Provide concise, evidence-aware analysis. Clearly separate facts, inferences, and unknowns.",
+      },
+      { role: "user", content: options.prompt },
+    ],
   });
-  let text = "";
 
-  for await (const chunk of result.textStream) {
-    text += chunk;
-  }
+  const text = result.response?.trim();
+  if (!text) throw new Error("Cloudflare Workers AI returned no text");
 
-  const usage = await result.usage;
-  (options.logUsage ?? (value => console.info("[AI Gateway] Token usage", value)))(
-    usage
-  );
+  const rawUsage = result.usage ?? {};
+  (options.logUsage ??
+    (value => console.info("[Workers AI] Token usage", value)))(rawUsage);
 
-  return { text, usage };
+  return {
+    text,
+    usage: {
+      inputTokens: rawUsage.prompt_tokens,
+      outputTokens: rawUsage.completion_tokens,
+      totalTokens: rawUsage.total_tokens,
+    },
+  };
 }
-import { streamText as vercelStreamText } from "ai";
