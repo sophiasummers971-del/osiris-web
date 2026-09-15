@@ -22,9 +22,30 @@ export async function runDueMonitoring(
   environment: MonitoringRunnerEnvironment,
   now = new Date()
 ) {
+  if (!environment.databaseUrl) {
+    return {
+      processed: 0,
+      failed: 0,
+      configured: false,
+      configurationError: "MONITORING_DATABASE_UNAVAILABLE",
+    } as const;
+  }
+  if (!environment.tokenEncryptionKey) {
+    return {
+      processed: 0,
+      failed: 0,
+      configured: false,
+      configurationError: "MONITORING_TOKEN_KEY_UNAVAILABLE",
+    } as const;
+  }
   const db = getVaultDb(environment.databaseUrl);
-  if (!db || !environment.tokenEncryptionKey) {
-    return { processed: 0, failed: 0, configured: false } as const;
+  if (!db) {
+    return {
+      processed: 0,
+      failed: 0,
+      configured: false,
+      configurationError: "MONITORING_DATABASE_UNAVAILABLE",
+    } as const;
   }
   const connections = await claimDueMonitoringConnections(
     db,
@@ -106,5 +127,10 @@ export async function runDueMonitoring(
       failed += 1;
     }
   }
-  return { processed, failed, configured: true } as const;
+  return {
+    processed,
+    failed,
+    configured: true,
+    configurationError: null,
+  } as const;
 }
