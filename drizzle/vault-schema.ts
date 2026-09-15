@@ -7,6 +7,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -107,6 +108,7 @@ export const pegasusSecurityEvents = pgTable("pegasus_security_events", {
     .$type<Record<string, unknown>>()
     .notNull()
     .default({}),
+  sourceEventKey: text("source_event_key"),
   previousEventHash: text("previous_event_hash"),
   eventHash: text("event_hash").notNull().unique(),
 });
@@ -140,3 +142,96 @@ export const pegasusAlerts = pgTable("pegasus_alerts", {
     .notNull(),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
 });
+
+/** Server-managed OAuth connection metadata. Token fields contain ciphertext only. */
+export const monitoringConnections = pgTable(
+  "monitoring_connections",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    ownerId: bigint("owner_id", { mode: "number" }).notNull(),
+    provider: text("provider").$type<"github">().notNull(),
+    providerAccountId: text("provider_account_id").notNull(),
+    displayName: text("display_name"),
+    status: text("status")
+      .$type<"active" | "reauthorization_required" | "disconnected">()
+      .notNull()
+      .default("active"),
+    scopes: text("scopes").array().notNull().default([]),
+    encryptedAccessToken: text("encrypted_access_token"),
+    encryptedRefreshToken: text("encrypted_refresh_token"),
+    tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
+    checkpoint: jsonb("checkpoint")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
+    nextCheckAt: timestamp("next_check_at", { withTimezone: true }),
+    lastErrorCode: text("last_error_code"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  table => [
+    uniqueIndex("monitoring_connections_provider_account_idx").on(
+      table.ownerId,
+      table.provider,
+      table.providerAccountId
+    ),
+  ]
+);
+
+/** One bounded collector execution. Errors are sanitized before persistence. */
+export const monitoringRuns = pgTable("monitoring_runs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  connectionId: bigint("connection_id", { mode: "number" }).notNull(),
+  ownerId: bigint("owner_id", { mode: "number" }).notNull(),
+  status: text("status")
+    .$type<"running" | "succeeded" | "failed">()
+    .notNull()
+    .default("running"),
+  checkpointBefore: jsonb("checkpoint_before")
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  checkpointAfter: jsonb("checkpoint_after")
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  observationCount: integer("observation_count").notNull().default(0),
+  errorCode: text("error_code"),
+  startedAt: timestamp("started_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
+});
+
+/** Deduplicated provider facts awaiting or linked to an append-only PEGASUS event. */
+export const monitoringObservations = pgTable(
+  "monitoring_observations",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    connectionId: bigint("connection_id", { mode: "number" }).notNull(),
+    ownerId: bigint("owner_id", { mode: "number" }).notNull(),
+    runId: uuid("run_id").notNull(),
+    externalId: text("external_id").notNull(),
+    kind: text("kind").notNull(),
+    observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
+    payload: jsonb("payload")
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default({}),
+    pegasusEventId: bigint("pegasus_event_id", { mode: "number" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  table => [
+    uniqueIndex("monitoring_observations_external_idx").on(
+      table.connectionId,
+      table.externalId
+    ),
+  ]
+);
