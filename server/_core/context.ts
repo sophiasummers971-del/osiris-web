@@ -1,6 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema.js";
 import { sdk } from "./sdk.js";
+import type { WorkersAiBinding } from "./aiGateway.js";
 
 type SupabaseAuthUser = {
   id: string;
@@ -17,6 +18,7 @@ export type SupabaseAuthEnvironment = {
   SUPABASE_DATABASE_URL?: string;
   POSTGRES_URL?: string;
   HYPERDRIVE?: { connectionString: string };
+  AI?: WorkersAiBinding;
 };
 
 const processAuthEnvironment = (): SupabaseAuthEnvironment => ({
@@ -97,6 +99,7 @@ export type TrpcContext = {
   res: CreateExpressContextOptions["res"];
   user: User | null;
   databaseUrl: string | null;
+  ai: WorkersAiBinding | null;
 };
 
 export async function createContext(
@@ -117,6 +120,7 @@ export async function createContext(
     res: opts.res,
     user,
     databaseUrl: resolveRequestDatabaseUrl(processAuthEnvironment()),
+    ai: null,
   };
 }
 
@@ -142,6 +146,7 @@ export async function createFetchContext(
   return {
     user,
     databaseUrl: resolveRequestDatabaseUrl(environment),
+    ai: environment.AI ?? null,
     req: {
       protocol: requestUrl.protocol.replace(":", ""),
       hostname: requestUrl.hostname,
