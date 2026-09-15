@@ -282,8 +282,8 @@ export default function Tools() {
           <div className="grid gap-4 md:grid-cols-2">
             {[
               {
-                var: "ANTHROPIC_API_KEY",
-                desc: "Anthropic API key (required for AI agent)",
+                var: "AI",
+                desc: "Cloudflare Workers AI binding (required for AI intelligence)",
               },
               {
                 var: "HIBP_API_KEY",
