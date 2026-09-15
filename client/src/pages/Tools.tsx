@@ -165,6 +165,9 @@ export default function Tools() {
   const disconnect = trpc.monitoring.disconnect.useMutation({
     onSuccess: () => utils.monitoring.listConnections.invalidate(),
   });
+  const runNow = trpc.monitoring.runNow.useMutation({
+    onSuccess: () => utils.monitoring.listConnections.invalidate(),
+  });
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -242,16 +245,29 @@ export default function Tools() {
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary">{connection.status}</Badge>
                         {connection.status === "active" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={disconnect.isPending}
-                            onClick={() =>
-                              disconnect.mutate({ connectionId: connection.id })
-                            }
-                          >
-                            Disconnect
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              disabled={runNow.isPending}
+                              onClick={() =>
+                                runNow.mutate({ connectionId: connection.id })
+                              }
+                            >
+                              {runNow.isPending ? "Checking…" : "Check now"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={disconnect.isPending}
+                              onClick={() =>
+                                disconnect.mutate({
+                                  connectionId: connection.id,
+                                })
+                              }
+                            >
+                              Disconnect
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -274,6 +290,17 @@ export default function Tools() {
               {disconnect.error && (
                 <p className="text-sm text-destructive">
                   {disconnect.error.message}
+                </p>
+              )}
+              {runNow.data && (
+                <p className="text-sm text-muted-foreground">
+                  Check complete: {runNow.data.processed} processed,{" "}
+                  {runNow.data.failed} failed.
+                </p>
+              )}
+              {runNow.error && (
+                <p className="text-sm text-destructive">
+                  {runNow.error.message}
                 </p>
               )}
             </CardContent>
