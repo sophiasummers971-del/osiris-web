@@ -6,6 +6,7 @@ const authenticatedContext = {
   user: { id: 1, role: "admin" },
   req: {},
   res: {},
+  ai: { run: vi.fn() },
 } as TrpcContext;
 
 describe("intelligence.generate", () => {
@@ -20,7 +21,10 @@ describe("intelligence.generate", () => {
 
     const result = await caller.generate({ prompt: "Assess this case" });
 
-    expect(generate).toHaveBeenCalledWith({ prompt: "Assess this case" });
+    expect(generate).toHaveBeenCalledWith({
+      prompt: "Assess this case",
+      ai: authenticatedContext.ai,
+    });
     expect(result.text).toBe("Generated: Assess this case");
     expect(result.usage.totalTokens).toBe(7);
   });

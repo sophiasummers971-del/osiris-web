@@ -8,6 +8,9 @@ function createEnvironment() {
     HYPERDRIVE: {
       connectionString: "postgresql://hyperdrive.internal/postgres",
     },
+    AI: {
+      run: vi.fn(),
+    },
     ASSETS: {
       fetch: vi.fn(async () => new Response("spa", { status: 200 })),
     },
@@ -28,6 +31,7 @@ describe("Cloudflare Worker", () => {
       service: "osiris-api",
       status: "ok",
       hyperdriveBound: true,
+      workersAiBound: true,
     });
     expect(environment.ASSETS.fetch).not.toHaveBeenCalled();
   });
