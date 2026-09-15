@@ -10,14 +10,13 @@ export type PostureControl = {
 
 export function evaluateStaticPosture(
   environment: PostureEnvironment,
-  authenticated: boolean
+  authenticated: boolean,
+  workersAiBound = false
 ): PostureControl[] {
   const supabaseConfigured = Boolean(
     environment.VITE_SUPABASE_URL && environment.VITE_SUPABASE_PUBLISHABLE_KEY
   );
-  const aiConfigured = Boolean(
-    environment.VERCEL_OIDC_TOKEN || environment.AI_GATEWAY_API_KEY
-  );
+  const aiConfigured = workersAiBound;
   return [
     {
       id: "session",
@@ -44,12 +43,12 @@ export function evaluateStaticPosture(
     },
     {
       id: "intelligence",
-      label: "AI intelligence gateway",
+      label: "Cloudflare Workers AI",
       ready: aiConfigured,
       critical: false,
       reason: aiConfigured
         ? undefined
-        : "Vercel AI Gateway credentials are unavailable",
+        : "Cloudflare Workers AI binding is unavailable",
     },
   ];
 }
