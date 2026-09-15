@@ -44,7 +44,10 @@ describe("scheduled monitoring runner", () => {
 
   it("does nothing until both database and encryption key are configured", async () => {
     await expect(
-      runDueMonitoring({ databaseUrl: "postgresql://database", tokenEncryptionKey: undefined })
+      runDueMonitoring({
+        databaseUrl: "postgresql://database",
+        tokenEncryptionKey: undefined,
+      })
     ).resolves.toEqual({
       processed: 0,
       failed: 0,
@@ -114,6 +117,27 @@ describe("scheduled monitoring runner", () => {
       })
     );
     expect(mocks.fail).not.toHaveBeenCalled();
+  });
+
+  it("scopes a forced manual run to the authenticated owner", async () => {
+    await runDueMonitoring(
+      {
+        databaseUrl: "postgresql://database",
+        tokenEncryptionKey: "encryption-key",
+        ownerId: 42,
+        connectionId: 7,
+        force: true,
+      },
+      new Date("2026-09-15T12:00:00.000Z")
+    );
+
+    expect(mocks.claim).toHaveBeenCalledWith(
+      mocks.db,
+      new Date("2026-09-15T12:00:00.000Z"),
+      new Date("2026-09-15T12:15:00.000Z"),
+      10,
+      { ownerId: 42, connectionId: 7, force: true }
+    );
   });
 
   it("stores only a sanitized failure code", async () => {
