@@ -9,7 +9,7 @@ const configured = {
 
 describe("evaluateStaticPosture", () => {
   it("recognizes the production architecture", () => {
-    const controls = evaluateStaticPosture(configured, true);
+    const controls = evaluateStaticPosture(configured, true, true);
 
     expect(controls.find(control => control.id === "identity")?.ready).toBe(
       true
@@ -23,7 +23,9 @@ describe("evaluateStaticPosture", () => {
   });
 
   it("does not disclose secret values", () => {
-    const serialized = JSON.stringify(evaluateStaticPosture(configured, true));
+    const serialized = JSON.stringify(
+      evaluateStaticPosture(configured, true, true)
+    );
 
     expect(serialized).not.toContain("signed-oidc-token");
   });
