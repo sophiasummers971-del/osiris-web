@@ -2,6 +2,7 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "../server/routers";
 import { createFetchContext } from "../server/_core/context";
 import type { WorkersAiBinding } from "../server/_core/aiGateway";
+import { runDueMonitoring } from "../server/monitoring/runner";
 
 type AssetsBinding = {
   fetch(request: Request): Promise<Response>;
@@ -16,6 +17,9 @@ type WorkerEnvironment = {
   POSTGRES_URL?: string;
   HYPERDRIVE?: { connectionString: string };
   AI?: WorkersAiBinding;
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
+  MONITORING_TOKEN_KEY?: string;
 };
 
 const AUTH_PROXY_PREFIX = "/api/supabase-auth/";
@@ -134,4 +138,20 @@ export async function handleRequest(
 
 export default {
   fetch: handleRequest,
+  scheduled(
+    _controller: { scheduledTime: number; cron: string },
+    environment: WorkerEnvironment,
+    context: { waitUntil(promise: Promise<unknown>): void }
+  ) {
+    context.waitUntil(
+      runDueMonitoring({
+        databaseUrl:
+          environment.HYPERDRIVE?.connectionString ??
+          environment.SUPABASE_DATABASE_URL ??
+          environment.POSTGRES_URL ??
+          null,
+        tokenEncryptionKey: environment.MONITORING_TOKEN_KEY,
+      })
+    );
+  },
 };
