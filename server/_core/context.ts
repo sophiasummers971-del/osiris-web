@@ -19,6 +19,9 @@ export type SupabaseAuthEnvironment = {
   POSTGRES_URL?: string;
   HYPERDRIVE?: { connectionString: string };
   AI?: WorkersAiBinding;
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
+  MONITORING_TOKEN_KEY?: string;
 };
 
 const processAuthEnvironment = (): SupabaseAuthEnvironment => ({
@@ -28,6 +31,9 @@ const processAuthEnvironment = (): SupabaseAuthEnvironment => ({
   OWNER_EMAIL: process.env.OWNER_EMAIL,
   SUPABASE_DATABASE_URL: process.env.SUPABASE_DATABASE_URL,
   POSTGRES_URL: process.env.POSTGRES_URL,
+  GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+  MONITORING_TOKEN_KEY: process.env.MONITORING_TOKEN_KEY,
 });
 
 const resolveRequestDatabaseUrl = (environment: SupabaseAuthEnvironment) =>
@@ -100,6 +106,11 @@ export type TrpcContext = {
   user: User | null;
   databaseUrl: string | null;
   ai: WorkersAiBinding | null;
+  githubOAuth: {
+    clientId?: string;
+    clientSecret?: string;
+    tokenEncryptionKey?: string;
+  };
 };
 
 export async function createContext(
@@ -121,6 +132,11 @@ export async function createContext(
     user,
     databaseUrl: resolveRequestDatabaseUrl(processAuthEnvironment()),
     ai: null,
+    githubOAuth: {
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      tokenEncryptionKey: process.env.MONITORING_TOKEN_KEY,
+    },
   };
 }
 
@@ -147,6 +163,11 @@ export async function createFetchContext(
     user,
     databaseUrl: resolveRequestDatabaseUrl(environment),
     ai: environment.AI ?? null,
+    githubOAuth: {
+      clientId: environment.GITHUB_CLIENT_ID,
+      clientSecret: environment.GITHUB_CLIENT_SECRET,
+      tokenEncryptionKey: environment.MONITORING_TOKEN_KEY,
+    },
     req: {
       protocol: requestUrl.protocol.replace(":", ""),
       hostname: requestUrl.hostname,
