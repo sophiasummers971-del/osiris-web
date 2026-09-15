@@ -17,7 +17,8 @@ type VaultDb = NonNullable<ReturnType<typeof getVaultDb>>;
 export async function recordPegasusEvent(
   db: VaultDb,
   ownerId: number,
-  event: PegasusEvent
+  event: PegasusEvent,
+  sourceEventKey?: string
 ) {
   return db.transaction(async tx => {
     // One writer per owner keeps the hash chain linear under concurrent collectors.
@@ -29,13 +30,30 @@ export async function recordPegasusEvent(
       .orderBy(desc(pegasusSecurityEvents.id))
       .limit(1);
     const seal = await sealPegasusEvent(event, previous?.eventHash ?? null);
-    const [stored] = await tx
+    const [inserted] = await tx
       .insert(pegasusSecurityEvents)
-      .values({ ownerId, ...event, ...seal })
+      .values({ ownerId, ...event, ...seal, sourceEventKey })
+      .onConflictDoNothing()
       .returning({ id: pegasusSecurityEvents.id });
+    const stored =
+      inserted ??
+      (sourceEventKey
+        ? (
+            await tx
+              .select({ id: pegasusSecurityEvents.id })
+              .from(pegasusSecurityEvents)
+              .where(
+                and(
+                  eq(pegasusSecurityEvents.ownerId, ownerId),
+                  eq(pegasusSecurityEvents.sourceEventKey, sourceEventKey)
+                )
+              )
+              .limit(1)
+          )[0]
+        : undefined);
     if (!stored) throw new Error("PEGASUS event storage failed");
 
-    const alerts = evaluatePegasusEvent(event);
+    const alerts = inserted ? evaluatePegasusEvent(event) : [];
     if (alerts.length) {
       await tx
         .insert(pegasusAlerts)

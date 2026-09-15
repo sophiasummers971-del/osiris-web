@@ -18,6 +18,7 @@ import NotificationCenter from "./pages/NotificationCenter";
 import SecurityCenter from "./pages/SecurityCenter";
 import EvidenceVault from "./pages/EvidenceVault";
 import Auth from "./pages/Auth";
+import GitHubCallback from "./pages/GitHubCallback";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -28,6 +29,10 @@ function Router() {
       <Route path="/security" component={SecurityCenter} />
       <Route path="/vault" component={EvidenceVault} />
       <Route path="/auth" component={Auth} />
+      <Route
+        path="/integrations/github/callback"
+        component={GitHubCallback}
+      />
       <Route path="/about" component={About} />
       <Route path="/supporters" component={SupporterHub} />
       <Route path="/notifications" component={NotificationCenter} />

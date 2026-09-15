@@ -20,6 +20,9 @@
   "ai": {
     "binding": "AI"
   },
+  "triggers": {
+    "crons": ["*/15 * * * *"]
+  },
   "assets": {
     "directory": "./dist/public",
     "binding": "ASSETS",

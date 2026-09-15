@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { handleRequest } from "./index";
+import worker, { handleRequest } from "./index";
 
 function createEnvironment() {
   return {
@@ -156,5 +156,23 @@ describe("Cloudflare Worker", () => {
 
     expect(await response.text()).toBe("spa");
     expect(environment.ASSETS.fetch).toHaveBeenCalledWith(request);
+  });
+
+  it("hands scheduled monitoring to the execution context", async () => {
+    const environment = createEnvironment();
+    const waitUntil = vi.fn();
+
+    worker.scheduled(
+      { scheduledTime: Date.now(), cron: "*/15 * * * *" },
+      environment,
+      { waitUntil }
+    );
+
+    expect(waitUntil).toHaveBeenCalledTimes(1);
+    await expect(waitUntil.mock.calls[0][0]).resolves.toEqual({
+      processed: 0,
+      failed: 0,
+      configured: false,
+    });
   });
 });

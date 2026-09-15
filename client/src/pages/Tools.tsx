@@ -19,8 +19,12 @@ import {
   Lock,
   Eye,
   Database,
+  Github,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
+import { Button } from "@/components/ui/button";
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const TOOLS_DETAILED = [
   {
@@ -149,6 +153,18 @@ const TOOLS_DETAILED = [
 ];
 
 export default function Tools() {
+  const { user } = useAuth();
+  const utils = trpc.useUtils();
+  const connections = trpc.monitoring.listConnections.useQuery(undefined, {
+    enabled: Boolean(user),
+    retry: false,
+  });
+  const beginGitHub = trpc.monitoring.beginGitHubConnection.useMutation({
+    onSuccess: result => window.location.assign(result.authorizationUrl),
+  });
+  const disconnect = trpc.monitoring.disconnect.useMutation({
+    onSuccess: () => utils.monitoring.listConnections.invalidate(),
+  });
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -190,6 +206,78 @@ export default function Tools() {
             Documented investigation capabilities and requirements. A listing
             here does not claim that a connector is currently deployed.
           </p>
+        </div>
+      </section>
+
+      <section className="border-b border-border/50 py-12">
+        <div className="container mx-auto max-w-6xl px-4">
+          <Card className="border-border/50 bg-card/60">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Github className="h-6 w-6 text-primary" />
+                <div>
+                  <CardTitle>GitHub account monitoring</CardTitle>
+                  <CardDescription>
+                    Detect protected account-profile and two-factor security
+                    changes every fifteen minutes.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!user ? (
+                <p className="text-sm text-muted-foreground">
+                  Sign in to connect a GitHub account.
+                </p>
+              ) : connections.data?.length ? (
+                <div className="space-y-2">
+                  {connections.data.map(connection => (
+                    <div
+                      className="flex items-center justify-between rounded-lg border border-border/50 p-3"
+                      key={connection.id}
+                    >
+                      <span className="font-mono text-sm">
+                        {connection.displayName ?? connection.providerAccountId}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">{connection.status}</Badge>
+                        {connection.status === "active" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={disconnect.isPending}
+                            onClick={() =>
+                              disconnect.mutate({ connectionId: connection.id })
+                            }
+                          >
+                            Disconnect
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Button
+                  disabled={beginGitHub.isPending}
+                  onClick={() => beginGitHub.mutate()}
+                >
+                  <Github className="mr-2 h-4 w-4" />
+                  {beginGitHub.isPending ? "Preparing…" : "Connect GitHub"}
+                </Button>
+              )}
+              {beginGitHub.error && (
+                <p className="text-sm text-destructive">
+                  {beginGitHub.error.message}
+                </p>
+              )}
+              {disconnect.error && (
+                <p className="text-sm text-destructive">
+                  {disconnect.error.message}
+                </p>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </section>
 
