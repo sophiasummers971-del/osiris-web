@@ -69,7 +69,7 @@ export function getVaultDb(
   const requestClient = postgres(connectionString, {
     max: 1,
     prepare: false,
-    ssl: "require",
+    fetch_types: false,
   });
   return drizzle(requestClient);
 }
@@ -83,7 +83,7 @@ async function runVaultDatabaseProbe(rawConnectionString?: string | null) {
   const requestClient = postgres(connectionString, {
     max: 1,
     prepare: false,
-    ssl: "require",
+    fetch_types: false,
   });
   return requestClient`select 1 as ok`;
 }
