@@ -1,6 +1,7 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "../server/routers";
 import { createFetchContext } from "../server/_core/context";
+import type { WorkersAiBinding } from "../server/_core/aiGateway";
 
 type AssetsBinding = {
   fetch(request: Request): Promise<Response>;
@@ -14,6 +15,7 @@ type WorkerEnvironment = {
   SUPABASE_DATABASE_URL?: string;
   POSTGRES_URL?: string;
   HYPERDRIVE?: { connectionString: string };
+  AI?: WorkersAiBinding;
 };
 
 const AUTH_PROXY_PREFIX = "/api/supabase-auth/";
@@ -89,6 +91,7 @@ export async function handleRequest(
       service: "osiris-api",
       status: "ok",
       hyperdriveBound: Boolean(environment.HYPERDRIVE?.connectionString),
+      workersAiBound: Boolean(environment.AI),
     });
   }
 
