@@ -68,9 +68,18 @@ export const notificationRouter = router({
       }
 
       try {
-        await markNotificationAsRead(input.notificationId);
+        const updated = await markNotificationAsRead(
+          input.notificationId,
+          ctx.user.id
+        );
+        if (!updated)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Notification not found",
+          });
         return { success: true };
       } catch (error) {
+        if (error instanceof TRPCError) throw error;
         console.error("Failed to mark notification as read:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -90,9 +99,18 @@ export const notificationRouter = router({
       }
 
       try {
-        await dismissNotification(input.notificationId);
+        const updated = await dismissNotification(
+          input.notificationId,
+          ctx.user.id
+        );
+        if (!updated)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Notification not found",
+          });
         return { success: true };
       } catch (error) {
+        if (error instanceof TRPCError) throw error;
         console.error("Failed to dismiss notification:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

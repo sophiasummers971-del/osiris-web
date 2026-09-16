@@ -65,6 +65,27 @@ export async function recordPegasusEvent(
   });
 }
 
+export async function listPegasusAlerts(
+  db: VaultDb,
+  ownerId: number,
+  limit: number
+) {
+  return db
+    .select({
+      id: pegasusAlerts.id,
+      ruleId: pegasusAlerts.ruleId,
+      title: pegasusAlerts.title,
+      severity: pegasusAlerts.severity,
+      status: pegasusAlerts.status,
+      requiresApproval: pegasusAlerts.requiresApproval,
+      createdAt: pegasusAlerts.createdAt,
+    })
+    .from(pegasusAlerts)
+    .where(eq(pegasusAlerts.ownerId, ownerId))
+    .orderBy(desc(pegasusAlerts.createdAt), desc(pegasusAlerts.id))
+    .limit(limit);
+}
+
 export async function getPegasusOverview(db: VaultDb, ownerId: number) {
   const [events, alerts, chainHeads] = await Promise.all([
     db
