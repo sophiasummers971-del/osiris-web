@@ -12,6 +12,7 @@ type SupabaseAuthUser = {
 };
 
 export type SupabaseAuthEnvironment = {
+  sendEmailTest?: () => Promise<void>;
   VITE_SUPABASE_URL?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   OWNER_EMAIL?: string;
@@ -26,8 +27,7 @@ export type SupabaseAuthEnvironment = {
 
 const processAuthEnvironment = (): SupabaseAuthEnvironment => ({
   VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
-  VITE_SUPABASE_PUBLISHABLE_KEY:
-    process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+  VITE_SUPABASE_PUBLISHABLE_KEY: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
   OWNER_EMAIL: process.env.OWNER_EMAIL,
   SUPABASE_DATABASE_URL: process.env.SUPABASE_DATABASE_URL,
   POSTGRES_URL: process.env.POSTGRES_URL,
@@ -101,6 +101,7 @@ async function authenticateSupabaseRequest(
 }
 
 export type TrpcContext = {
+  sendEmailTest?: () => Promise<void>;
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: User | null;
@@ -161,6 +162,7 @@ export async function createFetchContext(
 
   return {
     user,
+    sendEmailTest: environment.sendEmailTest,
     databaseUrl: resolveRequestDatabaseUrl(environment),
     ai: environment.AI ?? null,
     githubOAuth: {

@@ -3,12 +3,14 @@ import { appRouter } from "../server/routers";
 import { createFetchContext } from "../server/_core/context";
 import type { WorkersAiBinding } from "../server/_core/aiGateway";
 import { runDueMonitoring } from "../server/monitoring/runner";
+import { EMAIL_TEST_RECIPIENT, EMAIL_TEST_SENDER } from "../server/email-test";
 
 type AssetsBinding = {
   fetch(request: Request): Promise<Response>;
 };
 
 type WorkerEnvironment = {
+  email_verify?: { send(message: unknown): Promise<unknown> };
   ASSETS: AssetsBinding;
   VITE_SUPABASE_URL?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
@@ -119,7 +121,34 @@ export async function handleRequest(
       req: request,
       router: appRouter,
       createContext: ({ req, resHeaders }) =>
-        createFetchContext(req, resHeaders, environment),
+        createFetchContext(req, resHeaders, {
+          ...environment,
+          sendEmailTest: environment.email_verify
+            ? async () => {
+                const { EmailMessage } = await import("cloudflare:email");
+                const raw = [
+                  `From: OSIRIS <${EMAIL_TEST_SENDER}>`,
+                  `To: ${EMAIL_TEST_RECIPIENT}`,
+                  "Subject: OSIRIS email delivery test - not a security alarm",
+                  `Date: ${new Date().toUTCString()}`,
+                  `Message-ID: <${crypto.randomUUID()}@iron-fire.uk>`,
+                  "MIME-Version: 1.0",
+                  "Content-Type: text/plain; charset=utf-8",
+                  "Content-Transfer-Encoding: 7bit",
+                  "",
+                  "This is an approved OSIRIS email delivery test, not a security alarm.",
+                  "No evidence, credentials, or account details are included.",
+                  "Open OSIRIS and sign in to review alerts:",
+                  "https://osiris-web.sophia-stars.workers.dev/notifications",
+                  "Automatic email alarms are not enabled yet.",
+                  "",
+                ].join("\r\n");
+                await environment.email_verify!.send(
+                  new EmailMessage(EMAIL_TEST_SENDER, EMAIL_TEST_RECIPIENT, raw)
+                );
+              }
+            : undefined,
+        }),
       onError({ error, path }) {
         console.error("[tRPC] Request failed", {
           code: error.code,
