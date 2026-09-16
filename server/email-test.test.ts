@@ -31,7 +31,7 @@ describe("restricted email test", () => {
     const send = vi.fn(async () => {});
     await expect(
       sendOwnerEmailTest(EMAIL_TEST_RECIPIENT.toUpperCase(), send)
-    ).resolves.toEqual({ accepted: true, automaticAlarmsEnabled: false });
+    ).resolves.toEqual({ accepted: true });
     expect(send).toHaveBeenCalledOnce();
   });
 });

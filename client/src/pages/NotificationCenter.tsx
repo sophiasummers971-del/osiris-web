@@ -10,6 +10,11 @@ export default function NotificationCenter() {
   const { user, loading } = useAuth();
   const utils = trpc.useUtils();
   const emailTest = trpc.pegasus.sendEmailTest.useMutation();
+  const emailStatus = trpc.pegasus.emailAlarmStatus.useQuery(undefined, {
+    enabled: Boolean(user),
+    retry: false,
+    refetchInterval: 30000,
+  });
   const alerts = trpc.pegasus.listAlerts.useQuery(
     { limit: 50 },
     { enabled: Boolean(user), retry: false, refetchInterval: 30000 }
@@ -31,8 +36,18 @@ export default function NotificationCenter() {
         profile changes remain in monitoring history.
       </p>
       <p className="mt-3 text-sm text-muted-foreground">
-        In-app viewing is available. Email and browser push delivery are not
-        implemented; no email or push notification will be sent.
+        In-app viewing is available. Browser push delivery is not implemented.
+      </p>
+      <p className="mt-3 text-sm" role={emailStatus.error ? "alert" : "status"}>
+        {!user
+          ? "Sign in to check email-alarm status."
+          : emailStatus.error
+            ? "Email-alarm status is unavailable; delivery is not assured."
+            : emailStatus.isLoading
+              ? "Checking email-alarm status…"
+              : emailStatus.data?.enabled
+                ? "Email alarms are enabled for new high/critical alerts. The 15-minute schedule may add delivery delay. Routine changes stay in monitoring history."
+                : "Automatic email alarms are off for this owner."}
       </p>
       <div className="my-6 flex flex-wrap gap-3">
         <Link href="/tools" className="text-sm underline">
@@ -55,7 +70,8 @@ export default function NotificationCenter() {
           {emailTest.isSuccess && (
             <p role="status">
               Cloudflare accepted the test. Check your inbox and spam folder;
-              receipt is not yet confirmed. Automatic alarms remain off.
+              receipt is not yet confirmed. This test does not change alarm
+              settings.
             </p>
           )}
           {emailTest.error && (
@@ -121,6 +137,35 @@ export default function NotificationCenter() {
                     <p className="mt-2 text-sm text-muted-foreground">
                       {formatMonitoringTimestamp(alert.createdAt)}
                     </p>
+                    {(() => {
+                      const delivery = emailStatus.data?.deliveries.find(
+                        d => d.alertId === alert.id
+                      );
+                      if (emailStatus.error)
+                        return (
+                          <p className="mt-2 text-xs">
+                            Email status unavailable.
+                          </p>
+                        );
+                      if (!delivery)
+                        return (
+                          <p className="mt-2 text-xs">
+                            No email delivery record.
+                          </p>
+                        );
+                      return (
+                        <p className="mt-2 text-xs">
+                          Email:{" "}
+                          {delivery.status === "accepted"
+                            ? "accepted by Cloudflare (inbox receipt not confirmed)"
+                            : delivery.status}
+                          {" · "}
+                          {delivery.attempts} of 5 attempts
+                          {delivery.status === "retry" &&
+                            ` · next retry ${formatMonitoringTimestamp(delivery.nextAttemptAt)}`}
+                        </p>
+                      );
+                    })()}
                     {alert.status === "open" && (
                       <Button
                         className="mt-3"

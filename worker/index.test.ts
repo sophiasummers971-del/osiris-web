@@ -168,9 +168,17 @@ describe("Cloudflare Worker", () => {
       { waitUntil }
     );
 
-    expect(waitUntil).toHaveBeenCalledTimes(1);
-    await expect(waitUntil.mock.calls[0][0]).rejects.toThrow(
-      "MONITORING_TOKEN_KEY_UNAVAILABLE"
+    expect(waitUntil).toHaveBeenCalledTimes(2);
+    const outcomes = await Promise.allSettled(
+      waitUntil.mock.calls.map(([p]) => p)
     );
+    expect(outcomes[0]).toMatchObject({
+      status: "rejected",
+      reason: new Error("EMAIL_ALARM_RUN_FAILED"),
+    });
+    expect(outcomes[1]).toMatchObject({
+      status: "rejected",
+      reason: new Error("MONITORING_TOKEN_KEY_UNAVAILABLE"),
+    });
   });
 });
