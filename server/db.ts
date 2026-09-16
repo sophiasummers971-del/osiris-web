@@ -201,22 +201,29 @@ export async function getUnreadNotificationCount(
  * Mark notification as read
  */
 export async function markNotificationAsRead(
-  notificationId: number
-): Promise<void> {
+  notificationId: number,
+  ownerId: number
+): Promise<boolean> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot mark notification: database not available");
-    return;
+    throw new Error("Notification storage is not configured");
   }
 
   try {
-    await db
+    const [result] = await db
       .update(notifications)
       .set({
         inAppStatus: "read",
         readAt: new Date(),
       })
-      .where(eq(notifications.id, notificationId));
+      .where(
+        and(
+          eq(notifications.id, notificationId),
+          eq(notifications.userId, ownerId)
+        )
+      );
+    return result.affectedRows > 0;
   } catch (error) {
     console.error("[Database] Failed to mark notification as read:", error);
     throw error;
@@ -227,24 +234,31 @@ export async function markNotificationAsRead(
  * Dismiss notification
  */
 export async function dismissNotification(
-  notificationId: number
-): Promise<void> {
+  notificationId: number,
+  ownerId: number
+): Promise<boolean> {
   const db = await getDb();
   if (!db) {
     console.warn(
       "[Database] Cannot dismiss notification: database not available"
     );
-    return;
+    throw new Error("Notification storage is not configured");
   }
 
   try {
-    await db
+    const [result] = await db
       .update(notifications)
       .set({
         inAppStatus: "dismissed",
         dismissedAt: new Date(),
       })
-      .where(eq(notifications.id, notificationId));
+      .where(
+        and(
+          eq(notifications.id, notificationId),
+          eq(notifications.userId, ownerId)
+        )
+      );
+    return result.affectedRows > 0;
   } catch (error) {
     console.error("[Database] Failed to dismiss notification:", error);
     throw error;

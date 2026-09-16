@@ -4,6 +4,7 @@ import { ensureVaultOperator, getVaultDb } from "./vault-db.js";
 import {
   acknowledgePegasusAlert,
   getPegasusOverview,
+  listPegasusAlerts,
 } from "./pegasus-store.js";
 import { protectedProcedure, router } from "./_core/trpc.js";
 
@@ -18,6 +19,13 @@ function requireDb(databaseUrl: string | null) {
 }
 
 export const pegasusRouter = router({
+  listAlerts: protectedProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(100).default(50) }))
+    .query(async ({ ctx, input }) => {
+      const db = requireDb(ctx.databaseUrl);
+      const operator = await ensureVaultOperator(db, ctx.user);
+      return listPegasusAlerts(db, operator.id, input.limit);
+    }),
   overview: protectedProcedure.query(async ({ ctx }) => {
     const db = requireDb(ctx.databaseUrl);
     const operator = await ensureVaultOperator(db, ctx.user);
