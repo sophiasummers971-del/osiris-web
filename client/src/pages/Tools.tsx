@@ -163,6 +163,10 @@ export default function Tools() {
     enabled: Boolean(user),
     retry: false,
   });
+  const activity = trpc.monitoring.listActivity.useQuery(
+    { limit: 8 },
+    { enabled: Boolean(user), retry: false }
+  );
   const beginGitHub = trpc.monitoring.beginGitHubConnection.useMutation({
     onSuccess: result => window.location.assign(result.authorizationUrl),
   });
@@ -170,7 +174,12 @@ export default function Tools() {
     onSuccess: () => utils.monitoring.listConnections.invalidate(),
   });
   const runNow = trpc.monitoring.runNow.useMutation({
-    onSuccess: () => utils.monitoring.listConnections.invalidate(),
+    onSuccess: async () => {
+      await Promise.all([
+        utils.monitoring.listConnections.invalidate(),
+        utils.monitoring.listActivity.invalidate(),
+      ]);
+    },
   });
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -346,6 +355,93 @@ export default function Tools() {
               {runNow.error && (
                 <p className="text-sm text-destructive">
                   {runNow.error.message}
+                </p>
+              )}
+              {user && activity.data && (
+                <div className="space-y-4 border-t border-border/50 pt-4">
+                  <div>
+                    <h3 className="font-semibold text-foreground">
+                      Recent monitoring activity
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Latest account checks and security-relevant changes.
+                    </p>
+                  </div>
+                  {activity.data.runs.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No monitoring checks have run yet.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {activity.data.runs.map(run => (
+                        <div
+                          className="flex flex-col gap-2 rounded-lg border border-border/40 p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+                          key={run.id}
+                        >
+                          <div>
+                            <p className="font-medium text-foreground">
+                              GitHub account check
+                            </p>
+                            <p className="text-muted-foreground">
+                              {formatMonitoringTimestamp(
+                                run.finishedAt ?? run.startedAt
+                              )}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {run.observationCount > 0 && (
+                              <Badge variant="outline">
+                                {run.observationCount} change
+                                {run.observationCount === 1 ? "" : "s"}
+                              </Badge>
+                            )}
+                            <Badge
+                              variant={
+                                run.status === "failed"
+                                  ? "destructive"
+                                  : "secondary"
+                              }
+                            >
+                              {run.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {activity.data.observations.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-foreground">
+                        Detected changes
+                      </h4>
+                      {activity.data.observations.map(observation => (
+                        <div
+                          className="flex flex-col gap-2 rounded-lg border border-border/40 p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+                          key={observation.id}
+                        >
+                          <div>
+                            <p className="font-mono font-medium text-foreground">
+                              {observation.signal}
+                            </p>
+                            <p className="text-muted-foreground">
+                              {observation.category} ·{" "}
+                              {formatMonitoringTimestamp(
+                                observation.observedAt
+                              )}
+                            </p>
+                          </div>
+                          <Badge variant="outline">
+                            {observation.severity}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {activity.error && (
+                <p className="text-sm text-destructive">
+                  Monitoring history is temporarily unavailable.
                 </p>
               )}
             </CardContent>

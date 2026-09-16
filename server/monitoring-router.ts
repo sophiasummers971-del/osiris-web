@@ -15,6 +15,7 @@ import {
 import {
   disconnectMonitoringConnection,
   getOwnedMonitoringConnectionSecret,
+  listMonitoringActivity,
   listMonitoringConnections,
   upsertGitHubConnection,
 } from "./monitoring/connection-store.js";
@@ -52,6 +53,14 @@ export const monitoringRouter = router({
     const operator = await ensureVaultOperator(db, ctx.user);
     return listMonitoringConnections(db, operator.id);
   }),
+
+  listActivity: protectedProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(25).default(10) }))
+    .query(async ({ ctx, input }) => {
+      const db = requireDb(ctx.databaseUrl);
+      const operator = await ensureVaultOperator(db, ctx.user);
+      return listMonitoringActivity(db, operator.id, input.limit);
+    }),
 
   runNow: protectedProcedure
     .input(z.object({ connectionId: z.number().int().positive() }))

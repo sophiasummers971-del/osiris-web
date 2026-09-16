@@ -84,6 +84,63 @@ export async function listMonitoringConnections(db: VaultDb, ownerId: number) {
     .orderBy(desc(monitoringConnections.updatedAt));
 }
 
+export async function listMonitoringActivity(
+  db: VaultDb,
+  ownerId: number,
+  limit = 10
+) {
+  const [runs, observations] = await Promise.all([
+    db
+      .select({
+        id: monitoringRuns.id,
+        connectionId: monitoringRuns.connectionId,
+        status: monitoringRuns.status,
+        observationCount: monitoringRuns.observationCount,
+        errorCode: monitoringRuns.errorCode,
+        startedAt: monitoringRuns.startedAt,
+        finishedAt: monitoringRuns.finishedAt,
+      })
+      .from(monitoringRuns)
+      .where(eq(monitoringRuns.ownerId, ownerId))
+      .orderBy(desc(monitoringRuns.startedAt))
+      .limit(limit),
+    db
+      .select({
+        id: monitoringObservations.id,
+        connectionId: monitoringObservations.connectionId,
+        kind: monitoringObservations.kind,
+        observedAt: monitoringObservations.observedAt,
+        payload: monitoringObservations.payload,
+      })
+      .from(monitoringObservations)
+      .where(eq(monitoringObservations.ownerId, ownerId))
+      .orderBy(desc(monitoringObservations.observedAt))
+      .limit(limit),
+  ]);
+
+  return {
+    runs,
+    observations: observations.map(observation => ({
+      id: observation.id,
+      connectionId: observation.connectionId,
+      kind: observation.kind,
+      observedAt: observation.observedAt,
+      category:
+        typeof observation.payload.category === "string"
+          ? observation.payload.category
+          : "configuration",
+      signal:
+        typeof observation.payload.signal === "string"
+          ? observation.payload.signal
+          : "CHANGE_DETECTED",
+      severity:
+        typeof observation.payload.severity === "string"
+          ? observation.payload.severity
+          : "info",
+    })),
+  };
+}
+
 export async function disconnectMonitoringConnection(
   db: VaultDb,
   ownerId: number,
