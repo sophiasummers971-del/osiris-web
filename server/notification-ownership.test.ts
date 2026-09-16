@@ -14,7 +14,31 @@ describe("legacy notification ownership", () => {
       update: () => ({ set: () => ({ where: mocks.where }) }),
     });
   });
-  afterEach(() => vi.unstubAllEnvs());
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+  });
+
+  it.each(["markNotificationAsRead", "dismissNotification"] as const)(
+    "%s does not log raw database errors or their nested secrets",
+    async operation => {
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      const failure = new Error("private-query-marker", {
+        cause: {
+          password: "synthetic-secret-marker",
+          params: ["private-evidence-marker"],
+        },
+      });
+      mocks.where.mockRejectedValue(failure);
+      const db = await import("./db.js");
+      await expect(db[operation](77, 42)).rejects.toBe(failure);
+      expect(log).toHaveBeenCalledOnce();
+      const output = JSON.stringify(log.mock.calls);
+      expect(output).toContain("OPERATION_FAILED");
+      expect(output).not.toContain("private-");
+      expect(output).not.toContain("synthetic-secret-marker");
+    }
+  );
 
   it.each(["markNotificationAsRead", "dismissNotification"] as const)(
     "%s filters updates by notification AND authenticated owner",

@@ -80,7 +80,9 @@ export const notificationRouter = router({
         return { success: true };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        console.error("Failed to mark notification as read:", error);
+        console.error("Failed to mark notification as read:", {
+          code: "OPERATION_FAILED",
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to mark notification as read",
@@ -111,7 +113,9 @@ export const notificationRouter = router({
         return { success: true };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        console.error("Failed to dismiss notification:", error);
+        console.error("Failed to dismiss notification:", {
+          code: "OPERATION_FAILED",
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to dismiss notification",
@@ -183,7 +187,9 @@ export const notificationRouter = router({
         await updateNotificationPreferences(ctx.user.id, updates);
         return { success: true };
       } catch (error) {
-        console.error("Failed to update preferences:", error);
+        console.error("Failed to update preferences:", {
+          code: "OPERATION_FAILED",
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to update preferences",
@@ -218,7 +224,9 @@ export const notificationRouter = router({
 
         return { success: true, subscription };
       } catch (error) {
-        console.error("Failed to register push subscription:", error);
+        console.error("Failed to register push subscription:", {
+          code: "OPERATION_FAILED",
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to register push subscription",
@@ -296,7 +304,9 @@ export const notificationRouter = router({
           notification,
         };
       } catch (error) {
-        console.error("Failed to send notification:", error);
+        console.error("Failed to send notification:", {
+          code: "OPERATION_FAILED",
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to send notification",
@@ -344,7 +354,9 @@ export const notificationRouter = router({
           notification,
         };
       } catch (error) {
-        console.error("Failed to broadcast notification:", error);
+        console.error("Failed to broadcast notification:", {
+          code: "OPERATION_FAILED",
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to broadcast notification",
