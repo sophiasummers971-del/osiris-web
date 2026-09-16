@@ -63,17 +63,85 @@ describe("GitHub account monitor", () => {
     });
   });
 
-  it("uses stable external IDs so repeated provider states deduplicate", async () => {
+  it("uses stable external IDs for retries even at different check times", async () => {
     const first = await monitorGitHubAccount({
       accessToken: "secret",
       previousCheckpoint: {},
+      observedAt: new Date("2026-09-15T12:00:00.000Z"),
       fetch: vi.fn(async () => accountResponse()),
     });
     const second = await monitorGitHubAccount({
       accessToken: "secret",
       previousCheckpoint: {},
+      observedAt: new Date("2026-09-15T12:15:00.000Z"),
       fetch: vi.fn(async () => accountResponse()),
     });
     expect(first.observation?.externalId).toBe(second.observation?.externalId);
+  });
+
+  it("records distinct critical incidents after disabling, restoring, and disabling 2FA", async () => {
+    const check = (
+      previousCheckpoint: Record<string, unknown>,
+      enabled: boolean
+    ) =>
+      monitorGitHubAccount({
+        accessToken: "secret",
+        previousCheckpoint: JSON.parse(JSON.stringify(previousCheckpoint)),
+        // Incident identity must not depend on the clock.
+        observedAt: new Date("2026-09-15T12:00:00.000Z"),
+        fetch: vi.fn(async () =>
+          accountResponse({ two_factor_authentication: enabled })
+        ),
+      });
+    const first = await check(unchanged, false);
+    const repeated = await check(first.checkpoint, false);
+    const restored = await check(repeated.checkpoint, true);
+    const second = await check(restored.checkpoint, false);
+    const retry = await check(restored.checkpoint, false);
+
+    expect(first.observation?.event).toMatchObject({
+      signal: "PROTECTION_DISABLED",
+      severity: "critical",
+    });
+    expect(repeated.observation).toBeNull();
+    expect(repeated.checkpoint).toEqual(first.checkpoint);
+    expect(second.observation?.event).toMatchObject({
+      signal: "PROTECTION_DISABLED",
+      severity: "critical",
+    });
+    expect(second.observation?.externalId).not.toBe(
+      first.observation?.externalId
+    );
+    expect(retry.observation?.externalId).toBe(second.observation?.externalId);
+  });
+
+  it("keeps returning profile changes distinct across repeated cycles", async () => {
+    const check = (
+      previousCheckpoint: Record<string, unknown>,
+      login: string
+    ) =>
+      monitorGitHubAccount({
+        accessToken: "secret",
+        previousCheckpoint,
+        fetch: vi.fn(async () => accountResponse({ login })),
+      });
+    const first = await check(unchanged, "new-login");
+    const returned = await check(first.checkpoint, "octocat");
+    const second = await check(returned.checkpoint, "new-login");
+    const secondReturn = await check(second.checkpoint, "octocat");
+
+    for (const result of [first, returned, second, secondReturn]) {
+      expect(result.observation?.event).toMatchObject({
+        signal: "GITHUB_ACCOUNT_PROFILE_CHANGED",
+        severity: "low",
+      });
+    }
+    expect(
+      new Set(
+        [first, returned, second, secondReturn].map(
+          result => result.observation?.externalId
+        )
+      ).size
+    ).toBe(4);
   });
 });

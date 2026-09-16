@@ -6,9 +6,12 @@ export type GitHubAccountCheckpoint = {
   name: string | null;
   avatarUrl: string;
   twoFactorAuthentication: boolean | null;
+  observationFingerprint?: string;
 };
 
-function checkpointFromAccount(account: GitHubAccount): GitHubAccountCheckpoint {
+function checkpointFromAccount(
+  account: GitHubAccount
+): GitHubAccountCheckpoint {
   return {
     login: account.login,
     name: account.name,
@@ -29,8 +32,12 @@ function checkpointsMatch(
   );
 }
 
-async function fingerprintCheckpoint(checkpoint: GitHubAccountCheckpoint) {
+async function fingerprintCheckpoint(
+  checkpoint: GitHubAccountCheckpoint,
+  previousFingerprint: string | null
+) {
   const canonical = JSON.stringify([
+    previousFingerprint,
     checkpoint.login,
     checkpoint.name,
     checkpoint.avatarUrl,
@@ -56,9 +63,24 @@ export async function monitorGitHubAccount(options: {
     fetch: options.fetch,
   });
   const checkpoint = checkpointFromAccount(account);
+  const previousFingerprint =
+    typeof options.previousCheckpoint.observationFingerprint === "string"
+      ? options.previousCheckpoint.observationFingerprint
+      : null;
   if (checkpointsMatch(options.previousCheckpoint, checkpoint)) {
+    if (previousFingerprint !== null) {
+      checkpoint.observationFingerprint = previousFingerprint;
+    }
     return { checkpoint, observation: null };
   }
+
+  // Chain incident identity through the persisted checkpoint. Returning to a
+  // former state creates a new incident, while retrying an uncommitted
+  // transition produces the same ID regardless of the polling time.
+  checkpoint.observationFingerprint = await fingerprintCheckpoint(
+    checkpoint,
+    previousFingerprint
+  );
 
   const twoFactorWasDisabled =
     options.previousCheckpoint.twoFactorAuthentication === true &&
@@ -87,7 +109,7 @@ export async function monitorGitHubAccount(options: {
   return {
     checkpoint,
     observation: {
-      externalId: `github:account:${account.id}:${await fingerprintCheckpoint(checkpoint)}`,
+      externalId: `github:account:${account.id}:${checkpoint.observationFingerprint}`,
       kind: "github.account_profile",
       event,
     },
