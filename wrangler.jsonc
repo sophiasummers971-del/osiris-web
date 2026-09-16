@@ -6,27 +6,33 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "VITE_SUPABASE_URL": "https://pussbwanjsrvitaxzsnh.supabase.co",
-    "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_eQ0HJJqoJ0oSOOHIp3U1lA_UVsu0Qy7"
+    "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_eQ0HJJqoJ0oSOOHIp3U1lA_UVsu0Qy7",
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
+  "send_email": [
+    {
+      "name": "email_verify",
+      "destination_address": "sophiasummers971@gmail.com",
+    },
+  ],
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      "id": "6938fd96a02a4771b092d38f33981097"
-    }
+      "id": "6938fd96a02a4771b092d38f33981097",
+    },
   ],
   "ai": {
-    "binding": "AI"
+    "binding": "AI",
   },
   "triggers": {
-    "crons": ["*/15 * * * *"]
+    "crons": ["*/15 * * * *"],
   },
   "assets": {
     "directory": "./dist/public",
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"],
-    "not_found_handling": "single-page-application"
-  }
+    "not_found_handling": "single-page-application",
+  },
 }

@@ -7,6 +7,7 @@ import {
   listPegasusAlerts,
 } from "./pegasus-store.js";
 import { protectedProcedure, router } from "./_core/trpc.js";
+import { sendOwnerEmailTest } from "./email-test.js";
 
 function requireDb(databaseUrl: string | null) {
   const db = getVaultDb(databaseUrl);
@@ -19,6 +20,9 @@ function requireDb(databaseUrl: string | null) {
 }
 
 export const pegasusRouter = router({
+  sendEmailTest: protectedProcedure.mutation(({ ctx }) =>
+    sendOwnerEmailTest(ctx.user.email, ctx.sendEmailTest)
+  ),
   listAlerts: protectedProcedure
     .input(z.object({ limit: z.number().int().min(1).max(100).default(50) }))
     .query(async ({ ctx, input }) => {

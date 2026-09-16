@@ -9,6 +9,7 @@ import { Link } from "wouter";
 export default function NotificationCenter() {
   const { user, loading } = useAuth();
   const utils = trpc.useUtils();
+  const emailTest = trpc.pegasus.sendEmailTest.useMutation();
   const alerts = trpc.pegasus.listAlerts.useQuery(
     { limit: 50 },
     { enabled: Boolean(user), retry: false, refetchInterval: 30000 }
@@ -41,6 +42,30 @@ export default function NotificationCenter() {
           Security ledger
         </Link>
       </div>
+
+      {user?.email?.toLowerCase() === "sophiasummers971@gmail.com" && (
+        <div className="mb-6 space-y-2">
+          <Button
+            variant="outline"
+            disabled={emailTest.isPending || emailTest.isSuccess}
+            onClick={() => emailTest.mutate()}
+          >
+            {emailTest.isPending ? "Sending test…" : "Send test email"}
+          </Button>
+          {emailTest.isSuccess && (
+            <p role="status">
+              Cloudflare accepted the test. Check your inbox and spam folder;
+              receipt is not yet confirmed. Automatic alarms remain off.
+            </p>
+          )}
+          {emailTest.error && (
+            <p role="alert">
+              Email test failed. No delivery is confirmed. Do not repeatedly
+              retry.
+            </p>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <p role="status">Loading sign-in status…</p>

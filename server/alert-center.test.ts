@@ -17,6 +17,7 @@ vi.mock("@/lib/trpc", () => ({
       },
     }),
     pegasus: {
+      sendEmailTest: { useMutation: mocks.mutation },
       listAlerts: { useQuery: mocks.query },
       acknowledgeAlert: { useMutation: mocks.mutation },
     },
