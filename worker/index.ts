@@ -11,6 +11,7 @@ type AssetsBinding = {
 };
 
 type WorkerEnvironment = {
+  SUPABASE_SECRET_KEY?: string;
   email_verify?: { send(message: unknown): Promise<unknown> };
   ASSETS: AssetsBinding;
   VITE_SUPABASE_URL?: string;
@@ -117,6 +118,40 @@ export async function handleRequest(
   }
 
   if (url.pathname.startsWith("/api/trpc")) {
+    if (
+      request.method === "POST" &&
+      url.pathname.includes("cases.uploadEvidence")
+    ) {
+      const reader = request.body?.getReader();
+      const chunks: Uint8Array[] = [];
+      let size = 0;
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          size += value.byteLength;
+          if (size > 2 * 1024 * 1024) {
+            await reader.cancel();
+            return Response.json(
+              { error: "Evidence request too large" },
+              { status: 413 }
+            );
+          }
+          chunks.push(value);
+        }
+      }
+      const body = new Uint8Array(size);
+      let offset = 0;
+      for (const chunk of chunks) {
+        body.set(chunk, offset);
+        offset += chunk.length;
+      }
+      request = new Request(request.url, {
+        method: request.method,
+        headers: request.headers,
+        body,
+      });
+    }
     return fetchRequestHandler({
       endpoint: "/api/trpc",
       req: request,

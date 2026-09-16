@@ -39,6 +39,22 @@ const severityStyle: Record<Severity, string> = {
 export default function EvidenceVault() {
   const { isAuthenticated, loading } = useAuth();
   const utils = trpc.useUtils();
+  const uploadFile = trpc.cases.uploadEvidence.useMutation({
+    onSuccess: () => {
+      void utils.cases.detail.invalidate();
+      toast.success("Private evidence file recorded");
+    },
+    onError: () =>
+      toast.error(
+        "File upload failed. Your selection is retained; check the case before retrying."
+      ),
+  });
+  const downloadFile = trpc.cases.downloadEvidence.useMutation({
+    onSuccess: data => {
+      window.location.assign(data.url);
+    },
+    onError: () => toast.error("Unable to download this evidence file"),
+  });
   const cases = trpc.cases.list.useQuery(undefined, {
     enabled: isAuthenticated,
     retry: false,
@@ -281,6 +297,27 @@ export default function EvidenceVault() {
                             {record.notes}
                           </p>
                         )}
+                        {record.storagePath && (
+                          <div className="mt-3">
+                            <p className="text-xs">
+                              {record.originalFilename} · {record.fileSizeBytes}{" "}
+                              bytes
+                            </p>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={downloadFile.isPending}
+                              onClick={() =>
+                                downloadFile.mutate({
+                                  caseId: record.caseId,
+                                  evidenceId: record.id,
+                                })
+                              }
+                            >
+                              Download file
+                            </Button>
+                          </div>
+                        )}
                       </article>
                     ))}
                   </CardContent>
@@ -323,6 +360,15 @@ export default function EvidenceVault() {
           </section>
 
           <aside>
+            {selectedId && (
+              <FileEvidenceForm
+                key={selectedId}
+                pending={uploadFile.isPending}
+                onUpload={input =>
+                  uploadFile.mutateAsync({ ...input, caseId: selectedId })
+                }
+              />
+            )}
             {selectedId ? (
               <EvidenceForm
                 caseId={selectedId}
@@ -336,6 +382,94 @@ export default function EvidenceVault() {
         </div>
       </div>
     </main>
+  );
+}
+
+function FileEvidenceForm({
+  pending,
+  onUpload,
+}: {
+  pending: boolean;
+  onUpload: (input: {
+    label: string;
+    filename: string;
+    mime: string;
+    base64: string;
+  }) => Promise<unknown>;
+}) {
+  const [file, setFile] = useState<File | null>(null);
+  const [label, setLabel] = useState("");
+  const [error, setError] = useState("");
+  const [inputKey, setInputKey] = useState(0);
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    if (!file || pending) return;
+    if (!file.size || file.size > 1024 * 1024) {
+      setError("Choose a file between 1 byte and 1 MiB.");
+      return;
+    }
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("Read failed"));
+        reader.onload = () => resolve(String(reader.result).split(",")[1]);
+        reader.readAsDataURL(file);
+      });
+      await onUpload({
+        label,
+        filename: file.name,
+        mime:
+          file.type ||
+          (file.name.toLowerCase().endsWith(".txt") ? "text/plain" : ""),
+        base64,
+      });
+      setFile(null);
+      setLabel("");
+      setError("");
+      setInputKey(v => v + 1);
+    } catch {
+      setError(
+        "Upload failed. Check whether the record exists before retrying."
+      );
+    }
+  }
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-6 space-y-3 rounded border border-border p-4"
+    >
+      <h3>Attach private evidence</h3>
+      <label htmlFor="evidence-file-label">Evidence label</label>
+      <Input
+        id="evidence-file-label"
+        value={label}
+        onChange={e => setLabel(e.target.value)}
+        minLength={2}
+        maxLength={255}
+        required
+        disabled={pending}
+      />
+      <label htmlFor="evidence-file">File</label>
+      <Input
+        key={inputKey}
+        id="evidence-file"
+        type="file"
+        accept=".pdf,.png,.jpg,.jpeg,.txt"
+        disabled={pending}
+        onChange={e => {
+          setFile(e.target.files?.[0] ?? null);
+          setError("");
+        }}
+      />
+      <p className="text-xs text-muted-foreground">
+        PDF, PNG, JPEG or UTF-8 text; maximum 1 MiB. Server-calculated SHA-256.
+        Downloads expire after 60 seconds. Type checks are not malware scanning.
+      </p>
+      {error && <p role="alert">{error}</p>}
+      <Button disabled={pending || !file || label.trim().length < 2}>
+        {pending ? "Uploading…" : "Attach file"}
+      </Button>
+    </form>
   );
 }
 

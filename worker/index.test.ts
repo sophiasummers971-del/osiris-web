@@ -18,6 +18,16 @@ function createEnvironment() {
 }
 
 describe("Cloudflare Worker", () => {
+  it("bounds evidence upload bodies even without Content-Length", async () => {
+    const response = await handleRequest(
+      new Request("https://osiris.example/api/trpc/cases.uploadEvidence", {
+        method: "POST",
+        body: "x".repeat(2 * 1024 * 1024 + 1),
+      }),
+      createEnvironment()
+    );
+    expect(response.status).toBe(413);
+  });
   it("reports API health without invoking static assets", async () => {
     const environment = createEnvironment();
 
