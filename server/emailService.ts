@@ -11,7 +11,7 @@ const EMAIL_CONFIG = {
 };
 
 /**
- * Send email via configured service (SendGrid, Mailgun, or console)
+ * Send email via a configured provider; unconfigured delivery fails closed.
  */
 async function sendEmailViaService(
   to: string,
@@ -27,10 +27,10 @@ async function sendEmailViaService(
     });
     return result;
   } catch (error) {
-    console.error("[Email] Failed to send:", error);
+    console.error("[Email] Failed to send:", { code: "OPERATION_FAILED" });
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: "EMAIL_SEND_FAILED",
     };
   }
 }
@@ -138,7 +138,9 @@ export async function processPendingEmails(): Promise<{
           }
         }
       } catch (error) {
-        console.error(`[Email] Error processing email ${email.id}:`, error);
+        console.error("[Email] Error processing queued email", {
+          code: "EMAIL_PROCESS_FAILED",
+        });
         failed++;
       }
     }
@@ -146,7 +148,9 @@ export async function processPendingEmails(): Promise<{
     console.log(`[Email] Processed ${processed} emails, ${failed} failed`);
     return { processed, failed };
   } catch (error) {
-    console.error("[Email] Failed to process pending emails:", error);
+    console.error("[Email] Failed to process pending emails:", {
+      code: "OPERATION_FAILED",
+    });
     return { processed: 0, failed: 0 };
   }
 }
@@ -187,7 +191,9 @@ export async function sendNotificationEmail(
 
     return result.success;
   } catch (error) {
-    console.error("[Email] Failed to send notification email:", error);
+    console.error("[Email] Failed to send notification email:", {
+      code: "OPERATION_FAILED",
+    });
     return false;
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Email Service Integration
- * Supports SendGrid and Mailgun with fallback to console logging for development
+ * Supports SendGrid and Mailgun; unconfigured providers fail closed.
  */
 
 interface EmailOptions {
@@ -20,7 +20,7 @@ interface EmailResult {
 
 /**
  * Send email using configured service
- * Supports: SendGrid, Mailgun, or console logging (development)
+ * Supports SendGrid or Mailgun. Success means provider acceptance, not inbox delivery.
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   const emailService = process.env.EMAIL_SERVICE || "console";
@@ -33,19 +33,15 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     } else if (emailService === "mailgun") {
       return await sendViaMailgun(options, fromEmail);
     } else {
-      // Development/fallback: log to console
-      console.log("[Email Service] Development mode - Email would be sent:", {
-        to: options.to,
-        subject: options.subject,
-        from: fromEmail,
-      });
-      return { success: true, messageId: "dev-" + Date.now() };
+      return { success: false, error: "EMAIL_PROVIDER_NOT_CONFIGURED" };
     }
   } catch (error) {
-    console.error("[Email Service] Failed to send email:", error);
+    console.error("[Email Service] Failed to send email", {
+      code: "EMAIL_SEND_FAILED",
+    });
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: "EMAIL_SEND_FAILED",
     };
   }
 }
@@ -87,8 +83,7 @@ async function sendViaSendGrid(
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`SendGrid API error: ${response.status} - ${error}`);
+    throw new Error("EMAIL_SEND_FAILED");
   }
 
   return {
@@ -137,8 +132,7 @@ async function sendViaMailgun(
   );
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Mailgun API error: ${response.status} - ${error}`);
+    throw new Error("EMAIL_SEND_FAILED");
   }
 
   const data = (await response.json()) as { id: string };

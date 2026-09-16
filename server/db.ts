@@ -11,7 +11,9 @@ export async function getDb() {
     try {
       _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      console.warn("[Database] Failed to connect:", {
+        code: "OPERATION_FAILED",
+      });
       _db = null;
     }
   }
@@ -72,7 +74,9 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       set: updateSet,
     });
   } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
+    console.error("[Database] Failed to upsert user:", {
+      code: "OPERATION_FAILED",
+    });
     throw error;
   }
 }
@@ -135,7 +139,9 @@ export async function createNotification(
       .limit(1);
     return created[0];
   } catch (error) {
-    console.error("[Database] Failed to create notification:", error);
+    console.error("[Database] Failed to create notification:", {
+      code: "OPERATION_FAILED",
+    });
     throw error;
   }
 }
@@ -163,7 +169,9 @@ export async function getUserNotifications(
       .limit(limit)
       .offset(offset);
   } catch (error) {
-    console.error("[Database] Failed to get notifications:", error);
+    console.error("[Database] Failed to get notifications:", {
+      code: "OPERATION_FAILED",
+    });
     return [];
   }
 }
@@ -192,7 +200,9 @@ export async function getUnreadNotificationCount(
       );
     return result.length > 0 ? result.length : 0;
   } catch (error) {
-    console.error("[Database] Failed to get unread count:", error);
+    console.error("[Database] Failed to get unread count:", {
+      code: "OPERATION_FAILED",
+    });
     return 0;
   }
 }
@@ -225,7 +235,9 @@ export async function markNotificationAsRead(
       );
     return result.affectedRows > 0;
   } catch (error) {
-    console.error("[Database] Failed to mark notification as read:", error);
+    console.error("[Database] Failed to mark notification as read:", {
+      code: "OPERATION_FAILED",
+    });
     throw error;
   }
 }
@@ -260,7 +272,9 @@ export async function dismissNotification(
       );
     return result.affectedRows > 0;
   } catch (error) {
-    console.error("[Database] Failed to dismiss notification:", error);
+    console.error("[Database] Failed to dismiss notification:", {
+      code: "OPERATION_FAILED",
+    });
     throw error;
   }
 }
@@ -304,7 +318,9 @@ export async function getOrCreateNotificationPreferences(
 
     return prefs[0];
   } catch (error) {
-    console.error("[Database] Failed to get notification preferences:", error);
+    console.error("[Database] Failed to get notification preferences:", {
+      code: "OPERATION_FAILED",
+    });
     return undefined;
   }
 }
@@ -330,10 +346,9 @@ export async function updateNotificationPreferences(
       .set(updates)
       .where(eq(notificationPreferences.userId, userId));
   } catch (error) {
-    console.error(
-      "[Database] Failed to update notification preferences:",
-      error
-    );
+    console.error("[Database] Failed to update notification preferences:", {
+      code: "OPERATION_FAILED",
+    });
     throw error;
   }
 }
@@ -371,7 +386,9 @@ export async function savePushSubscription(
 
     return result[0];
   } catch (error) {
-    console.error("[Database] Failed to save push subscription:", error);
+    console.error("[Database] Failed to save push subscription:", {
+      code: "OPERATION_FAILED",
+    });
     throw error;
   }
 }
@@ -401,7 +418,9 @@ export async function getUserPushSubscriptions(
         )
       );
   } catch (error) {
-    console.error("[Database] Failed to get push subscriptions:", error);
+    console.error("[Database] Failed to get push subscriptions:", {
+      code: "OPERATION_FAILED",
+    });
     return [];
   }
 }
@@ -428,7 +447,9 @@ export async function queueEmail(
       .limit(1);
     return queued[0];
   } catch (error) {
-    console.error("[Database] Failed to queue email:", error);
+    console.error("[Database] Failed to queue email:", {
+      code: "OPERATION_FAILED",
+    });
     throw error;
   }
 }
@@ -455,7 +476,9 @@ export async function getPendingEmails(
       .orderBy(emailQueue.createdAt)
       .limit(limit);
   } catch (error) {
-    console.error("[Database] Failed to get pending emails:", error);
+    console.error("[Database] Failed to get pending emails:", {
+      code: "OPERATION_FAILED",
+    });
     return [];
   }
 }
@@ -496,7 +519,9 @@ export async function updateEmailStatus(
       })
       .where(eq(emailQueue.id, emailId));
   } catch (error) {
-    console.error("[Database] Failed to update email status:", error);
+    console.error("[Database] Failed to update email status:", {
+      code: "OPERATION_FAILED",
+    });
     throw error;
   }
 }
