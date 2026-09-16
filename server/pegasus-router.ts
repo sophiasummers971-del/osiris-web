@@ -8,6 +8,7 @@ import {
 } from "./pegasus-store.js";
 import { protectedProcedure, router } from "./_core/trpc.js";
 import { sendOwnerEmailTest } from "./email-test.js";
+import { getEmailAlarmStatus } from "./email-outbox.js";
 
 function requireDb(databaseUrl: string | null) {
   const db = getVaultDb(databaseUrl);
@@ -20,6 +21,11 @@ function requireDb(databaseUrl: string | null) {
 }
 
 export const pegasusRouter = router({
+  emailAlarmStatus: protectedProcedure.query(async ({ ctx }) => {
+    const db = requireDb(ctx.databaseUrl);
+    const operator = await ensureVaultOperator(db, ctx.user);
+    return getEmailAlarmStatus(db, operator.id);
+  }),
   sendEmailTest: protectedProcedure.mutation(({ ctx }) =>
     sendOwnerEmailTest(ctx.user.email, ctx.sendEmailTest)
   ),

@@ -25,5 +25,5 @@ export async function sendOwnerEmailTest(
       message: "Email test failed",
     });
   }
-  return { accepted: true, automaticAlarmsEnabled: false } as const;
+  return { accepted: true } as const;
 }

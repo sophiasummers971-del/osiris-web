@@ -4,6 +4,7 @@ import { createFetchContext } from "../server/_core/context";
 import type { WorkersAiBinding } from "../server/_core/aiGateway";
 import { runDueMonitoring } from "../server/monitoring/runner";
 import { EMAIL_TEST_RECIPIENT, EMAIL_TEST_SENDER } from "../server/email-test";
+import { runEmailAlarms } from "../server/email-outbox";
 
 type AssetsBinding = {
   fetch(request: Request): Promise<Response>;
@@ -140,7 +141,7 @@ export async function handleRequest(
                   "No evidence, credentials, or account details are included.",
                   "Open OSIRIS and sign in to review alerts:",
                   "https://osiris-web.sophia-stars.workers.dev/notifications",
-                  "Automatic email alarms are not enabled yet.",
+                  "This test does not change automatic-alarm settings.",
                   "",
                 ].join("\r\n");
                 await environment.email_verify!.send(
@@ -172,6 +173,51 @@ export default {
     environment: WorkerEnvironment,
     context: { waitUntil(promise: Promise<unknown>): void }
   ) {
+    const databaseUrl =
+      environment.HYPERDRIVE?.connectionString ??
+      environment.SUPABASE_DATABASE_URL ??
+      environment.POSTGRES_URL ??
+      null;
+    // Retry delivery even when the independent monitoring collector fails.
+    context.waitUntil(
+      runEmailAlarms(
+        databaseUrl,
+        environment.email_verify
+          ? async alertId => {
+              const { EmailMessage } = await import("cloudflare:email");
+              const raw = [
+                `From: OSIRIS <${EMAIL_TEST_SENDER}>`,
+                `To: ${EMAIL_TEST_RECIPIENT}`,
+                "Subject: OSIRIS security alert - review required",
+                `Date: ${new Date().toUTCString()}`,
+                `Message-ID: <osiris-alert-${alertId}@iron-fire.uk>`,
+                "MIME-Version: 1.0",
+                "Content-Type: text/plain; charset=utf-8",
+                "Content-Transfer-Encoding: 7bit",
+                "",
+                "A high or critical rule-triggered security alert was recorded in OSIRIS.",
+                "This is a signal for review, not proof of an account compromise.",
+                "No evidence, credentials, or account details are included.",
+                "Open OSIRIS and sign in to review your alerts:",
+                "https://osiris-web.sophia-stars.workers.dev/notifications",
+                "",
+              ].join("\r\n");
+              await environment.email_verify!.send(
+                new EmailMessage(EMAIL_TEST_SENDER, EMAIL_TEST_RECIPIENT, raw)
+              );
+            }
+          : undefined
+      )
+        .then(result => {
+          console.log("[EmailAlarms] Scheduled run completed", result);
+        })
+        .catch(() => {
+          console.error("[EmailAlarms] Scheduled run failed", {
+            code: "EMAIL_ALARM_RUN_FAILED",
+          });
+          throw new Error("EMAIL_ALARM_RUN_FAILED");
+        })
+    );
     context.waitUntil(
       runDueMonitoring({
         databaseUrl:

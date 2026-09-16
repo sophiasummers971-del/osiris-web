@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   acknowledge: vi.fn(),
   operator: vi.fn(),
   getDb: vi.fn(),
+  emailStatus: vi.fn(),
 }));
 vi.mock("./vault-db.js", () => ({
   getVaultDb: mocks.getDb,
@@ -16,6 +17,9 @@ vi.mock("./pegasus-store.js", () => ({
   listPegasusAlerts: mocks.list,
   acknowledgePegasusAlert: mocks.acknowledge,
   getPegasusOverview: vi.fn(),
+}));
+vi.mock("./email-outbox.js", () => ({
+  getEmailAlarmStatus: mocks.emailStatus,
 }));
 import { pegasusRouter } from "./pegasus-router.js";
 
@@ -64,5 +68,16 @@ describe("durable PEGASUS alert API", () => {
       caller().acknowledgeAlert({ alertId: 9 })
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
     expect(mocks.acknowledge).toHaveBeenCalledWith(mocks.db, 42, 9);
+  });
+  it("scopes email status to the authenticated vault operator", async () => {
+    mocks.emailStatus.mockResolvedValue({ enabled: false, deliveries: [] });
+    await caller().emailAlarmStatus();
+    expect(mocks.emailStatus).toHaveBeenCalledWith(mocks.db, 42);
+  });
+  it("rejects unauthenticated email-status reads", async () => {
+    await expect(caller(null).emailAlarmStatus()).rejects.toMatchObject({
+      code: "UNAUTHORIZED",
+    });
+    expect(mocks.emailStatus).not.toHaveBeenCalled();
   });
 });

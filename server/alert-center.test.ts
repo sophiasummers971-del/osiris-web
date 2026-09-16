@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   auth: vi.fn(),
   query: vi.fn(),
   mutation: vi.fn(),
+  emailStatus: vi.fn(),
 }));
 vi.mock("@/_core/hooks/useAuth", () => ({ useAuth: mocks.auth }));
 vi.mock("@/lib/trpc", () => ({
@@ -17,6 +18,7 @@ vi.mock("@/lib/trpc", () => ({
       },
     }),
     pegasus: {
+      emailAlarmStatus: { useQuery: mocks.emailStatus },
       sendEmailTest: { useMutation: mocks.mutation },
       listAlerts: { useQuery: mocks.query },
       acknowledgeAlert: { useMutation: mocks.mutation },
@@ -31,6 +33,9 @@ import NotificationCenter from "../client/src/pages/NotificationCenter";
 
 describe("durable Alerts page", () => {
   beforeEach(() => {
+    mocks.emailStatus.mockReturnValue({
+      data: { enabled: false, deliveries: [] },
+    });
     mocks.auth.mockReturnValue({ user: { id: 1 }, loading: false });
     mocks.query.mockReturnValue({
       data: [],
@@ -47,7 +52,8 @@ describe("durable Alerts page", () => {
       { limit: 50 },
       expect.objectContaining({ enabled: true })
     );
-    expect(html).toContain("Email and browser push delivery are not");
+    expect(html).toContain("Browser push delivery is not implemented");
+    expect(html).toContain("Automatic email alarms are off for this owner");
     expect(html).not.toContain('type="checkbox"');
     expect(html).toContain("No rule-triggered security alerts recorded");
   });
@@ -96,5 +102,39 @@ describe("durable Alerts page", () => {
       { limit: 50 },
       expect.objectContaining({ enabled: false })
     );
+  });
+  it("shows enabled alarms and truthful provider acceptance", () => {
+    mocks.query.mockReturnValue({
+      data: [
+        {
+          id: 9,
+          title: "Review needed",
+          severity: "high",
+          status: "open",
+          createdAt: new Date(),
+        },
+      ],
+    });
+    mocks.emailStatus.mockReturnValue({
+      data: {
+        enabled: true,
+        deliveries: [{ alertId: 9, status: "accepted", attempts: 1 }],
+      },
+    });
+    const html = render();
+    expect(html).toContain(
+      "Email alarms are enabled for new high/critical alerts"
+    );
+    expect(html).toContain(
+      "accepted by Cloudflare (inbox receipt not confirmed)"
+    );
+    expect(html).not.toContain("Automatic alarms remain off");
+  });
+  it("does not disguise alarm status outages as disabled", () => {
+    mocks.emailStatus.mockReturnValue({ error: new Error("private failure") });
+    const html = render();
+    expect(html).toContain("Email-alarm status is unavailable");
+    expect(html).not.toContain("Automatic email alarms are off");
+    expect(html).not.toContain("private failure");
   });
 });
