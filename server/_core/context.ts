@@ -2,6 +2,7 @@ import type { CreateExpressContextOptions } from "@trpc/server/adapters/express"
 import type { User } from "../../drizzle/schema.js";
 import { sdk } from "./sdk.js";
 import type { WorkersAiBinding } from "./aiGateway.js";
+import { evidenceStorage, type EvidenceStorage } from "../evidence-storage.js";
 
 type SupabaseAuthUser = {
   id: string;
@@ -12,6 +13,7 @@ type SupabaseAuthUser = {
 };
 
 export type SupabaseAuthEnvironment = {
+  SUPABASE_SECRET_KEY?: string;
   sendEmailTest?: () => Promise<void>;
   VITE_SUPABASE_URL?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
@@ -26,6 +28,7 @@ export type SupabaseAuthEnvironment = {
 };
 
 const processAuthEnvironment = (): SupabaseAuthEnvironment => ({
+  SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY,
   VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
   VITE_SUPABASE_PUBLISHABLE_KEY: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
   OWNER_EMAIL: process.env.OWNER_EMAIL,
@@ -101,6 +104,7 @@ async function authenticateSupabaseRequest(
 }
 
 export type TrpcContext = {
+  evidenceStorage?: EvidenceStorage;
   sendEmailTest?: () => Promise<void>;
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
@@ -132,6 +136,10 @@ export async function createContext(
     res: opts.res,
     user,
     databaseUrl: resolveRequestDatabaseUrl(processAuthEnvironment()),
+    evidenceStorage: evidenceStorage(
+      process.env.VITE_SUPABASE_URL,
+      process.env.SUPABASE_SECRET_KEY
+    ),
     ai: null,
     githubOAuth: {
       clientId: process.env.GITHUB_CLIENT_ID,
@@ -164,6 +172,10 @@ export async function createFetchContext(
     user,
     sendEmailTest: environment.sendEmailTest,
     databaseUrl: resolveRequestDatabaseUrl(environment),
+    evidenceStorage: evidenceStorage(
+      environment.VITE_SUPABASE_URL,
+      environment.SUPABASE_SECRET_KEY
+    ),
     ai: environment.AI ?? null,
     githubOAuth: {
       clientId: environment.GITHUB_CLIENT_ID,

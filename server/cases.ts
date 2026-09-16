@@ -8,6 +8,7 @@ import {
 } from "../drizzle/vault-schema.js";
 import { ensureVaultOperator, getVaultDb } from "./vault-db.js";
 import { protectedProcedure, router } from "./_core/trpc.js";
+import { EVIDENCE_BUCKET, validateEvidence } from "./evidence-storage.js";
 
 async function requireDb(databaseUrl: string | null) {
   const db = getVaultDb(databaseUrl);
@@ -42,6 +43,130 @@ async function requireOwnedCase(
 }
 
 export const casesRouter = router({
+  uploadEvidence: protectedProcedure
+    .input(
+      z.object({
+        caseId: z.number().int().positive(),
+        label: z.string().trim().min(2).max(255),
+        filename: z.string().min(1).max(255),
+        mime: z.string().max(100),
+        base64: z.string().max(1398104),
+        notes: z.string().trim().max(10000).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { db, operator } = await requireOwnedCase(
+        input.caseId,
+        ctx.user,
+        ctx.databaseUrl
+      );
+      if (!ctx.evidenceStorage)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Private evidence storage is not configured",
+        });
+      const file = validateEvidence(input.filename, input.mime, input.base64);
+      const contentHash = Array.from(
+        new Uint8Array(
+          await crypto.subtle.digest("SHA-256", new Uint8Array(file.bytes))
+        )
+      )
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+      const storagePath = `operators/${operator.id}/cases/${input.caseId}/${crypto.randomUUID()}.${file.extension}`;
+      await ctx.evidenceStorage.upload(storagePath, file.bytes, input.mime);
+      // Never delete on an ambiguous database failure: a commit may already exist.
+      return db.transaction(async tx => {
+        const [created] = await tx
+          .insert(vaultEvidenceRecords)
+          .values({
+            caseId: input.caseId,
+            ownerId: operator.id,
+            label: input.label,
+            notes: input.notes,
+            sourceType: "document",
+            capturedAt: new Date(),
+            contentHash,
+            storageBucket: EVIDENCE_BUCKET,
+            storagePath,
+            originalFilename: file.name,
+            mimeType: input.mime,
+            fileSizeBytes: file.bytes.length,
+            uploadedAt: new Date(),
+          })
+          .returning({ id: vaultEvidenceRecords.id });
+        if (!created)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Evidence record creation failed",
+          });
+        await tx
+          .insert(vaultCaseAuditEvents)
+          .values({
+            caseId: input.caseId,
+            operatorId: operator.id,
+            action: "EVIDENCE_FILE_ADDED",
+            details: {
+              evidenceId: created.id,
+              contentHash,
+              storagePath,
+              mimeType: input.mime,
+              fileSizeBytes: file.bytes.length,
+            },
+          });
+        return { id: created.id };
+      });
+    }),
+  downloadEvidence: protectedProcedure
+    .input(
+      z.object({
+        caseId: z.number().int().positive(),
+        evidenceId: z.number().int().positive(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { db, operator } = await requireOwnedCase(
+        input.caseId,
+        ctx.user,
+        ctx.databaseUrl
+      );
+      const [file] = await db
+        .select()
+        .from(vaultEvidenceRecords)
+        .where(
+          and(
+            eq(vaultEvidenceRecords.id, input.evidenceId),
+            eq(vaultEvidenceRecords.caseId, input.caseId),
+            eq(vaultEvidenceRecords.ownerId, operator.id)
+          )
+        )
+        .limit(1);
+      const prefix = `operators/${operator.id}/cases/${input.caseId}/`;
+      if (
+        !file ||
+        file.storageBucket !== EVIDENCE_BUCKET ||
+        !file.storagePath?.startsWith(prefix) ||
+        !/^[0-9a-f-]{36}\.(pdf|png|jpe?g|txt)$/.test(
+          file.storagePath.slice(prefix.length)
+        )
+      )
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Evidence file not found",
+        });
+      if (!ctx.evidenceStorage)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Private evidence storage is not configured",
+        });
+      return {
+        url: await ctx.evidenceStorage.download(
+          file.storagePath,
+          (file.originalFilename ?? "evidence").replace(/[^a-zA-Z0-9._-]/g, "_")
+        ),
+        expiresIn: 60,
+      };
+    }),
   list: protectedProcedure.query(async ({ ctx }) => {
     const db = await requireDb(ctx.databaseUrl);
     const operator = await ensureVaultOperator(db, ctx.user);
