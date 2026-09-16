@@ -5,6 +5,18 @@ import type { TrpcContext } from "./context.js";
 
 const t = initTRPC.context<TrpcContext>().create({
   transformer: superjson,
+  errorFormatter({ shape, error }) {
+    // Never rely on runtime NODE_ENV to keep server internals out of clients.
+    const { stack: _stack, ...safeData } = shape.data;
+    return {
+      ...shape,
+      message:
+        error.code === "INTERNAL_SERVER_ERROR"
+          ? "Internal server error"
+          : shape.message,
+      data: safeData,
+    };
+  },
 });
 
 export const router = t.router;
