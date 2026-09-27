@@ -34,10 +34,12 @@
 ### Task 1: Pure production capability evaluator
 
 **Files:**
+
 - Create: `server/_core/posture.ts`
 - Create: `server/_core/posture.test.ts`
 
 **Interfaces:**
+
 - Consumes: server environment values and an authenticated-session boolean.
 - Produces:
   - `type PostureEnvironment = Record<string, string | undefined>`
@@ -63,10 +65,18 @@ const configured = {
 describe("evaluateStaticPosture", () => {
   it("recognizes the production architecture", () => {
     const controls = evaluateStaticPosture(configured, true);
-    expect(controls.find(control => control.id === "identity")?.ready).toBe(true);
-    expect(controls.find(control => control.id === "session")?.ready).toBe(true);
-    expect(controls.find(control => control.id === "intelligence")?.ready).toBe(true);
-    expect(controls.find(control => control.id === "payments")?.ready).toBe(true);
+    expect(controls.find(control => control.id === "identity")?.ready).toBe(
+      true
+    );
+    expect(controls.find(control => control.id === "session")?.ready).toBe(
+      true
+    );
+    expect(controls.find(control => control.id === "intelligence")?.ready).toBe(
+      true
+    );
+    expect(controls.find(control => control.id === "payments")?.ready).toBe(
+      true
+    );
   });
 
   it("requires both Stripe server boundaries", () => {
@@ -114,8 +124,7 @@ export function evaluateStaticPosture(
   authenticated: boolean
 ): PostureControl[] {
   const supabaseConfigured = Boolean(
-    environment.VITE_SUPABASE_URL &&
-      environment.VITE_SUPABASE_PUBLISHABLE_KEY
+    environment.VITE_SUPABASE_URL && environment.VITE_SUPABASE_PUBLISHABLE_KEY
   );
   const stripeSecret = Boolean(environment.STRIPE_SECRET_KEY);
   const stripeWebhook = Boolean(environment.STRIPE_WEBHOOK_SECRET);
@@ -183,10 +192,12 @@ Commit message: `feat: evaluate real production posture controls`
 ### Task 2: Read-only managed Postgres probe
 
 **Files:**
+
 - Modify: `server/vault-db.ts`
 - Modify: `server/vault-db.test.ts`
 
 **Interfaces:**
+
 - Consumes: `getVaultConnectionString()` and the existing postgres.js client.
 - Produces: `probeVaultDatabase(): Promise<{ ready: boolean; reason?: string }>`
 
@@ -198,9 +209,9 @@ Add tests that inject a probe callback so no test connects externally:
 import { probeVaultDatabase } from "./vault-db.js";
 
 it("reports a successful read-only database probe", async () => {
-  await expect(
-    probeVaultDatabase(async () => [{ ok: 1 }])
-  ).resolves.toEqual({ ready: true });
+  await expect(probeVaultDatabase(async () => [{ ok: 1 }])).resolves.toEqual({
+    ready: true,
+  });
 });
 
 it("sanitizes a failed database probe", async () => {
@@ -261,10 +272,12 @@ Commit message: `feat: probe operational database readiness`
 ### Task 3: Assemble the protected posture endpoint
 
 **Files:**
+
 - Modify: `server/_core/systemRouter.ts`
 - Create: `server/_core/systemRouter.test.ts` if router caller tests are viable; otherwise add `assemblePosture` tests to `posture.test.ts`.
 
 **Interfaces:**
+
 - Consumes:
   - `evaluateStaticPosture(process.env, Boolean(ctx.user))`
   - `probeVaultDatabase()`
@@ -283,7 +296,9 @@ const result = assemblePosture({
 });
 
 expect(result.status).toBe("READY");
-expect(result.controls.find(control => control.id === "database")).toMatchObject({
+expect(
+  result.controls.find(control => control.id === "database")
+).toMatchObject({
   ready: true,
   reason: undefined,
 });
@@ -312,9 +327,11 @@ Commit message: `fix: report live OSIRIS security posture`
 ### Task 4: Show actionable, sanitized control reasons
 
 **Files:**
+
 - Modify: `client/src/pages/SecurityCenter.tsx`
 
 **Interfaces:**
+
 - Consumes: optional `control.reason` from `system.posture`.
 - Produces: existing cards with a short action reason only when a control is not ready.
 
@@ -327,11 +344,13 @@ Confirm the generated tRPC type exposes `reason?: string` after the server chang
 Under `ACTION REQUIRED`, render:
 
 ```tsx
-{!control.ready && control.reason && (
-  <p className="mt-2 text-xs leading-5 text-muted-foreground">
-    {control.reason}
-  </p>
-)}
+{
+  !control.ready && control.reason && (
+    <p className="mt-2 text-xs leading-5 text-muted-foreground">
+      {control.reason}
+    </p>
+  );
+}
 ```
 
 Do not display environment variable names or credential fragments.
@@ -353,10 +372,12 @@ Commit message: `feat: explain posture control failures`
 ### Task 5: Preview and production verification
 
 **Files:**
+
 - No source changes unless verification reveals a defect.
 - Update the design status to Implemented only after production evidence passes.
 
 **Interfaces:**
+
 - Consumes: Vercel preview deployment and current project integrations.
 - Produces: verified production posture without secret disclosure.
 

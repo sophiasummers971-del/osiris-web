@@ -1,5 +1,4 @@
-export const WORKERS_AI_MODEL =
-  "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+export const WORKERS_AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 
 type WorkersAiUsage = {
   prompt_tokens?: number;
@@ -43,8 +42,10 @@ export async function generateWorkersAiText(options: {
   if (!text) throw new Error("Cloudflare Workers AI returned no text");
 
   const rawUsage = result.usage ?? {};
-  (options.logUsage ??
-    (value => console.info("[Workers AI] Token usage", value)))(rawUsage);
+  (
+    options.logUsage ??
+    (value => console.info("[Workers AI] Token usage", value))
+  )(rawUsage);
 
   return {
     text,

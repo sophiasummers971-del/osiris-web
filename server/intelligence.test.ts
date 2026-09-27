@@ -15,9 +15,8 @@ describe("intelligence.generate", () => {
       text: `Generated: ${prompt}`,
       usage: { inputTokens: 3, outputTokens: 4, totalTokens: 7 },
     }));
-    const caller = createIntelligenceRouter(generate).createCaller(
-      authenticatedContext
-    );
+    const caller =
+      createIntelligenceRouter(generate).createCaller(authenticatedContext);
 
     const result = await caller.generate({ prompt: "Assess this case" });
 
@@ -36,7 +35,9 @@ describe("intelligence.generate", () => {
       user: null,
     });
 
-    await expect(caller.generate({ prompt: "Assess this case" })).rejects.toMatchObject({
+    await expect(
+      caller.generate({ prompt: "Assess this case" })
+    ).rejects.toMatchObject({
       code: "UNAUTHORIZED",
     });
     expect(generate).not.toHaveBeenCalled();

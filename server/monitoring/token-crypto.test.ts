@@ -29,11 +29,11 @@ describe("monitoring token encryption", () => {
   });
 
   it("rejects malformed envelopes and invalid keys", async () => {
-    await expect(decryptMonitoringToken("not-an-envelope", key)).rejects.toThrow(
-      "Unsupported monitoring token envelope"
-    );
-    await expect(encryptMonitoringToken("token", "dG9vLXNob3J0")).rejects.toThrow(
-      "exactly 32 bytes"
-    );
+    await expect(
+      decryptMonitoringToken("not-an-envelope", key)
+    ).rejects.toThrow("Unsupported monitoring token envelope");
+    await expect(
+      encryptMonitoringToken("token", "dG9vLXNob3J0")
+    ).rejects.toThrow("exactly 32 bytes");
   });
 });
