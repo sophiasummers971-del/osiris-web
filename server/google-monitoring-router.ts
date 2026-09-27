@@ -98,6 +98,11 @@ export const googleMonitoringRouter = router({
           "GOOGLE_IDENTITY_FAILED",
           "GOOGLE_HISTORY_EXPIRED",
           "GOOGLE_API_FAILED",
+          "GOOGLE_STATE_DECODE_FAILED",
+          "GOOGLE_TOKEN_EXCHANGE_FAILED",
+          "GOOGLE_IDENTITY_FETCH_FAILED",
+          "GOOGLE_IDENTITY_RESPONSE_FAILED",
+          "GOOGLE_PROFILE_FETCH_FAILED",
         ]);
         const reason =
           error instanceof Error && known.has(error.message)

@@ -5,6 +5,17 @@ import {
 
 export const GOOGLE_MAIL_SCOPE =
   "https://www.googleapis.com/auth/gmail.metadata";
+async function diagnosticStep<T>(label: string, operation: () => Promise<T>) {
+  try {
+    return await operation();
+  } catch (error) {
+    // Preserve only errors deliberately defined by this module. Provider
+    // responses, credentials, codes and network exception text stay private.
+    if (error instanceof Error && /^GOOGLE_[A-Z_]+$/.test(error.message))
+      throw error;
+    throw new Error(`GOOGLE_${label}_FAILED`);
+  }
+}
 export type GoogleConfiguration = {
   enabled?: boolean;
   clientId?: string;
@@ -163,35 +174,42 @@ export async function completeGoogleAuthorization(
   fetcher = globalThis.fetch
 ) {
   const c = requireGoogleConfiguration(config);
-  const { verifier } = await readGoogleState(state, ownerId, c);
-  const token = await googleToken(
-    {
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: c.redirectUri,
-      code_verifier: verifier,
-    },
-    c,
-    fetcher
+  const { verifier } = await diagnosticStep("STATE_DECODE", () =>
+    readGoogleState(state, ownerId, c)
+  );
+  const token = await diagnosticStep("TOKEN_EXCHANGE", () =>
+    googleToken(
+      {
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: c.redirectUri,
+        code_verifier: verifier,
+      },
+      c,
+      fetcher
+    )
   );
   if (!token.refreshToken) throw new Error("GOOGLE_OFFLINE_CONSENT_REQUIRED");
-  const identityResponse = await fetcher(
-    "https://openidconnect.googleapis.com/v1/userinfo",
-    {
+  const identityResponse = await diagnosticStep("IDENTITY_FETCH", () =>
+    fetcher("https://openidconnect.googleapis.com/v1/userinfo", {
       redirect: "error",
       signal: AbortSignal.timeout(15_000),
       headers: { Authorization: `Bearer ${token.accessToken}` },
-    }
+    })
   );
   if (!identityResponse.ok) throw new Error("GOOGLE_IDENTITY_FAILED");
-  const identity = (await identityResponse.json()) as Record<string, unknown>;
+  const identity = (await diagnosticStep("IDENTITY_RESPONSE", () =>
+    identityResponse.json()
+  )) as Record<string, unknown>;
   if (
     typeof identity.sub !== "string" ||
     typeof identity.email !== "string" ||
     identity.email_verified !== true
   )
     throw new Error("GOOGLE_IDENTITY_FAILED");
-  const profile = await googleGet("profile", token.accessToken, fetcher);
+  const profile = await diagnosticStep("PROFILE_FETCH", () =>
+    googleGet("profile", token.accessToken, fetcher)
+  );
   if (
     typeof profile.historyId !== "string" ||
     !/^\d+$/.test(profile.historyId) ||
