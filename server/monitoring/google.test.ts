@@ -207,3 +207,40 @@ describe("Google metadata collection", () => {
     ).rejects.toThrow("GOOGLE_REAUTHORIZATION_REQUIRED");
   });
 });
+
+it("drains a busy mailbox across runs before advancing history", async () => {
+  const ids = Array.from({ length: 12 }, (_, i) => `mail${i}`);
+  const first = vi
+    .fn()
+    .mockResolvedValueOnce(
+      json({
+        historyId: "200",
+        history: [{ messagesAdded: ids.map(id => ({ message: { id } })) }],
+      })
+    )
+    .mockImplementation(async () =>
+      json({ ...message, payload: { headers: [] } })
+    );
+  const base = { accessToken: "access", accountId: "123", observedAt: now };
+  const result = await monitorGoogleMail({
+    ...base,
+    previousCheckpoint: { historyId: "100" },
+    fetch: first,
+  });
+  expect(first).toHaveBeenCalledTimes(11);
+  expect(result.checkpoint.historyId).toBe("100");
+  expect(result.checkpoint.googlePendingIds).toEqual(["mail10", "mail11"]);
+  const second = vi
+    .fn()
+    .mockImplementation(async () =>
+      json({ ...message, payload: { headers: [] } })
+    );
+  const drained = await monitorGoogleMail({
+    ...base,
+    previousCheckpoint: result.checkpoint,
+    fetch: second,
+  });
+  expect(second).toHaveBeenCalledTimes(2);
+  expect(drained.checkpoint.historyId).toBe("200");
+  expect(drained.checkpoint.googlePendingIds).toEqual([]);
+});

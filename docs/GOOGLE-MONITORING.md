@@ -16,7 +16,7 @@ Official references: [Google web-server OAuth](https://developers.google.com/ide
 
 ## Coverage and recovery
 
-Connection starts at the current mailbox history ID: no historic inbox import. Existing cron/manual runner polls active connections. Expired consent or expired Gmail history stops the connection with a visible reauthorization requirement. Reconnecting starts a fresh baseline and does not repair the prior coverage gap. History processing is bounded to ten pages and 100 unique messages per attempt; a larger backlog fails explicitly without advancing the checkpoint. This bound and Worker subrequest/runtime limits require live validation before calling this continuous monitoring. A busy mailbox may need a follow-up incremental backlog implementation before activation.
+Connection starts at the current mailbox history ID: no historic inbox import. Existing cron/manual runner polls active connections. Expired consent or expired Gmail history stops the connection with a visible reauthorization requirement. Reconnecting starts a fresh baseline and does not repair the prior coverage gap. Each attempt fetches at most one history page and ten message headers. Unprocessed message IDs and the next-page cursor are checkpointed so later runs drain the backlog before advancing the history baseline. A history page exceeding 1,000 unique messages fails explicitly. Polling can lag behind a busy inbox; runtime limits and backlog recovery still require controlled live validation.
 
 Disconnect clears local tokens even when Google revocation fails; the UI then instructs the user to remove OSIRIS access in Google Account. Existing recorded observations remain in the owner-scoped ledger.
 

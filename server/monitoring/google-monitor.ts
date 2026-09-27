@@ -66,14 +66,32 @@ export async function monitorGoogleMail(options: {
   const start = options.previousCheckpoint.historyId;
   if (typeof start !== "string" || !/^\d+$/.test(start))
     throw new Error("GOOGLE_HISTORY_EXPIRED");
-  const ids = new Set<string>();
-  let pageToken: string | undefined;
-  let historyId = start;
-  for (let page = 0; page < 10; page++) {
+  // Persist unfinished work so a busy mailbox can drain across scheduled runs.
+  const previous = options.previousCheckpoint;
+  const pending = previous.googlePendingIds;
+  if (
+    pending !== undefined &&
+    (!Array.isArray(pending) ||
+      pending.some(
+        id => typeof id !== "string" || !/^[a-zA-Z0-9_-]+$/.test(id)
+      ))
+  )
+    throw new Error("GOOGLE_API_FAILED");
+  let ids = new Set<string>((pending as string[] | undefined) ?? []);
+  let pageToken =
+    typeof previous.googleNextPageToken === "string"
+      ? previous.googleNextPageToken
+      : undefined;
+  let historyId =
+    typeof previous.googleTargetHistoryId === "string"
+      ? previous.googleTargetHistoryId
+      : start;
+  if (!/^\d+$/.test(historyId)) throw new Error("GOOGLE_API_FAILED");
+  if (!ids.size) {
     const query = new URLSearchParams({
       startHistoryId: start,
       historyTypes: "messageAdded",
-      maxResults: "100",
+      maxResults: "10",
     });
     if (pageToken) query.set("pageToken", pageToken);
     const response = await googleGet(
@@ -91,13 +109,14 @@ export async function monitorGoogleMail(options: {
       for (const added of item.messagesAdded ?? []) {
         if (typeof added.message?.id === "string") ids.add(added.message.id);
       }
-    if (ids.size > 100) throw new Error("GOOGLE_MAIL_BACKLOG");
+    if (ids.size > 1000) throw new Error("GOOGLE_MAIL_BACKLOG");
     pageToken = response.nextPageToken;
-    if (!pageToken) break;
+    if (pageToken !== undefined && typeof pageToken !== "string")
+      throw new Error("GOOGLE_API_FAILED");
   }
-  if (pageToken) throw new Error("GOOGLE_MAIL_BACKLOG");
+  const batch = Array.from(ids);
   const observations = [];
-  for (const id of Array.from(ids)) {
+  for (const id of batch.slice(0, 10)) {
     if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error("GOOGLE_API_FAILED");
     const query = new URLSearchParams({ format: "metadata" });
     query.append("metadataHeaders", "From");
@@ -122,7 +141,13 @@ export async function monitorGoogleMail(options: {
     if (observation) observations.push(observation);
   }
   return {
-    checkpoint: { ...options.previousCheckpoint, historyId },
+    checkpoint: {
+      ...options.previousCheckpoint,
+      historyId: batch.length > 10 || pageToken ? start : historyId,
+      googlePendingIds: batch.slice(10),
+      googleNextPageToken: pageToken ?? null,
+      googleTargetHistoryId: historyId,
+    },
     observations,
   };
 }
