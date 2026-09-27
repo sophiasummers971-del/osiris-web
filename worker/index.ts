@@ -215,6 +215,8 @@ export async function handleRequest(
     headers.set(name, value);
   if (new URL(request.url).pathname.startsWith("/api/"))
     headers.set("Cache-Control", "no-store");
+  else if (headers.get("Content-Type")?.includes("text/html"))
+    headers.set("Cache-Control", "no-cache");
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,

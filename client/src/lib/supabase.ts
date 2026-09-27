@@ -8,7 +8,9 @@ let client: SupabaseClient | null = null;
 export let isSupabaseConfigured = Boolean(supabaseUrl && publishableKey);
 
 export function configureSupabase(url?: string, key?: string) {
-  if (!url || !key || isSupabaseConfigured) return;
+  // Bootstrap reads the deployed Worker's configuration before creating a client.
+  // Build-time variables are only a local-development fallback, not authoritative.
+  if (!url || !key || client) return;
 
   supabaseUrl = url;
   publishableKey = key;

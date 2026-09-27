@@ -168,6 +168,23 @@ describe("Cloudflare Worker", () => {
     expect(environment.ASSETS.fetch).toHaveBeenCalledWith(request);
   });
 
+  it("requires HTML revalidation so navigation does not reuse stale application code", async () => {
+    const environment = createEnvironment();
+    environment.ASSETS.fetch.mockResolvedValueOnce(
+      new Response("<html></html>", {
+        headers: {
+          "Content-Type": "text/html",
+          "Cache-Control": "public, max-age=86400",
+        },
+      })
+    );
+    const response = await handleRequest(
+      new Request("https://osiris.example/vault"),
+      environment
+    );
+    expect(response.headers.get("Cache-Control")).toBe("no-cache");
+  });
+
   it("hands scheduled monitoring to the execution context", async () => {
     const environment = createEnvironment();
     const waitUntil = vi.fn();
