@@ -189,13 +189,13 @@ export default function Tools() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://osirisweb-2gqv98je.manus.space/",
+        item: "https://osiris-web.sophia-stars.workers.dev/",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Tools",
-        item: "https://osirisweb-2gqv98je.manus.space/tools",
+        item: "https://osiris-web.sophia-stars.workers.dev/tools",
       },
     ],
   };
@@ -480,8 +480,8 @@ export default function Tools() {
                       </div>
                       <Badge className={statusColor} variant="secondary">
                         {tool.status === "active"
-                          ? "Reference"
-                          : "Credential required"}
+                          ? "Example only — not connected"
+                          : "Example only — not connected"}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -493,7 +493,7 @@ export default function Tools() {
                     {/* Usage */}
                     <div>
                       <h4 className="mb-2 text-sm font-semibold text-foreground">
-                        Usage
+                        Illustrative command — not executable in OSIRIS
                       </h4>
                       <pre className="bg-background/50 p-3 rounded-lg overflow-x-auto text-xs font-mono text-chart-1">
                         {tool.usage}

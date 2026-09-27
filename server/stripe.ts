@@ -151,7 +151,8 @@ export const createCheckoutSession = protectedProcedure
   )
   .mutation(async ({ ctx, input }) => {
     const user = ctx.user;
-    if (!user) throw new Error("User not authenticated");
+    if (!user || typeof user.id !== "number" || user.id <= 0)
+      throw new Error("Legacy finance identity is unavailable");
 
     const db = await getDb();
     if (!db) throw new Error("Database not available");
@@ -202,7 +203,8 @@ export const createCheckoutSession = protectedProcedure
  */
 export const getUserOrders = protectedProcedure.query(async ({ ctx }) => {
   const user = ctx.user;
-  if (!user) throw new Error("User not authenticated");
+  if (!user || typeof user.id !== "number" || user.id <= 0)
+    throw new Error("Legacy finance identity is unavailable");
 
   const db = await getDb();
   if (!db) throw new Error("Database not available");
@@ -220,7 +222,8 @@ export const getUserOrders = protectedProcedure.query(async ({ ctx }) => {
  */
 export const getUserSubscription = protectedProcedure.query(async ({ ctx }) => {
   const user = ctx.user;
-  if (!user) throw new Error("User not authenticated");
+  if (!user || typeof user.id !== "number" || user.id <= 0)
+    throw new Error("Legacy finance identity is unavailable");
 
   const db = await getDb();
   if (!db) throw new Error("Database not available");

@@ -1,3 +1,4 @@
+import { SECURITY_HEADERS } from "../shared/security-headers";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "../server/routers";
 import { createFetchContext } from "../server/_core/context";
@@ -88,10 +89,7 @@ async function proxySupabaseAuth(
   });
 }
 
-export async function handleRequest(
-  request: Request,
-  environment: WorkerEnvironment
-) {
+async function routeRequest(request: Request, environment: WorkerEnvironment) {
   const url = new URL(request.url);
 
   if (url.pathname === "/api/health") {
@@ -199,6 +197,29 @@ export async function handleRequest(
   }
 
   return environment.ASSETS.fetch(request);
+}
+
+export async function handleRequest(
+  request: Request,
+  environment: WorkerEnvironment
+) {
+  let response: Response;
+  try {
+    response = await routeRequest(request, environment);
+  } catch {
+    console.error("[Worker] Request failed", { code: "REQUEST_FAILED" });
+    response = Response.json({ error: "Service unavailable" }, { status: 503 });
+  }
+  const headers = new Headers(response.headers);
+  for (const [name, value] of Object.entries(SECURITY_HEADERS))
+    headers.set(name, value);
+  if (new URL(request.url).pathname.startsWith("/api/"))
+    headers.set("Cache-Control", "no-store");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 export default {
