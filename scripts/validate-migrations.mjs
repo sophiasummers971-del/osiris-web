@@ -33,5 +33,5 @@ console.log(
   "PREREQUISITE: original Vault schema and Supabase auth/storage schemas must already exist. This is NOT an empty-database bootstrap or a live drift check."
 );
 console.log(
-  `Unrecovered historical baseline: ${manifest.externalBaseline.reason}`
+  `Historical baseline prerequisite: ${manifest.externalBaseline.reason}`
 );

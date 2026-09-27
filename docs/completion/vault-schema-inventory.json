@@ -1,0 +1,469 @@
+{
+  "source": "Read-only PostgreSQL catalog query; no user records or secrets",
+  "project": "pussbwanjsrvitaxzsnh",
+  "observedDate": "2026-09-27",
+  "limitations": "Current schema inventory only; not a full bootstrap, migration history, grants export or restore script.",
+  "tables": [
+    {
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "case_id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "operator_id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "action",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "details",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        },
+        {
+          "name": "previous_event_hash",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "event_hash",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX case_audit_events_pkey ON public.case_audit_events USING btree (id)",
+        "CREATE INDEX case_audit_events_case_idx ON public.case_audit_events USING btree (case_id, created_at DESC)",
+        "CREATE UNIQUE INDEX case_audit_events_event_hash_key ON public.case_audit_events USING btree (event_hash)",
+        "CREATE INDEX case_audit_events_operator_idx ON public.case_audit_events USING btree (operator_id)"
+      ],
+      "policies": [
+        {
+          "cmd": "INSERT",
+          "qual": null,
+          "roles": ["authenticated"],
+          "tablename": "case_audit_events",
+          "permissive": "PERMISSIVE",
+          "policyname": "case_audit_events_insert_own",
+          "schemaname": "public",
+          "with_check": "(operator_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+        },
+        {
+          "cmd": "SELECT",
+          "qual": "(operator_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+          "roles": ["authenticated"],
+          "tablename": "case_audit_events",
+          "permissive": "PERMISSIVE",
+          "policyname": "case_audit_events_select_own",
+          "schemaname": "public",
+          "with_check": null
+        }
+      ],
+      "triggers": [
+        "CREATE TRIGGER protect_case_audit_events BEFORE DELETE OR UPDATE ON public.case_audit_events FOR EACH ROW EXECUTE FUNCTION prevent_vault_mutation()",
+        "CREATE TRIGGER seal_case_audit_event BEFORE INSERT ON public.case_audit_events FOR EACH ROW EXECUTE FUNCTION seal_audit_event()"
+      ],
+      "rls_forced": false,
+      "table_name": "case_audit_events",
+      "constraints": [
+        "FOREIGN KEY (case_id) REFERENCES security_cases(id)",
+        "UNIQUE (event_hash)",
+        "FOREIGN KEY (operator_id) REFERENCES osiris_operators(id)",
+        "PRIMARY KEY (id)"
+      ],
+      "rls_enabled": true
+    },
+    {
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "case_id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "owner_id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "label",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "source_type",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "source_reference",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "content_hash",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "captured_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        },
+        {
+          "name": "storage_bucket",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "storage_path",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "original_filename",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "mime_type",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "file_size_bytes",
+          "type": "bigint",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "uploaded_at",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": false
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX evidence_records_pkey ON public.evidence_records USING btree (id)",
+        "CREATE INDEX evidence_records_case_idx ON public.evidence_records USING btree (case_id)",
+        "CREATE UNIQUE INDEX evidence_records_storage_path_key ON public.evidence_records USING btree (storage_path)",
+        "CREATE INDEX evidence_records_owner_idx ON public.evidence_records USING btree (owner_id)"
+      ],
+      "policies": [
+        {
+          "cmd": "INSERT",
+          "qual": null,
+          "roles": ["authenticated"],
+          "tablename": "evidence_records",
+          "permissive": "PERMISSIVE",
+          "policyname": "evidence_records_insert_own",
+          "schemaname": "public",
+          "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+        },
+        {
+          "cmd": "SELECT",
+          "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+          "roles": ["authenticated"],
+          "tablename": "evidence_records",
+          "permissive": "PERMISSIVE",
+          "policyname": "evidence_records_select_own",
+          "schemaname": "public",
+          "with_check": null
+        }
+      ],
+      "triggers": [
+        "CREATE TRIGGER protect_evidence_records BEFORE DELETE OR UPDATE ON public.evidence_records FOR EACH ROW EXECUTE FUNCTION prevent_vault_mutation()"
+      ],
+      "rls_forced": false,
+      "table_name": "evidence_records",
+      "constraints": [
+        "CHECK (((content_hash IS NULL) OR (content_hash ~ '^[0-9a-f]{64}$'::text)))",
+        "FOREIGN KEY (case_id) REFERENCES security_cases(id)",
+        "CHECK (((file_size_bytes IS NULL) OR (file_size_bytes >= 0)))",
+        "FOREIGN KEY (owner_id) REFERENCES osiris_operators(id)",
+        "PRIMARY KEY (id)",
+        "CHECK ((source_type = ANY (ARRAY['observation'::text, 'document'::text, 'message'::text, 'system'::text, 'external'::text])))",
+        "UNIQUE (storage_path)"
+      ],
+      "rls_enabled": true
+    },
+    {
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "external_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "auth_user_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "display_name",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "default": "'operator'::text",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX osiris_operators_pkey ON public.osiris_operators USING btree (id)",
+        "CREATE UNIQUE INDEX osiris_operators_external_id_key ON public.osiris_operators USING btree (external_id)",
+        "CREATE UNIQUE INDEX osiris_operators_auth_user_id_key ON public.osiris_operators USING btree (auth_user_id)"
+      ],
+      "policies": [
+        {
+          "cmd": "DELETE",
+          "qual": "(auth_user_id = ( SELECT auth.uid() AS uid))",
+          "roles": ["authenticated"],
+          "tablename": "osiris_operators",
+          "permissive": "PERMISSIVE",
+          "policyname": "osiris_operators_delete_own",
+          "schemaname": "public",
+          "with_check": null
+        },
+        {
+          "cmd": "INSERT",
+          "qual": null,
+          "roles": ["authenticated"],
+          "tablename": "osiris_operators",
+          "permissive": "PERMISSIVE",
+          "policyname": "osiris_operators_insert_own",
+          "schemaname": "public",
+          "with_check": "(auth_user_id = ( SELECT auth.uid() AS uid))"
+        },
+        {
+          "cmd": "SELECT",
+          "qual": "(auth_user_id = ( SELECT auth.uid() AS uid))",
+          "roles": ["authenticated"],
+          "tablename": "osiris_operators",
+          "permissive": "PERMISSIVE",
+          "policyname": "osiris_operators_select_own",
+          "schemaname": "public",
+          "with_check": null
+        },
+        {
+          "cmd": "UPDATE",
+          "qual": "(auth_user_id = ( SELECT auth.uid() AS uid))",
+          "roles": ["authenticated"],
+          "tablename": "osiris_operators",
+          "permissive": "PERMISSIVE",
+          "policyname": "osiris_operators_update_own",
+          "schemaname": "public",
+          "with_check": "(auth_user_id = ( SELECT auth.uid() AS uid))"
+        }
+      ],
+      "triggers": null,
+      "rls_forced": false,
+      "table_name": "osiris_operators",
+      "constraints": [
+        "FOREIGN KEY (auth_user_id) REFERENCES auth.users(id)",
+        "UNIQUE (auth_user_id)",
+        "UNIQUE (external_id)",
+        "PRIMARY KEY (id)",
+        "CHECK ((role = ANY (ARRAY['operator'::text, 'admin'::text])))"
+      ],
+      "rls_enabled": true
+    },
+    {
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "owner_id",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "summary",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "severity",
+          "type": "text",
+          "default": "'medium'::text",
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "default": "'open'::text",
+          "not_null": true
+        },
+        {
+          "name": "confidence",
+          "type": "integer",
+          "default": "50",
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX security_cases_pkey ON public.security_cases USING btree (id)",
+        "CREATE INDEX security_cases_owner_idx ON public.security_cases USING btree (owner_id)"
+      ],
+      "policies": [
+        {
+          "cmd": "DELETE",
+          "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+          "roles": ["authenticated"],
+          "tablename": "security_cases",
+          "permissive": "PERMISSIVE",
+          "policyname": "security_cases_delete_own",
+          "schemaname": "public",
+          "with_check": null
+        },
+        {
+          "cmd": "INSERT",
+          "qual": null,
+          "roles": ["authenticated"],
+          "tablename": "security_cases",
+          "permissive": "PERMISSIVE",
+          "policyname": "security_cases_insert_own",
+          "schemaname": "public",
+          "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+        },
+        {
+          "cmd": "SELECT",
+          "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+          "roles": ["authenticated"],
+          "tablename": "security_cases",
+          "permissive": "PERMISSIVE",
+          "policyname": "security_cases_select_own",
+          "schemaname": "public",
+          "with_check": null
+        },
+        {
+          "cmd": "UPDATE",
+          "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+          "roles": ["authenticated"],
+          "tablename": "security_cases",
+          "permissive": "PERMISSIVE",
+          "policyname": "security_cases_update_own",
+          "schemaname": "public",
+          "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+        }
+      ],
+      "triggers": null,
+      "rls_forced": false,
+      "table_name": "security_cases",
+      "constraints": [
+        "CHECK (((confidence >= 0) AND (confidence <= 100)))",
+        "FOREIGN KEY (owner_id) REFERENCES osiris_operators(id)",
+        "PRIMARY KEY (id)",
+        "CHECK ((severity = ANY (ARRAY['low'::text, 'medium'::text, 'high'::text, 'critical'::text])))",
+        "CHECK ((status = ANY (ARRAY['open'::text, 'monitoring'::text, 'contained'::text, 'closed'::text])))"
+      ],
+      "rls_enabled": true
+    }
+  ]
+}

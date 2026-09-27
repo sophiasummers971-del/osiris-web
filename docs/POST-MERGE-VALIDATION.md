@@ -5,8 +5,8 @@ no authorization to merge, deploy, send mail, infer with AI or write production.
 
 1. Review the completion audit/diff and run GitHub CI on the proposed branch.
    Confirm the intended Cloudflare project, Supabase project and rollback version.
-2. Recover/reconcile the missing historical Vault migration baseline as described
-   in POSTGRES-MIGRATIONS.md. No migration in this completion pass needs applying.
+2. Review the recovered migration and remaining Vault bootstrap prerequisite as described
+   in POSTGRES-MIGRATIONS.md. The recovered historical migration is already applied; no migration in this pass needs applying.
 3. Inspect Supabase Authentication password settings. If leaked-password
    protection is still disabled, enable it if supported by the account's plan;
    otherwise record the plan limitation. Do not assume its current state.
@@ -39,6 +39,5 @@ no authorization to merge, deploy, send mail, infer with AI or write production.
     both scheduled tasks complete independently. Record exact time, version and
     outcome, including failures; then assess production readiness.
 
-External-only findings: current leaked-password setting, original migration
-ledger/schema, `pg_net` dependency graph, index usage statistics, remote binding
+External-only findings: current leaked-password setting, complete baseline schema/grants export, `pg_net` dependency graph, index usage statistics, remote binding
 values, Cloudflare header transforms and real inbox/AI/browser outcomes.

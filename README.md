@@ -67,9 +67,10 @@ the Worker applies the same headers to API/error responses. API responses use
 ## Database change discipline
 
 Run `pnpm db:validate`. Read [PostgreSQL migrations](docs/POSTGRES-MIGRATIONS.md)
-before planning any DDL. The seven checked-in migrations require an existing Vault
-baseline. They are **not** a complete empty-database bootstrap. The historical
-claim of eight applied migrations is not freshly verified. No generic `db:push`
+before planning any DDL. The eight checked-in migrations require an existing Vault
+baseline. They are **not** a complete empty-database bootstrap. A read-only
+Supabase ledger check confirmed all eight applied versions; the missing historical
+audit-function migration was recovered without applying any DDL. No generic `db:push`
 command is exposed: the previous one targeted obsolete MySQL tables.
 
 ## Supported surface and retained history
