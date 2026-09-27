@@ -99,6 +99,16 @@ describe("Google consent boundary", () => {
       )
     ).rejects.toThrow("GOOGLE_REAUTHORIZATION_REQUIRED");
   });
+  it("identifies a token exchange transport failure without exposing the exception", async () => {
+    const { state } = await beginGoogleAuthorization(1, config);
+    const fetcher = vi
+      .fn()
+      .mockRejectedValue(new Error("private network detail"));
+    await expect(
+      completeGoogleAuthorization("code", state, 1, config, fetcher)
+    ).rejects.toThrow("GOOGLE_TOKEN_EXCHANGE_FAILED");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
 });
 describe("Google metadata collection", () => {
   it("stores a review notice without raw mail content or verified-sender claims", () => {
