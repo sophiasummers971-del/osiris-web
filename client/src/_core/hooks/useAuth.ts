@@ -43,31 +43,34 @@ export function useAuth(options?: UseAuthOptions) {
     },
   });
 
-  const toFallbackUser = useCallback((sessionUser: {
-    id: string;
-    email?: string;
-    created_at?: string;
-    user_metadata?: { name?: string; full_name?: string };
-  }): SupabaseFallbackUser => {
-    const createdAt = sessionUser.created_at
-      ? new Date(sessionUser.created_at)
-      : new Date();
+  const toFallbackUser = useCallback(
+    (sessionUser: {
+      id: string;
+      email?: string;
+      created_at?: string;
+      user_metadata?: { name?: string; full_name?: string };
+    }): SupabaseFallbackUser => {
+      const createdAt = sessionUser.created_at
+        ? new Date(sessionUser.created_at)
+        : new Date();
 
-    return {
-      id: 0,
-      openId: `supabase:${sessionUser.id}`,
-      name:
-        sessionUser.user_metadata?.full_name ??
-        sessionUser.user_metadata?.name ??
-        null,
-      email: sessionUser.email ?? null,
-      loginMethod: "supabase",
-      role: "user",
-      createdAt,
-      updatedAt: new Date(),
-      lastSignedIn: new Date(),
-    };
-  }, []);
+      return {
+        id: 0,
+        openId: `supabase:${sessionUser.id}`,
+        name:
+          sessionUser.user_metadata?.full_name ??
+          sessionUser.user_metadata?.name ??
+          null,
+        email: sessionUser.email ?? null,
+        loginMethod: "supabase",
+        role: "user",
+        createdAt,
+        updatedAt: new Date(),
+        lastSignedIn: new Date(),
+      };
+    },
+    []
+  );
 
   const logout = useCallback(async () => {
     try {

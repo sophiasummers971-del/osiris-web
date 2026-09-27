@@ -112,9 +112,7 @@ describe("GitHub OAuth", () => {
       })
     ).resolves.toBeUndefined();
     const [url, init] = fetch.mock.calls[0];
-    expect(url).toBe(
-      "https://api.github.com/applications/github-client/token"
-    );
+    expect(url).toBe("https://api.github.com/applications/github-client/token");
     expect(init?.method).toBe("DELETE");
     expect(new Headers(init?.headers).get("authorization")).toMatch(/^Basic /);
     expect(init?.body).toBe(JSON.stringify({ access_token: "access-token" }));

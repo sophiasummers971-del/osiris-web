@@ -17,10 +17,8 @@ type RuntimeConfig = {
 };
 
 async function loadRuntimeConfig() {
-  if (isSupabaseConfigured) return;
-
   try {
-    const response = await fetch("/api/runtime-config");
+    const response = await fetch("/api/runtime-config", { cache: "no-store" });
     if (!response.ok) return;
     const config = (await response.json()) as RuntimeConfig;
     configureSupabase(config.supabaseUrl, config.supabasePublishableKey);

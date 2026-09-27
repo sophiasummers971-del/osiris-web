@@ -17,7 +17,6 @@ const GitHubCallback = lazy(() => import("./pages/GitHubCallback"));
 const Home = lazy(() => import("./pages/Home"));
 const NotificationCenter = lazy(() => import("./pages/NotificationCenter"));
 const SecurityCenter = lazy(() => import("./pages/SecurityCenter"));
-const SupporterHub = lazy(() => import("./pages/SupporterHub"));
 const Tools = lazy(() => import("./pages/Tools"));
 
 function PageLoadingFallback() {
@@ -43,7 +42,6 @@ function Router() {
       <Route path="/auth" component={Auth} />
       <Route path="/integrations/github/callback" component={GitHubCallback} />
       <Route path="/about" component={About} />
-      <Route path="/supporters" component={SupporterHub} />
       <Route path="/notifications" component={NotificationCenter} />
       <Route path="/404" component={NotFound} />
       {/* Final fallback route */}

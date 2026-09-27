@@ -66,9 +66,7 @@ describe("getCoinbaseTreasury", () => {
         cashEquivalent: "10.00",
         crypto: "2.34",
       },
-      positions: [
-        { asset: "USDC", crypto: 13.5, fiat: 10, allocation: 0.81 },
-      ],
+      positions: [{ asset: "USDC", crypto: 13.5, fiat: 10, allocation: 0.81 }],
     });
     expect(request).toHaveBeenCalledOnce();
     expect(request.mock.calls[0][0]).toContain(

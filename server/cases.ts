@@ -100,20 +100,18 @@ export const casesRouter = router({
             code: "INTERNAL_SERVER_ERROR",
             message: "Evidence record creation failed",
           });
-        await tx
-          .insert(vaultCaseAuditEvents)
-          .values({
-            caseId: input.caseId,
-            operatorId: operator.id,
-            action: "EVIDENCE_FILE_ADDED",
-            details: {
-              evidenceId: created.id,
-              contentHash,
-              storagePath,
-              mimeType: input.mime,
-              fileSizeBytes: file.bytes.length,
-            },
-          });
+        await tx.insert(vaultCaseAuditEvents).values({
+          caseId: input.caseId,
+          operatorId: operator.id,
+          action: "EVIDENCE_FILE_ADDED",
+          details: {
+            evidenceId: created.id,
+            contentHash,
+            storagePath,
+            mimeType: input.mime,
+            fileSizeBytes: file.bytes.length,
+          },
+        });
         return { id: created.id };
       });
     }),

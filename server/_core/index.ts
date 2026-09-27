@@ -1,10 +1,9 @@
+import { SECURITY_HEADERS } from "../../shared/security-headers";
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerOAuthRoutes } from "./oauth";
-import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -32,14 +31,20 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  app.disable("x-powered-by");
+  app.use((req, res, next) => {
+    for (const [name, value] of Object.entries(SECURITY_HEADERS))
+      res.setHeader(name, value);
+    if (req.path.startsWith("/api/"))
+      res.setHeader("Cache-Control", "no-store");
+    next();
+  });
 
   registerSupabaseAuthProxy(app);
 
   // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  registerStorageProxy(app);
-  registerOAuthRoutes(app);
+  app.use(express.json({ limit: "2mb" }));
+  app.use(express.urlencoded({ limit: "2mb", extended: true }));
   // tRPC API
   app.use(
     "/api/trpc",

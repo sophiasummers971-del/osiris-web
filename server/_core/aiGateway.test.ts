@@ -1,8 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  generateWorkersAiText,
-  WORKERS_AI_MODEL,
-} from "./aiGateway.js";
+import { generateWorkersAiText, WORKERS_AI_MODEL } from "./aiGateway.js";
 
 describe("generateWorkersAiText", () => {
   it("runs the bound Cloudflare model and reports token usage", async () => {

@@ -12,7 +12,10 @@ function encodeBase64Url(value: Uint8Array) {
   value.forEach(byte => {
     binary += String.fromCharCode(byte);
   });
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 }
 
 async function importKey(encodedKey: string) {

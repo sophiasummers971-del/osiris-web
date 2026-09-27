@@ -2,12 +2,6 @@ import { getSessionCookieOptions } from "./_core/cookies.js";
 import { systemRouter } from "./_core/systemRouter.js";
 import { publicProcedure, router } from "./_core/trpc.js";
 import { COOKIE_NAME } from "../shared/const.js";
-import {
-  getSupporterTiers,
-  getExclusiveContent,
-  getSupporterStats,
-} from "./supporters.js";
-import { notificationRouter } from "./notifications.js";
 import { casesRouter } from "./cases.js";
 import { intelligenceRouter } from "./intelligence.js";
 import { pegasusRouter } from "./pegasus-router.js";
@@ -27,21 +21,6 @@ export const appRouter = router({
     }),
   }),
 
-  supporters: router({
-    getTiers: publicProcedure.query(async () => {
-      return getSupporterTiers();
-    }),
-
-    getContent: publicProcedure.query(async () => {
-      return getExclusiveContent();
-    }),
-
-    getStats: publicProcedure.query(async () => {
-      return getSupporterStats();
-    }),
-  }),
-
-  notifications: notificationRouter,
   cases: casesRouter,
   intelligence: intelligenceRouter,
   pegasus: pegasusRouter,

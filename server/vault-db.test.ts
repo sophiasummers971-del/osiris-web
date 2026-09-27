@@ -68,9 +68,9 @@ describe("getVaultConnectionString", () => {
 
 describe("probeVaultDatabase", () => {
   it("reports a successful read-only database probe", async () => {
-    await expect(
-      probeVaultDatabase(async () => [{ ok: 1 }])
-    ).resolves.toEqual({ ready: true });
+    await expect(probeVaultDatabase(async () => [{ ok: 1 }])).resolves.toEqual({
+      ready: true,
+    });
   });
 
   it("sanitizes a failed database probe", async () => {
@@ -104,12 +104,14 @@ describe("classifyVaultDatabaseError", () => {
     const cause = Object.assign(new Error("relation does not exist"), {
       code: "42P01",
     });
-    expect(classifyVaultDatabaseError(new Error("Failed query", { cause })))
-      .toBe("The Vault schema is missing from the connected database");
+    expect(
+      classifyVaultDatabaseError(new Error("Failed query", { cause }))
+    ).toBe("The Vault schema is missing from the connected database");
   });
 
   it("keeps unknown failures generic", () => {
-    expect(classifyVaultDatabaseError(new Error("private failure detail")))
-      .toBe("Operational database is unreachable");
+    expect(
+      classifyVaultDatabaseError(new Error("private failure detail"))
+    ).toBe("Operational database is unreachable");
   });
 });

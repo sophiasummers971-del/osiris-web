@@ -10,7 +10,12 @@
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
-    "db:push": "drizzle-kit generate && drizzle-kit migrate"
+    "format:check": "prettier --check .",
+    "db:validate": "node scripts/validate-migrations.mjs",
+    "lint": "node scripts/check-boundaries.mjs",
+    "build:worker": "esbuild worker/index.ts --bundle --format=esm --platform=node --external:node:* --external:cloudflare:* --outfile=dist/worker/index.js --metafile=dist/worker/meta.json",
+    "verify": "pnpm lint && pnpm config:check && pnpm db:validate && pnpm check && pnpm test && pnpm format:check && pnpm build && pnpm build:worker",
+    "config:check": "node scripts/validate-cloudflare.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
@@ -49,8 +54,6 @@
     "@trpc/server": "^11.6.0",
     "@types/express": "4.17.21",
     "@types/react-helmet": "^6.1.11",
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "ai": "^7.0.48",
     "axios": "^1.18.0",
     "class-variance-authority": "^0.7.1",
@@ -88,7 +91,6 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.3",
     "@types/google.maps": "^3.58.1",
@@ -108,10 +110,9 @@
     "tw-animate-css": "^1.4.0",
     "typescript": "5.9.3",
     "vite": "^7.1.7",
-    "vite-plugin-manus-runtime": "^0.0.57",
     "vitest": "^4.1.11"
   },
-  "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af",
+  "packageManager": "pnpm@10.34.5",
   "pnpm": {
     "patchedDependencies": {
       "wouter@3.7.1": "patches/wouter@3.7.1.patch"
@@ -119,5 +120,8 @@
     "overrides": {
       "tailwindcss>nanoid": "3.3.7"
     }
+  },
+  "engines": {
+    "node": ">=22 <25"
   }
 }

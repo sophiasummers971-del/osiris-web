@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "externalBaseline": {
+    "required": true,
+    "reason": "All eight applied migration names are now mapped to checked-in files. Original Vault table creation predates this ledger and remains an external prerequisite; current catalog inventory is recorded in docs/completion/vault-schema-inventory.json, not an executable restore."
+  },
+  "migrations": [
+    {
+      "file": "0000_qualify_audit_digest_function.sql",
+      "appliedVersion": "20260803154721",
+      "sha256": "5fe2ea8550de2cdd1d25d21d6d45771de673c0df68dd5039ecd5877559694686"
+    },
+    {
+      "file": "0001_pegasus_foundation.sql",
+      "appliedVersion": "20260808132419",
+      "sha256": "5347e6d4c88fa9a0f62fd22d4855a7cf661c8f36a29d1f71c230bf7c99f0ed25"
+    },
+    {
+      "file": "0002_pegasus_append_only.sql",
+      "appliedVersion": "20260808151834",
+      "sha256": "1c6e17e0164c7b82fe6a649e81256eac3deb6cec2c50c8561b0d2aef30112070"
+    },
+    {
+      "file": "0003_pegasus_function_search_path.sql",
+      "appliedVersion": "20260808152608",
+      "sha256": "3ea330201eeb5a747280ca259899a4398de80d146ee7126871aca8acd7c9f6c5"
+    },
+    {
+      "file": "0004_supabase_table_hardening.sql",
+      "appliedVersion": "20260914203913",
+      "sha256": "371bb45b8757d591ac1a5239f8bfa66e231ad7492036628f21834b76b73fca3c"
+    },
+    {
+      "file": "0005_github_monitoring_foundation.sql",
+      "appliedVersion": "20260915134225",
+      "sha256": "758dc6a996a5b8c54ad2817c9b4be15fb20a6bd2f2bf83feed304ae9cfd72763"
+    },
+    {
+      "file": "20260916115648_pegasus_private_email_outbox.sql",
+      "appliedVersion": "20260916115648",
+      "sha256": "483716f7ce853c3cafb7335ef3b6a1941aa81dadd513481a0eb33084e3cf64c0"
+    },
+    {
+      "file": "20260916170726_disable_unrestricted_storage_uploads.sql",
+      "appliedVersion": "20260916170726",
+      "sha256": "56367cee5faacfe3f6c5f4d2b3d15ae8ae4496155ec0fac99ef64f0aa8e0f338"
+    }
+  ]
+}

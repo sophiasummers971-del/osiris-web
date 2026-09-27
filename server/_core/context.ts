@@ -1,8 +1,9 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema.js";
-import { sdk } from "./sdk.js";
 import type { WorkersAiBinding } from "./aiGateway.js";
 import { evidenceStorage, type EvidenceStorage } from "../evidence-storage.js";
+
+export type AuthenticatedUser = Omit<User, "id"> & { id: string | number };
 
 type SupabaseAuthUser = {
   id: string;
@@ -48,7 +49,7 @@ const resolveRequestDatabaseUrl = (environment: SupabaseAuthEnvironment) =>
 async function authenticateSupabaseAuthorization(
   authorization: string | null | undefined,
   environment: SupabaseAuthEnvironment = processAuthEnvironment()
-): Promise<User | null> {
+): Promise<AuthenticatedUser | null> {
   const supabaseUrl = environment.VITE_SUPABASE_URL;
   const publishableKey = environment.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -81,7 +82,7 @@ async function authenticateSupabaseAuthorization(
     );
 
   return {
-    id: 0,
+    id: identity.id,
     openId: `supabase:${identity.id}`,
     name:
       identity.user_metadata?.full_name ?? identity.user_metadata?.name ?? null,
@@ -104,11 +105,13 @@ async function authenticateSupabaseRequest(
 }
 
 export type TrpcContext = {
+  postureEnvironment?: Record<string, string | undefined>;
+  isProduction?: boolean;
   evidenceStorage?: EvidenceStorage;
   sendEmailTest?: () => Promise<void>;
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
-  user: User | null;
+  user: AuthenticatedUser | null;
   databaseUrl: string | null;
   ai: WorkersAiBinding | null;
   githubOAuth: {
@@ -121,17 +124,21 @@ export type TrpcContext = {
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
-  let user: User | null = null;
+  let user: AuthenticatedUser | null = null;
 
   try {
     user = await authenticateSupabaseRequest(opts.req);
-    if (!user) user = await sdk.authenticateRequest(opts.req);
   } catch (error) {
     // Authentication is optional for public procedures.
     user = null;
   }
 
   return {
+    postureEnvironment: {
+      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
+      VITE_SUPABASE_PUBLISHABLE_KEY: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    },
+    isProduction: process.env.NODE_ENV === "production",
     req: opts.req,
     res: opts.res,
     user,
@@ -154,7 +161,7 @@ export async function createFetchContext(
   responseHeaders: Headers,
   environment: SupabaseAuthEnvironment = processAuthEnvironment()
 ): Promise<TrpcContext> {
-  let user: User | null = null;
+  let user: AuthenticatedUser | null = null;
 
   try {
     user = await authenticateSupabaseAuthorization(
@@ -170,6 +177,11 @@ export async function createFetchContext(
 
   return {
     user,
+    postureEnvironment: {
+      VITE_SUPABASE_URL: environment.VITE_SUPABASE_URL,
+      VITE_SUPABASE_PUBLISHABLE_KEY: environment.VITE_SUPABASE_PUBLISHABLE_KEY,
+    },
+    isProduction: true,
     sendEmailTest: environment.sendEmailTest,
     databaseUrl: resolveRequestDatabaseUrl(environment),
     evidenceStorage: evidenceStorage(

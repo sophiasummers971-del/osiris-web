@@ -22,10 +22,12 @@
 ### Task 1: Read-only Coinbase treasury client
 
 **Files:**
+
 - Create: `server/coinbase.ts`
 - Test: `server/coinbase.test.ts`
 
 **Interfaces:**
+
 - Produces: `getCoinbaseTreasury(environment?: NodeJS.ProcessEnv, request?: typeof fetch): Promise<CoinbaseTreasuryResult>`.
 - Produces: `CoinbaseTreasuryResult`, a discriminated union with `status: "connected" | "not_configured" | "degraded"`.
 - Consumes: Coinbase Advanced Trade `GET /api/v3/brokerage/portfolios/{portfolio_id}?portfolio_balance_currency=GBP`.
@@ -43,18 +45,30 @@ it("returns not_configured without revealing partial credentials", async () => {
 });
 
 it("reduces a Coinbase portfolio response to the safe treasury shape", async () => {
-  const request = vi.fn().mockResolvedValue(new Response(JSON.stringify({
-    portfolio: { name: "OSIRIS Treasury", type: "CONSUMER" },
-    portfolio_balances: {
-      total_balance: { value: "12.34", currency: "GBP" },
-      total_cash_equivalent_balance: { value: "10.00", currency: "GBP" },
-      total_crypto_balance: { value: "2.34", currency: "GBP" },
-    },
-    spot_positions: [{ asset: "USDC", total_balance_crypto: 13.5, total_balance_fiat: 10 }],
-  }), { status: 200 }));
+  const request = vi.fn().mockResolvedValue(
+    new Response(
+      JSON.stringify({
+        portfolio: { name: "OSIRIS Treasury", type: "CONSUMER" },
+        portfolio_balances: {
+          total_balance: { value: "12.34", currency: "GBP" },
+          total_cash_equivalent_balance: { value: "10.00", currency: "GBP" },
+          total_crypto_balance: { value: "2.34", currency: "GBP" },
+        },
+        spot_positions: [
+          { asset: "USDC", total_balance_crypto: 13.5, total_balance_fiat: 10 },
+        ],
+      }),
+      { status: 200 }
+    )
+  );
   const result = await getCoinbaseTreasury(configuredEnvironment, request);
-  expect(result).toMatchObject({ status: "connected", portfolio: { name: "OSIRIS Treasury" } });
-  expect(JSON.stringify(result)).not.toContain(configuredEnvironment.COINBASE_API_PRIVATE_KEY);
+  expect(result).toMatchObject({
+    status: "connected",
+    portfolio: { name: "OSIRIS Treasury" },
+  });
+  expect(JSON.stringify(result)).not.toContain(
+    configuredEnvironment.COINBASE_API_PRIVATE_KEY
+  );
 });
 ```
 
@@ -74,15 +88,35 @@ export type CoinbaseTreasuryResult =
       status: "connected";
       portfolio: { name: string; type: string; currency: string };
       balances: { total: string; cashEquivalent: string; crypto: string };
-      positions: Array<{ asset: string; crypto: number; fiat: number; allocation?: number }>;
+      positions: Array<{
+        asset: string;
+        crypto: number;
+        fiat: number;
+        allocation?: number;
+      }>;
       checkedAt: Date;
     };
 
-const buildCoinbaseJwt = async (method: "GET", path: string, keyName: string, privateKey: string) => {
+const buildCoinbaseJwt = async (
+  method: "GET",
+  path: string,
+  keyName: string,
+  privateKey: string
+) => {
   const now = Math.floor(Date.now() / 1000);
   const key = await importPKCS8(privateKey.replace(/\\n/g, "\n"), "ES256");
-  return new SignJWT({ sub: keyName, iss: "cdp", nbf: now, exp: now + 120, uri: `${method} api.coinbase.com${path}` })
-    .setProtectedHeader({ alg: "ES256", kid: keyName, nonce: randomBytes(16).toString("hex") })
+  return new SignJWT({
+    sub: keyName,
+    iss: "cdp",
+    nbf: now,
+    exp: now + 120,
+    uri: `${method} api.coinbase.com${path}`,
+  })
+    .setProtectedHeader({
+      alg: "ES256",
+      kid: keyName,
+      nonce: randomBytes(16).toString("hex"),
+    })
     .sign(key);
 };
 ```
@@ -105,12 +139,14 @@ git commit -m "Add read-only Coinbase treasury client"
 ### Task 2: Protected Coinbase router and posture control
 
 **Files:**
+
 - Modify: `server/routers.ts`
 - Modify: `server/_core/posture.ts`
 - Modify: `server/_core/posture.test.ts`
 - Test: `server/coinbase-router.test.ts`
 
 **Interfaces:**
+
 - Consumes: `getCoinbaseTreasury()` from Task 1.
 - Produces: `appRouter.coinbase.treasury`, a protected, input-free query.
 - Produces: posture control `id: "treasury"`, labelled `Coinbase treasury`, non-critical.
@@ -118,12 +154,17 @@ git commit -m "Add read-only Coinbase treasury client"
 - [ ] **Step 1: Add failing posture and authentication tests**
 
 ```ts
-expect(evaluateStaticPosture({
-  ...configured,
-  COINBASE_API_KEY_NAME: "organizations/test/apiKeys/key",
-  COINBASE_API_PRIVATE_KEY: "secret",
-  COINBASE_PORTFOLIO_ID: "portfolio-id",
-}, true).find(control => control.id === "treasury")).toMatchObject({ ready: true, critical: false });
+expect(
+  evaluateStaticPosture(
+    {
+      ...configured,
+      COINBASE_API_KEY_NAME: "organizations/test/apiKeys/key",
+      COINBASE_API_PRIVATE_KEY: "secret",
+      COINBASE_PORTFOLIO_ID: "portfolio-id",
+    },
+    true
+  ).find(control => control.id === "treasury")
+).toMatchObject({ ready: true, critical: false });
 ```
 
 Create a tRPC caller with `user: null` and assert `caller.coinbase.treasury()` rejects with `UNAUTHORIZED` without invoking the provider seam.
@@ -160,11 +201,13 @@ git commit -m "Expose protected treasury status"
 ### Task 3: Stripe operational status without changing payments
 
 **Files:**
+
 - Modify: `server/stripe.ts`
 - Modify: `server/routers.ts`
 - Test: `server/stripe-status.test.ts`
 
 **Interfaces:**
+
 - Produces: `getStripeStatus(environment?: NodeJS.ProcessEnv): Promise<StripeStatusResult>`.
 - Produces: protected `appRouter.stripe.status` query.
 - Preserves: `createCheckoutSession`, `handleStripeWebhook`, orders, subscriptions, and product procedures.
@@ -182,8 +225,16 @@ it("distinguishes missing server and webhook configuration", async () => {
 });
 
 it("returns safe connected account metadata", async () => {
-  stripeAccountsRetrieve.mockResolvedValue({ id: "acct_123", charges_enabled: true, payouts_enabled: true, details_submitted: true, livemode: false });
-  await expect(getStripeStatus(configuredStripeEnvironment)).resolves.toMatchObject({
+  stripeAccountsRetrieve.mockResolvedValue({
+    id: "acct_123",
+    charges_enabled: true,
+    payouts_enabled: true,
+    details_submitted: true,
+    livemode: false,
+  });
+  await expect(
+    getStripeStatus(configuredStripeEnvironment)
+  ).resolves.toMatchObject({
     status: "connected",
     mode: "test",
     chargesEnabled: true,
@@ -218,11 +269,13 @@ git commit -m "Add safe Stripe connection status"
 ### Task 4: Protected Finance page and navigation
 
 **Files:**
+
 - Create: `client/src/pages/Finance.tsx`
 - Modify: `client/src/App.tsx`
 - Modify: `client/src/components/Navigation.tsx`
 
 **Interfaces:**
+
 - Consumes: `trpc.coinbase.treasury`, `trpc.stripe.status`, `trpc.stripe.getProducts`, `trpc.stripe.getUserOrders`, and `trpc.stripe.getUserSubscription`.
 - Produces: protected browser route `/finance` with independent Coinbase and Stripe panels.
 
@@ -231,8 +284,12 @@ git commit -m "Add safe Stripe connection status"
 Use `useAuth()` to show the existing authentication call-to-action until a verified session exists. Enable all finance queries only when `isAuthenticated` is true.
 
 ```tsx
-const treasury = trpc.coinbase.treasury.useQuery(undefined, { enabled: isAuthenticated });
-const stripe = trpc.stripe.status.useQuery(undefined, { enabled: isAuthenticated });
+const treasury = trpc.coinbase.treasury.useQuery(undefined, {
+  enabled: isAuthenticated,
+});
+const stripe = trpc.stripe.status.useQuery(undefined, {
+  enabled: isAuthenticated,
+});
 ```
 
 - [ ] **Step 2: Build independent Coinbase and Stripe cards**
@@ -263,10 +320,12 @@ git commit -m "Add OSIRIS finance workspace"
 ### Task 5: Configuration contract and full verification
 
 **Files:**
+
 - Create: `.env.example`
 - Modify: `README.md`
 
 **Interfaces:**
+
 - Documents: exact Vercel environment variable names and read-only Coinbase permission requirement.
 - Verifies: the complete integrated feature without deploying or moving money.
 

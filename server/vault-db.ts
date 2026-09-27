@@ -50,11 +50,7 @@ type VaultEnvironment = {
 export function getVaultConnectionString(
   environment: VaultEnvironment = process.env
 ) {
-  return (
-    environment.SUPABASE_DATABASE_URL ??
-    environment.POSTGRES_URL ??
-    null
-  );
+  return environment.SUPABASE_DATABASE_URL ?? environment.POSTGRES_URL ?? null;
 }
 
 export function getVaultDb(
@@ -117,7 +113,8 @@ export function classifyVaultDatabaseError(error: unknown) {
 
   if (details.includes("28p01") || details.includes("password authentication"))
     return "Supabase rejected the database credentials";
-  if (details.includes("3d000")) return "The configured Supabase database does not exist";
+  if (details.includes("3d000"))
+    return "The configured Supabase database does not exist";
   if (details.includes("42501") || details.includes("permission denied"))
     return "The database connection lacks permission for the Vault";
   if (details.includes("42p01") || details.includes("does not exist"))
