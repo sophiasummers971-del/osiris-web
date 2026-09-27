@@ -57,6 +57,7 @@ export const googleMonitoringRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = dbFor(ctx.databaseUrl);
       const operator = await ensureVaultOperator(db, ctx.user);
+      let stage = "authorization";
       try {
         const config = requireGoogleConfiguration(ctx.googleOAuth);
         const account = await completeGoogleAuthorization(
@@ -65,6 +66,7 @@ export const googleMonitoringRouter = router({
           operator.id,
           config
         );
+        stage = "encryption";
         const encryptedAccessToken = await encryptMonitoringToken(
           account.accessToken,
           config.tokenEncryptionKey
@@ -73,6 +75,7 @@ export const googleMonitoringRouter = router({
           account.refreshToken!,
           config.tokenEncryptionKey
         );
+        stage = "storage";
         const result = await upsertGoogleConnection({
           db,
           ownerId: operator.id,
@@ -83,11 +86,28 @@ export const googleMonitoringRouter = router({
           historyId: account.historyId,
         });
         return { connected: true, connectionId: result.id };
-      } catch {
+      } catch (error) {
+        const known = new Set([
+          "GOOGLE_NOT_CONFIGURED",
+          "GOOGLE_STATE_INVALID",
+          "GOOGLE_CLIENT_REJECTED",
+          "GOOGLE_REAUTHORIZATION_REQUIRED",
+          "GOOGLE_TOKEN_FAILED",
+          "GOOGLE_SCOPE_MISSING",
+          "GOOGLE_OFFLINE_CONSENT_REQUIRED",
+          "GOOGLE_IDENTITY_FAILED",
+          "GOOGLE_HISTORY_EXPIRED",
+          "GOOGLE_API_FAILED",
+        ]);
+        const reason =
+          error instanceof Error && known.has(error.message)
+            ? error.message
+            : `GOOGLE_${stage.toUpperCase()}_FAILED`;
+        // Only fixed identifiers: never log provider responses, SQL, codes or tokens.
+        console.warn("[Google connection] Failed", { stage, reason });
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message:
-            "Google connection could not be completed. Check consent and setup, then retry from OSIRIS.",
+          message: `Google connection failed (${reason}). Return to Intelligence to start a new connection.`,
         });
       }
     }),
