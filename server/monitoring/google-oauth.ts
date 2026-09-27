@@ -112,18 +112,39 @@ export async function googleToken(
   fetcher = globalThis.fetch
 ) {
   const c = requireGoogleConfiguration(config);
-  const response = await fetcher("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    redirect: "error",
-    signal: AbortSignal.timeout(15_000),
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      ...parameters,
-      client_id: c.clientId,
-      client_secret: c.clientSecret,
-    }),
+  const response = await diagnosticStep("TOKEN_FETCH", async () => {
+    try {
+      return await fetcher("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        redirect: "error",
+        signal: AbortSignal.timeout(15_000),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          ...parameters,
+          client_id: c.clientId,
+          client_secret: c.clientSecret,
+        }),
+      });
+    } catch (error) {
+      console.warn("[Google token] Request rejected", {
+        kind:
+          error instanceof Error && error.name === "AbortError"
+            ? "timeout"
+            : "transport",
+      });
+      throw error;
+    }
   });
-  const body = (await response.json()) as Record<string, unknown>;
+  const body = (await diagnosticStep("TOKEN_RESPONSE", async () => {
+    try {
+      return await response.json();
+    } catch (error) {
+      console.warn("[Google token] Response unreadable", {
+        status: response.status,
+      });
+      throw error;
+    }
+  })) as Record<string, unknown>;
   if (!response.ok || typeof body.access_token !== "string")
     throw new Error(
       body.error === "invalid_client"

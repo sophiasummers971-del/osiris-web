@@ -106,8 +106,19 @@ describe("Google consent boundary", () => {
       .mockRejectedValue(new Error("private network detail"));
     await expect(
       completeGoogleAuthorization("code", state, 1, config, fetcher)
-    ).rejects.toThrow("GOOGLE_TOKEN_EXCHANGE_FAILED");
+    ).rejects.toThrow("GOOGLE_TOKEN_FETCH_FAILED");
     expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it("classifies an unreadable token response without exposing its contents", async () => {
+    const { state } = await beginGoogleAuthorization(1, config);
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(
+        new Response("private HTML error body", { status: 403 })
+      );
+    await expect(
+      completeGoogleAuthorization("code", state, 1, config, fetcher)
+    ).rejects.toThrow("GOOGLE_TOKEN_RESPONSE_FAILED");
   });
 });
 describe("Google metadata collection", () => {
