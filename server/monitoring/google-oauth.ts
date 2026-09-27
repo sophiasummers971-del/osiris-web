@@ -115,9 +115,11 @@ export async function googleToken(
   const body = (await response.json()) as Record<string, unknown>;
   if (!response.ok || typeof body.access_token !== "string")
     throw new Error(
-      body.error === "invalid_grant"
-        ? "GOOGLE_REAUTHORIZATION_REQUIRED"
-        : "GOOGLE_TOKEN_FAILED"
+      body.error === "invalid_client"
+        ? "GOOGLE_CLIENT_REJECTED"
+        : body.error === "invalid_grant"
+          ? "GOOGLE_REAUTHORIZATION_REQUIRED"
+          : "GOOGLE_TOKEN_FAILED"
     );
   if (
     typeof body.scope === "string" &&

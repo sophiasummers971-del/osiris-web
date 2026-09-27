@@ -91,3 +91,31 @@ describe("Google router ownership", () => {
     );
   });
 });
+
+it("reports only a fixed diagnostic and never leaks upstream error details", async () => {
+  const log = vi.spyOn(console, "warn").mockImplementation(() => {});
+  mocks.complete.mockRejectedValue(new Error("private token and SQL detail"));
+  await expect(
+    googleMonitoringRouter
+      .createCaller(context)
+      .complete({ code: "code", state: "state" })
+  ).rejects.toMatchObject({
+    message:
+      "Google connection failed (GOOGLE_AUTHORIZATION_FAILED). Return to Intelligence to start a new connection.",
+  });
+  expect(log).toHaveBeenCalledWith("[Google connection] Failed", {
+    stage: "authorization",
+    reason: "GOOGLE_AUTHORIZATION_FAILED",
+  });
+  log.mockRestore();
+});
+it("identifies a rejected OAuth client without exposing credentials", async () => {
+  const log = vi.spyOn(console, "warn").mockImplementation(() => {});
+  mocks.complete.mockRejectedValue(new Error("GOOGLE_CLIENT_REJECTED"));
+  await expect(
+    googleMonitoringRouter
+      .createCaller(context)
+      .complete({ code: "code", state: "state" })
+  ).rejects.toThrow("GOOGLE_CLIENT_REJECTED");
+  log.mockRestore();
+});

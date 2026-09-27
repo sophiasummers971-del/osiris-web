@@ -28,7 +28,9 @@ export default function GoogleCallback() {
         {invalid
           ? "Google authorization was cancelled or did not match this browser. Return to Intelligence and start again."
           : complete.error
-            ? "Connection could not be completed. Sign in to OSIRIS and start again from Intelligence."
+            ? complete.error.data?.code === "UNAUTHORIZED"
+              ? "Your OSIRIS session expired. Sign in and start again from Intelligence."
+              : `Connection could not be completed. Reference: ${complete.error.message.match(/GOOGLE_[A-Z_]+/)?.[0] ?? "GOOGLE_REQUEST_FAILED"}. Return to Intelligence and share this reference for diagnosis.`
             : "Verifying the connection…"}
       </p>
       <a href="/tools">Return to Intelligence</a>
