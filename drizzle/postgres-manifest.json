@@ -47,8 +47,8 @@
     },
     {
       "file": "20260927160000_google_monitoring_provider.sql",
-      "status": "pending",
-      "sha256": "5c0c893212eeaadb70da468b3bdd078cfc8545c824fd73b6c680d47ed89754ba"
+      "sha256": "5c0c893212eeaadb70da468b3bdd078cfc8545c824fd73b6c680d47ed89754ba",
+      "appliedVersion": "20260927164352"
     }
   ]
 }

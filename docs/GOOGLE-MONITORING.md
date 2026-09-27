@@ -1,12 +1,12 @@
 # Google security-email connector
 
-Status: implemented on the connector branch; not deployed, connected or live-verified. No real mailbox was accessed in development. Existing GitHub monitoring remains separate.
+Status: release approved on 2026-09-27; provider constraint applied and verified. Deployment is being prepared; Google account consent and live collection remain unverified. No real mailbox was accessed in development. Existing GitHub monitoring remains separate.
 
 This collector polls Gmail message history and requests only From/Subject metadata for newly added messages. It recognizes a narrow set of English Google security-notice subjects and the claimed sender no-reply@accounts.google.com. Headers are untrusted: these events mean review a notice, not confirmed compromise. Raw subjects, bodies and attachments are not persisted. Metadata permission nevertheless covers the whole mailbox. Medium PEGASUS events do not trigger the existing high/critical email alarm policy. This is not dark-web coverage, a Google login audit or device protection.
 
 ## Activation prerequisites
 
-1. Review and apply the pending migration `20260927160000_google_monitoring_provider.sql` through the established controlled migration process. It expands the provider constraint only; the preceding eight migration records remain historical. No production migration has been applied by this change.
+1. Applied and read-back verified on 2026-09-27: migration `20260927160000_google_monitoring_provider.sql` through the established controlled migration process. It expands the provider constraint only; the preceding eight migration records remain historical. The live constraint now permits github and google.
 2. In a Google Cloud project, enable Gmail API and configure the OAuth consent screen. Register a Web application OAuth client with exact redirect URI `https://osiris-web.sophia-stars.workers.dev/integrations/google/callback`.
 3. Configure `openid`, `email` and `https://www.googleapis.com/auth/gmail.metadata`. Gmail metadata is a restricted scope; meet Google's applicable consent/verification requirements. For an External app in Testing, add each intended Gmail address as a test user. Testing refresh tokens for these scopes expire after seven days; this is not a durable production configuration.
 4. Store `GOOGLE_CLIENT_SECRET` securely as a Worker secret. Configure `GOOGLE_CLIENT_ID`, `GOOGLE_REDIRECT_URI`, and retain the existing secret `MONITORING_TOKEN_KEY`. Never put credentials in browser build variables, commits or chat. Enable `GOOGLE_MONITORING_ENABLED=true` only after migration and configuration are ready.
