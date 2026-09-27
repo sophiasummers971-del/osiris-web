@@ -1,3 +1,4 @@
+import type { GoogleConfiguration } from "../monitoring/google-oauth.js";
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema.js";
 import type { WorkersAiBinding } from "./aiGateway.js";
@@ -23,6 +24,10 @@ export type SupabaseAuthEnvironment = {
   POSTGRES_URL?: string;
   HYPERDRIVE?: { connectionString: string };
   AI?: WorkersAiBinding;
+  GOOGLE_MONITORING_ENABLED?: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
+  GOOGLE_REDIRECT_URI?: string;
   GITHUB_CLIENT_ID?: string;
   GITHUB_CLIENT_SECRET?: string;
   MONITORING_TOKEN_KEY?: string;
@@ -105,6 +110,7 @@ async function authenticateSupabaseRequest(
 }
 
 export type TrpcContext = {
+  googleOAuth?: GoogleConfiguration;
   postureEnvironment?: Record<string, string | undefined>;
   isProduction?: boolean;
   evidenceStorage?: EvidenceStorage;
@@ -148,6 +154,13 @@ export async function createContext(
       process.env.SUPABASE_SECRET_KEY
     ),
     ai: null,
+    googleOAuth: {
+      enabled: process.env.GOOGLE_MONITORING_ENABLED === "true",
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri: process.env.GOOGLE_REDIRECT_URI,
+      tokenEncryptionKey: process.env.MONITORING_TOKEN_KEY,
+    },
     githubOAuth: {
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -189,6 +202,13 @@ export async function createFetchContext(
       environment.SUPABASE_SECRET_KEY
     ),
     ai: environment.AI ?? null,
+    googleOAuth: {
+      enabled: environment.GOOGLE_MONITORING_ENABLED === "true",
+      clientId: environment.GOOGLE_CLIENT_ID,
+      clientSecret: environment.GOOGLE_CLIENT_SECRET,
+      redirectUri: environment.GOOGLE_REDIRECT_URI,
+      tokenEncryptionKey: environment.MONITORING_TOKEN_KEY,
+    },
     githubOAuth: {
       clientId: environment.GITHUB_CLIENT_ID,
       clientSecret: environment.GITHUB_CLIENT_SECRET,

@@ -1,3 +1,4 @@
+import GoogleMonitoring from "@/components/GoogleMonitoring";
 import {
   Card,
   CardContent,
@@ -227,6 +228,7 @@ export default function Tools() {
 
       <section className="border-b border-border/50 py-12">
         <div className="container mx-auto max-w-6xl px-4">
+          <GoogleMonitoring authenticated={Boolean(user)} />
           <Card className="border-border/50 bg-card/60">
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -245,87 +247,94 @@ export default function Tools() {
                 <p className="text-sm text-muted-foreground">
                   Sign in to connect a GitHub account.
                 </p>
-              ) : connections.data?.length ? (
+              ) : connections.data?.some(c => c.provider === "github") ? (
                 <div className="space-y-2">
-                  {connections.data.map(connection => {
-                    const monitoringError = describeMonitoringError(
-                      connection.lastErrorCode
-                    );
-                    return (
-                      <div
-                        className="space-y-3 rounded-lg border border-border/50 p-3"
-                        key={connection.id}
-                      >
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <span className="font-mono text-sm">
-                            {connection.displayName ??
-                              connection.providerAccountId}
-                          </span>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Badge variant="secondary">
-                              {connection.status}
-                            </Badge>
-                            {connection.status === "active" && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  disabled={runNow.isPending}
-                                  onClick={() =>
-                                    runNow.mutate({
-                                      connectionId: connection.id,
-                                    })
-                                  }
-                                >
-                                  {runNow.isPending ? "Checking…" : "Check now"}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  disabled={disconnect.isPending}
-                                  onClick={() =>
-                                    disconnect.mutate({
-                                      connectionId: connection.id,
-                                    })
-                                  }
-                                >
-                                  Disconnect
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                        <dl className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-                          <div>
-                            <dt className="font-medium text-foreground">
-                              Last checked
-                            </dt>
-                            <dd>
-                              {formatMonitoringTimestamp(
-                                connection.lastCheckedAt
+                  {connections.data
+                    .filter(c => c.provider === "github")
+                    .map(connection => {
+                      const monitoringError = describeMonitoringError(
+                        connection.lastErrorCode
+                      );
+                      return (
+                        <div
+                          className="space-y-3 rounded-lg border border-border/50 p-3"
+                          key={connection.id}
+                        >
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="font-mono text-sm">
+                              {connection.displayName ??
+                                connection.providerAccountId}
+                            </span>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="secondary">
+                                {connection.status}
+                              </Badge>
+                              {connection.status === "active" && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    disabled={runNow.isPending}
+                                    onClick={() =>
+                                      runNow.mutate({
+                                        connectionId: connection.id,
+                                      })
+                                    }
+                                  >
+                                    {runNow.isPending
+                                      ? "Checking…"
+                                      : "Check now"}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    disabled={disconnect.isPending}
+                                    onClick={() =>
+                                      disconnect.mutate({
+                                        connectionId: connection.id,
+                                      })
+                                    }
+                                  >
+                                    Disconnect
+                                  </Button>
+                                </>
                               )}
-                            </dd>
+                            </div>
                           </div>
-                          {connection.status === "active" && (
+                          <dl className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
                             <div>
                               <dt className="font-medium text-foreground">
-                                Next scheduled check
+                                Last checked
                               </dt>
                               <dd>
                                 {formatMonitoringTimestamp(
-                                  connection.nextCheckAt
+                                  connection.lastCheckedAt
                                 )}
                               </dd>
                             </div>
+                            {connection.status === "active" && (
+                              <div>
+                                <dt className="font-medium text-foreground">
+                                  Next scheduled check
+                                </dt>
+                                <dd>
+                                  {formatMonitoringTimestamp(
+                                    connection.nextCheckAt
+                                  )}
+                                </dd>
+                              </div>
+                            )}
+                          </dl>
+                          {monitoringError && (
+                            <p
+                              className="text-sm text-destructive"
+                              role="alert"
+                            >
+                              {monitoringError}
+                            </p>
                           )}
-                        </dl>
-                        {monitoringError && (
-                          <p className="text-sm text-destructive" role="alert">
-                            {monitoringError}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
+                        </div>
+                      );
+                    })}
                 </div>
               ) : (
                 <Button
@@ -380,7 +389,7 @@ export default function Tools() {
                         >
                           <div>
                             <p className="font-medium text-foreground">
-                              GitHub account check
+                              Account check
                             </p>
                             <p className="text-muted-foreground">
                               {formatMonitoringTimestamp(

@@ -44,6 +44,11 @@
       "file": "20260916170726_disable_unrestricted_storage_uploads.sql",
       "appliedVersion": "20260916170726",
       "sha256": "56367cee5faacfe3f6c5f4d2b3d15ae8ae4496155ec0fac99ef64f0aa8e0f338"
+    },
+    {
+      "file": "20260927160000_google_monitoring_provider.sql",
+      "status": "pending",
+      "sha256": "5c0c893212eeaadb70da468b3bdd078cfc8545c824fd73b6c680d47ed89754ba"
     }
   ]
 }

@@ -175,6 +175,7 @@ export async function getOwnedMonitoringConnectionSecret(
       id: monitoringConnections.id,
       provider: monitoringConnections.provider,
       encryptedAccessToken: monitoringConnections.encryptedAccessToken,
+      encryptedRefreshToken: monitoringConnections.encryptedRefreshToken,
     })
     .from(monitoringConnections)
     .where(
@@ -369,4 +370,54 @@ export async function failMonitoringRun(options: {
       })
       .where(eq(monitoringConnections.id, options.connectionId));
   });
+}
+
+export async function upsertGoogleConnection(options: {
+  db: VaultDb;
+  ownerId: number;
+  accountId: string;
+  email: string;
+  encryptedAccessToken: string;
+  encryptedRefreshToken: string;
+  historyId: string;
+}) {
+  const values = {
+    displayName: options.email,
+    encryptedAccessToken: options.encryptedAccessToken,
+    encryptedRefreshToken: options.encryptedRefreshToken,
+    status: "active" as const,
+    scopes: ["https://www.googleapis.com/auth/gmail.metadata"],
+    checkpoint: { historyId: options.historyId },
+    nextCheckAt: new Date(),
+    lastErrorCode: null,
+    updatedAt: new Date(),
+  };
+  const [connection] = await options.db
+    .insert(monitoringConnections)
+    .values({
+      ...values,
+      ownerId: options.ownerId,
+      provider: "google",
+      providerAccountId: options.accountId,
+    })
+    .onConflictDoUpdate({
+      target: [
+        monitoringConnections.ownerId,
+        monitoringConnections.provider,
+        monitoringConnections.providerAccountId,
+      ],
+      set: values,
+    })
+    .returning({ id: monitoringConnections.id });
+  if (!connection) throw new Error("GOOGLE_STORAGE_FAILED");
+  return connection;
+}
+export async function requireMonitoringReauthorization(
+  db: VaultDb,
+  connectionId: number
+) {
+  await db
+    .update(monitoringConnections)
+    .set({ status: "reauthorization_required", nextCheckAt: null })
+    .where(eq(monitoringConnections.id, connectionId));
 }

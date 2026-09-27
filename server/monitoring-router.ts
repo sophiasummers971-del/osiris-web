@@ -67,10 +67,16 @@ export const monitoringRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = requireDb(ctx.databaseUrl);
       const operator = await ensureVaultOperator(db, ctx.user);
-      const configuration = requireGitHubConfiguration(ctx.githubOAuth);
+      const configuration = ctx.githubOAuth;
+      if (!configuration.tokenEncryptionKey)
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Monitoring encryption is not configured",
+        });
       const result = await runDueMonitoring({
         databaseUrl: ctx.databaseUrl,
         tokenEncryptionKey: configuration.tokenEncryptionKey,
+        googleOAuth: ctx.googleOAuth,
         ownerId: operator.id,
         connectionId: input.connectionId,
         force: true,

@@ -149,7 +149,7 @@ export const monitoringConnections = pgTable(
   {
     id: bigserial("id", { mode: "number" }).primaryKey(),
     ownerId: bigint("owner_id", { mode: "number" }).notNull(),
-    provider: text("provider").$type<"github">().notNull(),
+    provider: text("provider").$type<"github" | "google">().notNull(),
     providerAccountId: text("provider_account_id").notNull(),
     displayName: text("display_name"),
     status: text("status")
