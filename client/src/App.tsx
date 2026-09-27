@@ -13,6 +13,7 @@ import { BannerContainer } from "./components/NotificationBanner";
 const About = lazy(() => import("./pages/About"));
 const Auth = lazy(() => import("./pages/Auth"));
 const EvidenceVault = lazy(() => import("./pages/EvidenceVault"));
+const GoogleCallback = lazy(() => import("./pages/GoogleCallback"));
 const GitHubCallback = lazy(() => import("./pages/GitHubCallback"));
 const Home = lazy(() => import("./pages/Home"));
 const NotificationCenter = lazy(() => import("./pages/NotificationCenter"));
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/security" component={SecurityCenter} />
       <Route path="/vault" component={EvidenceVault} />
       <Route path="/auth" component={Auth} />
+      <Route path="/integrations/google/callback" component={GoogleCallback} />
       <Route path="/integrations/github/callback" component={GitHubCallback} />
       <Route path="/about" component={About} />
       <Route path="/notifications" component={NotificationCenter} />

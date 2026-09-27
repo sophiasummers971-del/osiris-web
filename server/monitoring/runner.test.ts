@@ -12,6 +12,9 @@ const mocks = vi.hoisted(() => ({
   decrypt: vi.fn(),
   monitor: vi.fn(),
   record: vi.fn(),
+  google: vi.fn(),
+  token: vi.fn(),
+  reauthorize: vi.fn(),
 }));
 
 vi.mock("../vault-db.js", () => ({ getVaultDb: mocks.getVaultDb }));
@@ -22,6 +25,7 @@ vi.mock("./connection-store.js", () => ({
   linkObservationToPegasusEvent: mocks.link,
   finishMonitoringRun: mocks.finish,
   failMonitoringRun: mocks.fail,
+  requireMonitoringReauthorization: mocks.reauthorize,
 }));
 vi.mock("./token-crypto.js", () => ({
   decryptMonitoringToken: mocks.decrypt,
@@ -32,6 +36,9 @@ vi.mock("./github-monitor.js", () => ({
 vi.mock("../pegasus-store.js", () => ({
   recordPegasusEvent: mocks.record,
 }));
+
+vi.mock("./google-monitor.js", () => ({ monitorGoogleMail: mocks.google }));
+vi.mock("./google-oauth.js", () => ({ googleToken: mocks.token }));
 
 import { runDueMonitoring } from "./runner.js";
 
@@ -60,6 +67,7 @@ describe("scheduled monitoring runner", () => {
   it("records a new provider state once and advances the checkpoint", async () => {
     const connection = {
       id: 7,
+      provider: "github",
       ownerId: 42,
       encryptedAccessToken: "v1.encrypted.token",
       checkpoint: {},
@@ -144,6 +152,7 @@ describe("scheduled monitoring runner", () => {
     mocks.claim.mockResolvedValue([
       {
         id: 7,
+        provider: "github",
         ownerId: 42,
         encryptedAccessToken: "v1.encrypted.token",
         checkpoint: {},
@@ -170,4 +179,35 @@ describe("scheduled monitoring runner", () => {
       "raw secret provider detail"
     );
   });
+});
+
+it("stops Google polling on expired history without advancing the checkpoint", async () => {
+  vi.clearAllMocks();
+  mocks.getVaultDb.mockReturnValue(mocks.db);
+  mocks.claim.mockResolvedValue([
+    {
+      id: 8,
+      ownerId: 42,
+      provider: "google",
+      providerAccountId: "123",
+      encryptedAccessToken: "a",
+      encryptedRefreshToken: "r",
+      checkpoint: { historyId: "100" },
+    },
+  ]);
+  mocks.start.mockResolvedValue({ id: "google-run" });
+  mocks.decrypt.mockResolvedValue("refresh");
+  mocks.token.mockResolvedValue({ accessToken: "access" });
+  mocks.google.mockRejectedValue(new Error("GOOGLE_HISTORY_EXPIRED"));
+  const result = await runDueMonitoring({
+    databaseUrl: "postgresql://db",
+    tokenEncryptionKey: "key",
+    googleOAuth: { enabled: true },
+  });
+  expect(result.failed).toBe(1);
+  expect(mocks.reauthorize).toHaveBeenCalledWith(mocks.db, 8);
+  expect(mocks.finish).not.toHaveBeenCalled();
+  expect(mocks.fail).toHaveBeenCalledWith(
+    expect.objectContaining({ errorCode: "GOOGLE_HISTORY_EXPIRED" })
+  );
 });

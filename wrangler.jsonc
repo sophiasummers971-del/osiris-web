@@ -5,6 +5,8 @@
   "compatibility_date": "2026-08-07",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
+    "GOOGLE_REDIRECT_URI": "https://osiris-web.sophia-stars.workers.dev/integrations/google/callback",
+    "GOOGLE_MONITORING_ENABLED": "true",
     "VITE_SUPABASE_URL": "https://pussbwanjsrvitaxzsnh.supabase.co",
     "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_eQ0HJJqoJ0oSOOHIp3U1lA_UVsu0Qy7",
   },
