@@ -100,6 +100,8 @@ export const googleMonitoringRouter = router({
           "GOOGLE_API_FAILED",
           "GOOGLE_STATE_DECODE_FAILED",
           "GOOGLE_TOKEN_EXCHANGE_FAILED",
+          "GOOGLE_TOKEN_FETCH_FAILED",
+          "GOOGLE_TOKEN_RESPONSE_FAILED",
           "GOOGLE_IDENTITY_FETCH_FAILED",
           "GOOGLE_IDENTITY_RESPONSE_FAILED",
           "GOOGLE_PROFILE_FETCH_FAILED",
