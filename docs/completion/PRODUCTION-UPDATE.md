@@ -6,6 +6,12 @@ version `54767658-feda-4497-8fbe-0bb6a4f338d0` (rollback reference).
 
 ## Corrections before deployment
 
+- Two leftover Vercel project integrations still attempted builds and reported
+  account-blocked status checks. `vercel.json` now explicitly disables all Git
+  deployments; it contains no Vercel runtime/build configuration. This follows
+  https://vercel.com/docs/project-configuration/git-configuration. Historical
+  failed checks are retained as evidence, not treated as Cloudflare failures.
+
 - The Cloudflare non-main trigger previously ran `wrangler deploy` against the
   production Worker. It now verifies branches and only echoes a completion message.
 - The main trigger now runs a frozen install and `pnpm verify` with pnpm 10.34.5.
