@@ -79,6 +79,9 @@ describe("Google consent boundary", () => {
       completeGoogleAuthorization("code", result.state, 1, config, fetcher)
     ).rejects.toThrow("GOOGLE_IDENTITY_FAILED");
     expect(String(fetcher.mock.calls[0][1].body)).toContain("code_verifier=");
+    expect(
+      fetcher.mock.calls.every(call => call[1].redirect === "manual")
+    ).toBe(true);
     const noRefresh = vi
       .fn()
       .mockResolvedValue(json({ access_token: "access" }));
@@ -98,6 +101,22 @@ describe("Google consent boundary", () => {
           )
       )
     ).rejects.toThrow("GOOGLE_REAUTHORIZATION_REQUIRED");
+  });
+  it("uses the Workers-supported redirect mode and refuses token redirects", async () => {
+    const fetcher = vi.fn().mockImplementation((_url, init) => {
+      if (init.redirect !== "manual")
+        throw new TypeError("Workers rejects this redirect mode");
+      return Promise.resolve(
+        new Response(null, {
+          status: 302,
+          headers: { Location: "https://untrusted.example/token" },
+        })
+      );
+    });
+    await expect(googleToken({}, config, fetcher)).rejects.toThrow(
+      "GOOGLE_TOKEN_RESPONSE_FAILED"
+    );
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
   it("identifies a token exchange transport failure without exposing the exception", async () => {
     const { state } = await beginGoogleAuthorization(1, config);

@@ -116,7 +116,9 @@ export async function googleToken(
     try {
       return await fetcher("https://oauth2.googleapis.com/token", {
         method: "POST",
-        redirect: "error",
+        // Workers rejects redirect:"error" before making an outbound request.
+        // Manual mode lets each non-OK redirect fail closed.
+        redirect: "manual",
         signal: AbortSignal.timeout(15_000),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -172,7 +174,7 @@ export async function googleGet(
   const response = await fetcher(
     `https://gmail.googleapis.com/gmail/v1/users/me/${path}`,
     {
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(15_000),
       headers: { Authorization: `Bearer ${token}` },
     }
@@ -213,7 +215,7 @@ export async function completeGoogleAuthorization(
   if (!token.refreshToken) throw new Error("GOOGLE_OFFLINE_CONSENT_REQUIRED");
   const identityResponse = await diagnosticStep("IDENTITY_FETCH", () =>
     fetcher("https://openidconnect.googleapis.com/v1/userinfo", {
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(15_000),
       headers: { Authorization: `Bearer ${token.accessToken}` },
     })
@@ -250,7 +252,7 @@ export async function revokeGoogleToken(
 ) {
   const response = await fetcher("https://oauth2.googleapis.com/revoke", {
     method: "POST",
-    redirect: "error",
+    redirect: "manual",
     signal: AbortSignal.timeout(15_000),
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ token }),
