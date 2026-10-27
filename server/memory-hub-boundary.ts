@@ -44,12 +44,12 @@ export function validateSecuritySignal(input: unknown): SecuritySignal {
   if (keys.length !== required.length || keys.some(k => !required.includes(k))) throw new Error("UNEXPECTED_SIGNAL_FIELDS");
   if (o.schema !== "pegasus.memory-hub.security/v1" || o.source !== "cross-ai-memory-hub") throw new Error("UNTRUSTED_SIGNAL_SOURCE");
   if (typeof o.id !== "string" || !idPattern.test(o.id)) throw new Error("INVALID_SIGNAL_ID");
-  if (typeof o.observedAt !== "string" || !/^\\d{4}-\\d\\d-\\d\\dT/.test(o.observedAt) || !Number.isFinite(Date.parse(o.observedAt))) throw new Error("INVALID_TIMESTAMP");
+  if (typeof o.observedAt !== "string" || !/^\d{4}-\d\d-\d\dT/.test(o.observedAt) || !Number.isFinite(Date.parse(o.observedAt))) throw new Error("INVALID_TIMESTAMP");
   if (!allowedCategories.has(String(o.category)) || !allowedSeverity.has(String(o.severity))) throw new Error("INVALID_CLASSIFICATION");
   if (typeof o.signal !== "string" || !safeSignal.test(o.signal)) throw new Error("INVALID_SIGNAL_CODE");
   if (typeof o.confidence !== "number" || !Number.isInteger(o.confidence) || o.confidence < 0 || o.confidence > 100) throw new Error("INVALID_CONFIDENCE");
   if (typeof o.evidenceDigest !== "string" || !digestPattern.test(o.evidenceDigest)) throw new Error("INVALID_DIGEST");
-  if (typeof o.summary !== "string" || o.summary.length < 1 || o.summary.length > 240 || /[\\r\\n<>]/.test(o.summary)) throw new Error("UNSAFE_SUMMARY");
+  if (typeof o.summary !== "string" || o.summary.length < 1 || o.summary.length > 240 || /[\r\n<>]/.test(o.summary)) throw new Error("UNSAFE_SUMMARY");
   // Deliberately prohibit arbitrary 'details', memory payloads and instructions.
   return input as SecuritySignal;
 }
