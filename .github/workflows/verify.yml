@@ -21,5 +21,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      - name: Rule Zero fail-closed decision regression tests
+        run: node --test scripts/rule-zero/preflight.test.mjs
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
