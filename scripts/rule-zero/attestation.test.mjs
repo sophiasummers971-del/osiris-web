@@ -4,7 +4,8 @@ import { generateKeyPairSync, randomBytes, sign } from "node:crypto";
 import { verifyProbeAttestation } from "./attestation.mjs";
 
 const { publicKey, privateKey } = generateKeyPairSync("ed25519");
-const { publicKey: otherKey, privateKey: otherPrivate } = generateKeyPairSync("ed25519");
+const { publicKey: otherKey, privateKey: otherPrivate } =
+  generateKeyPairSync("ed25519");
 const now = Date.parse("2026-10-28T22:00:00Z");
 const commit = "a".repeat(40);
 const make = (overrides = {}, signer = privateKey) => {

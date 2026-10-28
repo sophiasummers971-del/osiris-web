@@ -15,11 +15,12 @@ export async function verifyProbeAttestation({
   consumeNonce,
   now = Date.now(),
 }) {
-  const blocked = (reason) => ({
+  const blocked = reason => ({
     light: "RED",
     decision: "PREFLIGHT_BLOCKED",
     reasons: [reason],
   });
+  if (!Number.isFinite(now)) return blocked("INVALID_CLOCK");
   if (
     !envelope ||
     typeof envelope !== "object" ||
@@ -39,13 +40,24 @@ export async function verifyProbeAttestation({
 
   let verified = false;
   try {
-    const key = trustedPublicKey?.type === "public" ? trustedPublicKey : createPublicKey(trustedPublicKey);
+    const key =
+      trustedPublicKey?.type === "public"
+        ? trustedPublicKey
+        : createPublicKey(trustedPublicKey);
     if (key.asymmetricKeyType !== "ed25519")
       return blocked("UNSUPPORTED_SIGNATURE_KEY");
     const signature = Buffer.from(envelope.signature, "base64");
-    if (signature.length !== 64 || signature.toString("base64") !== envelope.signature)
+    if (
+      signature.length !== 64 ||
+      signature.toString("base64") !== envelope.signature
+    )
       return blocked("INVALID_SIGNATURE_ENCODING");
-    verified = verify(null, Buffer.from(envelope.payload, "utf8"), key, signature);
+    verified = verify(
+      null,
+      Buffer.from(envelope.payload, "utf8"),
+      key,
+      signature
+    );
   } catch {
     return blocked("INVALID_SIGNATURE");
   }

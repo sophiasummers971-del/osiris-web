@@ -11,6 +11,12 @@ const allowed = new Set(["PASS", "FAIL", "UNKNOWN"]);
 
 export function evaluatePreflight(evidence, now = Date.now()) {
   const reasons = [];
+  if (!Number.isFinite(now))
+    return {
+      light: "RED",
+      decision: "PREFLIGHT_BLOCKED",
+      reasons: ["INVALID_CLOCK"],
+    };
   if (!evidence || typeof evidence !== "object" || Array.isArray(evidence))
     return {
       light: "RED",
@@ -35,8 +41,7 @@ export function evaluatePreflight(evidence, now = Date.now()) {
     reasons.push("INVALID_TIMESTAMP");
   else {
     const delta = now - Date.parse(evidence.checkedAt);
-    if (delta < -30_000 || delta > 5 * 60_000)
-      reasons.push("STALE_EVIDENCE");
+    if (delta < -30_000 || delta > 5 * 60_000) reasons.push("STALE_EVIDENCE");
   }
   for (const name of required)
     if (!allowed.has(evidence.checks?.[name]))
@@ -44,13 +49,15 @@ export function evaluatePreflight(evidence, now = Date.now()) {
   for (const name of required)
     if (evidence.checks?.[name] !== "PASS")
       reasons.push(`NOT_PASSED_${name.toUpperCase()}`);
-  if (evidence.credentialExpiry !== "not-applicable") {
-    const expires = Date.parse(evidence.credentialExpiry);
+  {
+    const expires =
+      typeof evidence.credentialExpiry === "string"
+        ? Date.parse(evidence.credentialExpiry)
+        : NaN;
     if (!Number.isFinite(expires) || expires <= now + 60_000)
       reasons.push("EXPIRED_OR_UNKNOWN_AUTH");
   }
-  if (evidence.ownerApproval !== true)
-    reasons.push("OWNER_APPROVAL_MISSING");
+  if (evidence.ownerApproval !== true) reasons.push("OWNER_APPROVAL_MISSING");
   return reasons.length
     ? {
         light: "RED",

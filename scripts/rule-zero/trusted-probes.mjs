@@ -7,7 +7,12 @@ const ENDPOINTS = Object.freeze({
 
 function statusClass(response) {
   if (response.status === 401) return "AUTH_EXPIRED";
-  if (response.status === 429 || (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")) return "RATE_LIMITED";
+  if (
+    response.status === 429 ||
+    (response.status === 403 &&
+      response.headers.get("x-ratelimit-remaining") === "0")
+  )
+    return "RATE_LIMITED";
   if (response.status === 403) return "API_ACCESS_BLOCKED";
   if (response.status >= 500) return "PROVIDER_ERROR";
   if (!response.ok) return "API_ACCESS_BLOCKED";
@@ -18,9 +23,26 @@ function statusClass(response) {
  * Read-only diagnostic probe. A caller cannot supply a URL.
  * This does NOT grant execution: approval and expiry remain unverified.
  */
-export async function collectProviderProbe({ provider, credential, expectedIdentity, jobId, target, fetchImpl = fetch, now = Date.now() }) {
-  if (!Object.hasOwn(ENDPOINTS, provider) || typeof credential !== "string" || !credential || !expectedIdentity)
-    return { light: "RED", decision: "PREFLIGHT_BLOCKED", reason: "INVALID_CONFIGURATION" };
+export async function collectProviderProbe({
+  provider,
+  credential,
+  expectedIdentity,
+  jobId,
+  target,
+  fetchImpl = fetch,
+  now = Date.now(),
+}) {
+  if (
+    !Object.hasOwn(ENDPOINTS, provider) ||
+    typeof credential !== "string" ||
+    !credential ||
+    !expectedIdentity
+  )
+    return {
+      light: "RED",
+      decision: "PREFLIGHT_BLOCKED",
+      reason: "INVALID_CONFIGURATION",
+    };
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 4000);
   let classification = "PROVIDER_ERROR";
@@ -37,7 +59,11 @@ export async function collectProviderProbe({ provider, credential, expectedIdent
       },
     });
     classification = statusClass(response);
-    quota = response.status === 429 || response.headers.get("x-ratelimit-remaining") === "0" ? "FAIL" : "UNKNOWN";
+    quota =
+      response.status === 429 ||
+      response.headers.get("x-ratelimit-remaining") === "0"
+        ? "FAIL"
+        : "UNKNOWN";
     if (response.ok) {
       const body = await response.json();
       const actual = provider === "github" ? body.login : body.result?.email;
@@ -65,5 +91,10 @@ export async function collectProviderProbe({ provider, credential, expectedIdent
       sourceBaseline: "UNKNOWN",
     },
   };
-  return { ...evaluatePreflight(evidence, now), classification, identityMatch, provider };
+  return {
+    ...evaluatePreflight(evidence, now),
+    classification,
+    identityMatch,
+    provider,
+  };
 }
