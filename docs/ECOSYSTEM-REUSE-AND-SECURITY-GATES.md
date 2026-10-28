@@ -13,7 +13,7 @@ Reviewed 2026-10-28. Documentation-only working note. No live connection, creden
 
 ## Reuse, do not multiply authorities
 
-1. Gateway/Pegasus identifies safe envelopes and routes. Existing MARK 002.5 is a *reference* for classification; preserve explicit proof and owner-authorized decisions.
+1. Gateway/Pegasus identifies safe envelopes and routes. Existing MARK 002.5 is a _reference_ for classification; preserve explicit proof and owner-authorized decisions.
 2. Sector 7 worker transport may reuse MARK 001.5 queuing/backpressure invariants. Worker job contracts must be purpose-scoped and minimally privileged; do not allow broad memory/database reads.
 3. Memory Hub alone owns approval and retrieval policy over private memory. Security journal stores metadata and evidence references, not memory contents.
 4. AREN/Oracle consumes only approved and bounded context through dedicated authenticated read-only integration. AREN does not approve its own requests or hold privileged credentials in the UI.
