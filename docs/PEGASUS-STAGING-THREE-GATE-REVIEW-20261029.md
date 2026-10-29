@@ -12,7 +12,7 @@ PR #62 contains four-pipeline pure policy; PR #64 contains a separate inert stag
 
 ## Gate 2: Isolated Cloudflare staging
 
-Created the *separate* Cloudflare Worker `pegasus-routing-staging` in account SJ-Insides. The API confirms upload success and its dedicated workers.dev subdomain enabled with previews disabled. The deployed Worker is classic-worker JavaScript, **not automatically synchronized with the TypeScript scaffold in PR #64**. Its read-only /health and /routes endpoints return a fixed synthetic topology only. POST, PUT, PATCH and DELETE return 405. There are no Supabase, OSIRIS, Hyperdrive, queue, service, secret or routing bindings in the uploaded code.
+Created the _separate_ Cloudflare Worker `pegasus-routing-staging` in account SJ-Insides. The API confirms upload success and its dedicated workers.dev subdomain enabled with previews disabled. The deployed Worker is classic-worker JavaScript, **not automatically synchronized with the TypeScript scaffold in PR #64**. Its read-only /health and /routes endpoints return a fixed synthetic topology only. POST, PUT, PATCH and DELETE return 405. There are no Supabase, OSIRIS, Hyperdrive, queue, service, secret or routing bindings in the uploaded code.
 
 **Still unverified:** A successful Worker upload is not a successful end-to-end staging rehearsal. The API state was inspected, but externally calling the workers.dev endpoint failed from the available execution environment. Actual route observation, failover, rollback, independent authentication, signed approval and provider-enforced fencing were not tested. The Worker does not alter traffic.
 
