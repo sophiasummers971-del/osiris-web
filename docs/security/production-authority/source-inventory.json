@@ -1,0 +1,883 @@
+{
+  "sourceCommit": "45b754eb02a034fd5c13462f6157a3b4685e27f5",
+  "recordedAt": "2026-10-29T02:04:59.874Z",
+  "method": "TypeScript AST literal relative runtime imports/exports and literal dynamic imports; no execution of application code",
+  "limitations": [
+    "Not a complete interprocedural call graph",
+    "External packages, computed imports, deployment/dashboard routes and effective cloud/DB grants are not established",
+    "No alias resolution for non-relative imports; listed external specifiers require review",
+    "Source configuration is not proof of deployed configuration"
+  ],
+  "graphs": [
+    {
+      "root": "worker/index.ts",
+      "moduleCount": 29,
+      "files": [
+        "drizzle/vault-schema.ts",
+        "server/_core/aiGateway.ts",
+        "server/_core/context.ts",
+        "server/_core/cookies.ts",
+        "server/_core/posture.ts",
+        "server/_core/systemRouter.ts",
+        "server/_core/trpc.ts",
+        "server/cases.ts",
+        "server/email-outbox.ts",
+        "server/email-test.ts",
+        "server/evidence-storage.ts",
+        "server/google-monitoring-router.ts",
+        "server/intelligence.ts",
+        "server/monitoring-router.ts",
+        "server/monitoring/connection-store.ts",
+        "server/monitoring/github-monitor.ts",
+        "server/monitoring/github-oauth.ts",
+        "server/monitoring/google-monitor.ts",
+        "server/monitoring/google-oauth.ts",
+        "server/monitoring/runner.ts",
+        "server/monitoring/token-crypto.ts",
+        "server/pegasus-router.ts",
+        "server/pegasus-store.ts",
+        "server/pegasus.ts",
+        "server/routers.ts",
+        "server/vault-db.ts",
+        "shared/const.ts",
+        "shared/security-headers.ts",
+        "worker/index.ts"
+      ],
+      "edges": [
+        {
+          "from": "worker/index.ts",
+          "to": "shared/security-headers.ts",
+          "line": 1
+        },
+        {
+          "from": "worker/index.ts",
+          "to": "server/routers.ts",
+          "line": 3
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/google-monitoring-router.ts",
+          "line": 1
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 3
+        },
+        {
+          "from": "server/_core/trpc.ts",
+          "to": "shared/const.ts",
+          "line": 1
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/vault-db.ts",
+          "line": 4
+        },
+        {
+          "from": "server/vault-db.ts",
+          "to": "drizzle/vault-schema.ts",
+          "line": 4
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/monitoring/google-oauth.ts",
+          "line": 10
+        },
+        {
+          "from": "server/monitoring/google-oauth.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 4
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 14
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/monitoring/connection-store.ts",
+          "line": 19
+        },
+        {
+          "from": "server/monitoring/connection-store.ts",
+          "to": "drizzle/vault-schema.ts",
+          "line": 6
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/_core/cookies.ts",
+          "line": 2
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/_core/systemRouter.ts",
+          "line": 3
+        },
+        {
+          "from": "server/_core/systemRouter.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 2
+        },
+        {
+          "from": "server/_core/systemRouter.ts",
+          "to": "server/_core/posture.ts",
+          "line": 3
+        },
+        {
+          "from": "server/_core/systemRouter.ts",
+          "to": "server/vault-db.ts",
+          "line": 4
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 4
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "shared/const.ts",
+          "line": 5
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/cases.ts",
+          "line": 6
+        },
+        {
+          "from": "server/cases.ts",
+          "to": "drizzle/vault-schema.ts",
+          "line": 8
+        },
+        {
+          "from": "server/cases.ts",
+          "to": "server/vault-db.ts",
+          "line": 9
+        },
+        {
+          "from": "server/cases.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 10
+        },
+        {
+          "from": "server/cases.ts",
+          "to": "server/evidence-storage.ts",
+          "line": 11
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/intelligence.ts",
+          "line": 7
+        },
+        {
+          "from": "server/intelligence.ts",
+          "to": "server/_core/aiGateway.ts",
+          "line": 5
+        },
+        {
+          "from": "server/intelligence.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 6
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/pegasus-router.ts",
+          "line": 8
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/vault-db.ts",
+          "line": 3
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/pegasus-store.ts",
+          "line": 8
+        },
+        {
+          "from": "server/pegasus-store.ts",
+          "to": "drizzle/vault-schema.ts",
+          "line": 6
+        },
+        {
+          "from": "server/pegasus-store.ts",
+          "to": "server/pegasus.ts",
+          "line": 13
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 9
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/email-test.ts",
+          "line": 10
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/email-outbox.ts",
+          "line": 11
+        },
+        {
+          "from": "server/email-outbox.ts",
+          "to": "server/vault-db.ts",
+          "line": 2
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/monitoring-router.ts",
+          "line": 9
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/monitoring/github-oauth.ts",
+          "line": 10
+        },
+        {
+          "from": "server/monitoring/github-oauth.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 4
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 14
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/monitoring/connection-store.ts",
+          "line": 21
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/vault-db.ts",
+          "line": 22
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 23
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/monitoring/runner.ts",
+          "line": 24
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/google-monitor.ts",
+          "line": 1
+        },
+        {
+          "from": "server/monitoring/google-monitor.ts",
+          "to": "server/monitoring/google-oauth.ts",
+          "line": 2
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/google-oauth.ts",
+          "line": 2
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/connection-store.ts",
+          "line": 3
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/pegasus-store.ts",
+          "line": 4
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/vault-db.ts",
+          "line": 5
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/connection-store.ts",
+          "line": 13
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/github-monitor.ts",
+          "line": 14
+        },
+        {
+          "from": "server/monitoring/github-monitor.ts",
+          "to": "server/monitoring/github-oauth.ts",
+          "line": 1
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 15
+        },
+        {
+          "from": "worker/index.ts",
+          "to": "server/_core/context.ts",
+          "line": 4
+        },
+        {
+          "from": "server/_core/context.ts",
+          "to": "server/evidence-storage.ts",
+          "line": 5
+        },
+        {
+          "from": "worker/index.ts",
+          "to": "server/monitoring/runner.ts",
+          "line": 6
+        },
+        {
+          "from": "worker/index.ts",
+          "to": "server/email-test.ts",
+          "line": 7
+        },
+        {
+          "from": "worker/index.ts",
+          "to": "server/email-outbox.ts",
+          "line": 8
+        }
+      ],
+      "externalSpecifiers": [
+        "@supabase/supabase-js",
+        "@trpc/server",
+        "@trpc/server/adapters/fetch",
+        "cloudflare:email",
+        "drizzle-orm",
+        "drizzle-orm/pg-core",
+        "drizzle-orm/postgres-js",
+        "node:buffer",
+        "postgres",
+        "superjson",
+        "zod"
+      ],
+      "unresolved": [],
+      "ruleZeroImported": false
+    },
+    {
+      "root": "server/_core/index.ts",
+      "moduleCount": 32,
+      "files": [
+        "drizzle/vault-schema.ts",
+        "server/_core/aiGateway.ts",
+        "server/_core/context.ts",
+        "server/_core/cookies.ts",
+        "server/_core/index.ts",
+        "server/_core/posture.ts",
+        "server/_core/supabaseAuthProxy.ts",
+        "server/_core/systemRouter.ts",
+        "server/_core/trpc.ts",
+        "server/_core/vite.ts",
+        "server/cases.ts",
+        "server/email-outbox.ts",
+        "server/email-test.ts",
+        "server/evidence-storage.ts",
+        "server/google-monitoring-router.ts",
+        "server/intelligence.ts",
+        "server/monitoring-router.ts",
+        "server/monitoring/connection-store.ts",
+        "server/monitoring/github-monitor.ts",
+        "server/monitoring/github-oauth.ts",
+        "server/monitoring/google-monitor.ts",
+        "server/monitoring/google-oauth.ts",
+        "server/monitoring/runner.ts",
+        "server/monitoring/token-crypto.ts",
+        "server/pegasus-router.ts",
+        "server/pegasus-store.ts",
+        "server/pegasus.ts",
+        "server/routers.ts",
+        "server/vault-db.ts",
+        "shared/const.ts",
+        "shared/security-headers.ts",
+        "vite.config.ts"
+      ],
+      "edges": [
+        {
+          "from": "server/_core/index.ts",
+          "to": "shared/security-headers.ts",
+          "line": 1
+        },
+        {
+          "from": "server/_core/index.ts",
+          "to": "server/routers.ts",
+          "line": 7
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/google-monitoring-router.ts",
+          "line": 1
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 3
+        },
+        {
+          "from": "server/_core/trpc.ts",
+          "to": "shared/const.ts",
+          "line": 1
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/vault-db.ts",
+          "line": 4
+        },
+        {
+          "from": "server/vault-db.ts",
+          "to": "drizzle/vault-schema.ts",
+          "line": 4
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/monitoring/google-oauth.ts",
+          "line": 10
+        },
+        {
+          "from": "server/monitoring/google-oauth.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 4
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 14
+        },
+        {
+          "from": "server/google-monitoring-router.ts",
+          "to": "server/monitoring/connection-store.ts",
+          "line": 19
+        },
+        {
+          "from": "server/monitoring/connection-store.ts",
+          "to": "drizzle/vault-schema.ts",
+          "line": 6
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/_core/cookies.ts",
+          "line": 2
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/_core/systemRouter.ts",
+          "line": 3
+        },
+        {
+          "from": "server/_core/systemRouter.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 2
+        },
+        {
+          "from": "server/_core/systemRouter.ts",
+          "to": "server/_core/posture.ts",
+          "line": 3
+        },
+        {
+          "from": "server/_core/systemRouter.ts",
+          "to": "server/vault-db.ts",
+          "line": 4
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 4
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "shared/const.ts",
+          "line": 5
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/cases.ts",
+          "line": 6
+        },
+        {
+          "from": "server/cases.ts",
+          "to": "drizzle/vault-schema.ts",
+          "line": 8
+        },
+        {
+          "from": "server/cases.ts",
+          "to": "server/vault-db.ts",
+          "line": 9
+        },
+        {
+          "from": "server/cases.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 10
+        },
+        {
+          "from": "server/cases.ts",
+          "to": "server/evidence-storage.ts",
+          "line": 11
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/intelligence.ts",
+          "line": 7
+        },
+        {
+          "from": "server/intelligence.ts",
+          "to": "server/_core/aiGateway.ts",
+          "line": 5
+        },
+        {
+          "from": "server/intelligence.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 6
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/pegasus-router.ts",
+          "line": 8
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/vault-db.ts",
+          "line": 3
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/pegasus-store.ts",
+          "line": 8
+        },
+        {
+          "from": "server/pegasus-store.ts",
+          "to": "drizzle/vault-schema.ts",
+          "line": 6
+        },
+        {
+          "from": "server/pegasus-store.ts",
+          "to": "server/pegasus.ts",
+          "line": 13
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 9
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/email-test.ts",
+          "line": 10
+        },
+        {
+          "from": "server/pegasus-router.ts",
+          "to": "server/email-outbox.ts",
+          "line": 11
+        },
+        {
+          "from": "server/email-outbox.ts",
+          "to": "server/vault-db.ts",
+          "line": 2
+        },
+        {
+          "from": "server/routers.ts",
+          "to": "server/monitoring-router.ts",
+          "line": 9
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/monitoring/github-oauth.ts",
+          "line": 10
+        },
+        {
+          "from": "server/monitoring/github-oauth.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 4
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 14
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/monitoring/connection-store.ts",
+          "line": 21
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/vault-db.ts",
+          "line": 22
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/_core/trpc.ts",
+          "line": 23
+        },
+        {
+          "from": "server/monitoring-router.ts",
+          "to": "server/monitoring/runner.ts",
+          "line": 24
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/google-monitor.ts",
+          "line": 1
+        },
+        {
+          "from": "server/monitoring/google-monitor.ts",
+          "to": "server/monitoring/google-oauth.ts",
+          "line": 2
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/google-oauth.ts",
+          "line": 2
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/connection-store.ts",
+          "line": 3
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/pegasus-store.ts",
+          "line": 4
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/vault-db.ts",
+          "line": 5
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/connection-store.ts",
+          "line": 13
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/github-monitor.ts",
+          "line": 14
+        },
+        {
+          "from": "server/monitoring/github-monitor.ts",
+          "to": "server/monitoring/github-oauth.ts",
+          "line": 1
+        },
+        {
+          "from": "server/monitoring/runner.ts",
+          "to": "server/monitoring/token-crypto.ts",
+          "line": 15
+        },
+        {
+          "from": "server/_core/index.ts",
+          "to": "server/_core/context.ts",
+          "line": 8
+        },
+        {
+          "from": "server/_core/context.ts",
+          "to": "server/evidence-storage.ts",
+          "line": 5
+        },
+        {
+          "from": "server/_core/index.ts",
+          "to": "server/_core/vite.ts",
+          "line": 9
+        },
+        {
+          "from": "server/_core/vite.ts",
+          "to": "vite.config.ts",
+          "line": 7
+        },
+        {
+          "from": "server/_core/index.ts",
+          "to": "server/_core/supabaseAuthProxy.ts",
+          "line": 10
+        }
+      ],
+      "externalSpecifiers": [
+        "@supabase/supabase-js",
+        "@tailwindcss/vite",
+        "@trpc/server",
+        "@trpc/server/adapters/express",
+        "@vitejs/plugin-react",
+        "dotenv/config",
+        "drizzle-orm",
+        "drizzle-orm/pg-core",
+        "drizzle-orm/postgres-js",
+        "express",
+        "fs",
+        "http",
+        "nanoid",
+        "net",
+        "node:buffer",
+        "node:path",
+        "path",
+        "postgres",
+        "superjson",
+        "vite",
+        "zod"
+      ],
+      "unresolved": [],
+      "ruleZeroImported": false
+    },
+    {
+      "root": "server/index.ts",
+      "moduleCount": 1,
+      "files": ["server/index.ts"],
+      "edges": [],
+      "externalSpecifiers": ["express", "http", "path", "url"],
+      "unresolved": [],
+      "ruleZeroImported": false
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": ".github/workflows/verify.yml",
+      "sha256": "d72dd0d1b65ec0027219163bfd2ea7b4d822a3090366d42688ba6bca99c5d543"
+    },
+    {
+      "path": "drizzle/vault-schema.ts",
+      "sha256": "8439a8dcb22cd24bb948afab9fc80d0f0a40f371167e01a2db1443efba5622f1"
+    },
+    {
+      "path": "package.json",
+      "sha256": "ea7c09f32e67463dd01cbddd4f1ba5f176f61a33564a47a523cf751c5673154e"
+    },
+    {
+      "path": "scripts/check-boundaries.mjs",
+      "sha256": "83cd643606e78f9af1b3f2292e5f74e5496969ef267d7a57c6c9f9af04504962"
+    },
+    {
+      "path": "server/_core/aiGateway.ts",
+      "sha256": "ab884b6c8f8241fa7a4ff58b88a28f68dcee28a2a479e3dbac5f240d2361cab0"
+    },
+    {
+      "path": "server/_core/context.ts",
+      "sha256": "38d869ecb07f0c3c92d21e0d175067e35e4abfeada37dde1d9e5af929e560157"
+    },
+    {
+      "path": "server/_core/cookies.ts",
+      "sha256": "c0ee9dcf4087bb16bdcf8f4573e8b421f0f0c8d750c18af180ac19c9ecccd383"
+    },
+    {
+      "path": "server/_core/index.ts",
+      "sha256": "499fe335cfce62f30f65ecca271ebb226a1e7df1939f1dea95f59883b8e2e3d6"
+    },
+    {
+      "path": "server/_core/posture.ts",
+      "sha256": "d5475cf88723748348f87ba75cd7bf39bbb1701285cab8cef40c2aa528452f50"
+    },
+    {
+      "path": "server/_core/supabaseAuthProxy.ts",
+      "sha256": "32bd25565a3f7fee07c1db568a0b0f2aa55aaaa273ed83e58a4f3fd3bacd4794"
+    },
+    {
+      "path": "server/_core/systemRouter.ts",
+      "sha256": "79f61f4b84b68311fbd6e91ea94f04dab8d38bf4c2da8b7d2f4f539970070dd7"
+    },
+    {
+      "path": "server/_core/trpc.ts",
+      "sha256": "0914a8b7ce0abe9323ce0abb23f0c527b888a3d0b1f5038274790264421ac947"
+    },
+    {
+      "path": "server/_core/vite.ts",
+      "sha256": "957da5abe4ca740e48fedf9cd3c26ce1c9eca473ed50d7e7588f2173798f6b1b"
+    },
+    {
+      "path": "server/cases.ts",
+      "sha256": "ba8886294405e9de660317da62fef1672d929be18b742288905546caa461c7d8"
+    },
+    {
+      "path": "server/email-outbox.ts",
+      "sha256": "4f4f3830dd4af03a5f3ff7d315d60e36a8a43aef4316288ae12b96804486da2d"
+    },
+    {
+      "path": "server/email-test.ts",
+      "sha256": "75f9273f2bbf93921f27a29501e647aefa7bbd8a14c071dcc7b66e61bc76077f"
+    },
+    {
+      "path": "server/evidence-storage.ts",
+      "sha256": "38b213d7e372b252a366aa9d5a01ae030fca583b30d2f44bc1398832e92c97ee"
+    },
+    {
+      "path": "server/google-monitoring-router.ts",
+      "sha256": "6a05c8f0ebe249b8203945e19ea3b8008d91bb1b255b15efc4d1805e2afc47df"
+    },
+    {
+      "path": "server/index.ts",
+      "sha256": "1173c62861b9c60b2a3f55fd4189917813cdaa16f1eff6fc2f860a0e020db215"
+    },
+    {
+      "path": "server/intelligence.ts",
+      "sha256": "2eb389d23a673211f365ada84513afc7df29c80f0d7d8d12632a411a450acdb7"
+    },
+    {
+      "path": "server/monitoring-router.ts",
+      "sha256": "03dc39054de7bf070ceb45cab647462b92a770b406d23625e153e6d185cd6f3f"
+    },
+    {
+      "path": "server/monitoring/connection-store.ts",
+      "sha256": "c01df89a85b105f710f6253b67a0dc29210c52700143afa42ac024c535a4540a"
+    },
+    {
+      "path": "server/monitoring/github-monitor.ts",
+      "sha256": "15a149918c713f97e550313d116b063c7c87e7729be03fbfdee53f3187c66bac"
+    },
+    {
+      "path": "server/monitoring/github-oauth.ts",
+      "sha256": "64acf01a2bb48745d8bd13ffcf626de16f0695d5774c11835a214f97dd6829af"
+    },
+    {
+      "path": "server/monitoring/google-monitor.ts",
+      "sha256": "6b5efec77780daf3f57032a91faa17121b3bd0eb82f3da70091277b3583e0b6d"
+    },
+    {
+      "path": "server/monitoring/google-oauth.ts",
+      "sha256": "db81285f8f42ce125d18660610a7d7d962d821c316fb97a69b05cb4df7a973de"
+    },
+    {
+      "path": "server/monitoring/runner.ts",
+      "sha256": "f0525dd54b2e6d28c6c858716417402a56f4126120bd27cd05b333e175b1b799"
+    },
+    {
+      "path": "server/monitoring/token-crypto.ts",
+      "sha256": "5e850638bae4fd63dcdf0b8d3e558462611901178eda65cc9e02c69ad83d51dc"
+    },
+    {
+      "path": "server/pegasus-router.ts",
+      "sha256": "fb887e556289baa0c227a554ba8b29737c3188e829d8614d62c09d42669b1f7a"
+    },
+    {
+      "path": "server/pegasus-store.ts",
+      "sha256": "1348627a17a6362ee3912c4f68815e9679a89b668e1135bffdb71647a6ff366e"
+    },
+    {
+      "path": "server/pegasus.ts",
+      "sha256": "fed6afff64bb86f4091a133ff8127921792f6ff31f737a714c6181d0ece10c0c"
+    },
+    {
+      "path": "server/routers.ts",
+      "sha256": "b80d009f1340e0e64ee6350018c8e483c8300e31d1ac5c06b26d5535c4e87f39"
+    },
+    {
+      "path": "server/vault-db.ts",
+      "sha256": "bf0917d72978a527274436adba8cf9fd13e1ea9c7afea04b6f728adeddc5bd42"
+    },
+    {
+      "path": "shared/const.ts",
+      "sha256": "d9fedf20dc67e22f79ee6c624e613fdbc16e2cc7db872201f89ffbad7f5c163b"
+    },
+    {
+      "path": "shared/security-headers.ts",
+      "sha256": "72a18ca331150dc39283a19b1e3891d2070f79a3d30626ce9065db818892fb32"
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "59b2ae4256abb0cb6d34fb07474169911c2d2c76b330a73b7824c25794812ee8"
+    },
+    {
+      "path": "worker/index.ts",
+      "sha256": "0918a86fabdf45e67025c7cb95bcb73242df7db0f562c490fdad5af6c19164ee"
+    },
+    {
+      "path": "wrangler.jsonc",
+      "sha256": "80e6e315cce5fb8424e6cdca57c1919b17f511a70b221dc16d04caecb9d2014e"
+    }
+  ]
+}
