@@ -1,0 +1,642 @@
+{
+  "reference_commit": "ebd79a855f997fff265fd2aa01b1e632cb6055c2",
+  "github": {
+    "account": "sophiasummers971-del",
+    "repository": "sophiasummers971-del/osiris-web",
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "push": true,
+      "triage": true,
+      "pull": true
+    },
+    "quota": "QUOTA_UNVERIFIED / UNSUPPORTED_TELEMETRY"
+  },
+  "cloudflare": {
+    "observed_at": "2026-10-29T02:51:38.919Z",
+    "version": {
+      "status": 200,
+      "success": true,
+      "result": {
+        "id": "5e185056-7eee-4589-a3c9-5d7343b82ce0",
+        "number": 157,
+        "created_on": "2026-09-27T17:32:22.949746Z",
+        "source": "wrangler",
+        "annotation_keys": ["workers/triggered_by"],
+        "commit_annotations": {},
+        "resource_keys": ["script", "script_runtime", "bindings"],
+        "bindings": [
+          {
+            "name": "AI",
+            "type": "ai"
+          },
+          {
+            "name": "ASSETS",
+            "type": "assets"
+          },
+          {
+            "name": "email_verify",
+            "type": "send_email"
+          },
+          {
+            "name": "GITHUB_CLIENT_ID",
+            "type": "secret_text"
+          },
+          {
+            "name": "GITHUB_CLIENT_SECRET",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_CLIENT_ID",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_CLIENT_SECRET",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_MONITORING_ENABLED",
+            "type": "plain_text"
+          },
+          {
+            "name": "GOOGLE_REDIRECT_URI",
+            "type": "plain_text"
+          },
+          {
+            "name": "HYPERDRIVE",
+            "type": "hyperdrive"
+          },
+          {
+            "name": "MONITORING_TOKEN_KEY",
+            "type": "secret_text"
+          },
+          {
+            "name": "SUPABASE_DATABASE_URL",
+            "type": "secret_text"
+          },
+          {
+            "name": "SUPABASE_SECRET_KEY",
+            "type": "secret_text"
+          },
+          {
+            "name": "VITE_SUPABASE_PUBLISHABLE_KEY",
+            "type": "plain_text"
+          },
+          {
+            "name": "VITE_SUPABASE_URL",
+            "type": "plain_text"
+          }
+        ],
+        "script": {
+          "etag": "fe949c28ed70d4fef32cfb8b0d440242b98d5cae76f5260237207347322d12e6",
+          "handlers": ["fetch", "scheduled"],
+          "named_handlers": [
+            {
+              "name": "handleRequest",
+              "handlers": ["class"]
+            }
+          ],
+          "last_deployed_from": "wrangler"
+        }
+      },
+      "errors": []
+    },
+    "hyperdrive": {
+      "status": 200,
+      "success": true,
+      "result": {
+        "id": "6938fd96a02a4771b092d38f33981097",
+        "caching": {
+          "disabled": false
+        },
+        "origin_scheme": "postgres",
+        "origin_database": "postgres",
+        "postgres_pooler_target_match": false,
+        "postgres_role": true,
+        "origin_keys": ["host", "port", "database", "scheme", "user"]
+      },
+      "errors": []
+    },
+    "subdomain": {
+      "status": 200,
+      "success": true,
+      "result": {
+        "enabled": true,
+        "previews_enabled": true
+      },
+      "errors": []
+    },
+    "domains": {
+      "status": 200,
+      "success": true,
+      "result": [
+        {
+          "service": "osiris-web",
+          "environment": "production",
+          "enabled": true,
+          "previews_enabled": false,
+          "zone_id": "be2325f8332ab0c0a37a97335a5c0bf5"
+        }
+      ],
+      "result_info": {
+        "page": 1,
+        "per_page": 1,
+        "count": 1,
+        "total_count": 1
+      },
+      "errors": null
+    },
+    "queues": {
+      "status": 200,
+      "success": true,
+      "result": {
+        "queues": []
+      },
+      "result_info": {
+        "page": 1,
+        "per_page": 100,
+        "count": 0,
+        "total_count": 0,
+        "total_pages": 0
+      },
+      "errors": null
+    }
+  },
+  "cloudflare_additional": {
+    "observed_at": "2026-10-29T02:52:33.384Z",
+    "routes": {
+      "status": 200,
+      "success": true,
+      "result": [],
+      "errors": []
+    },
+    "namespaces": {
+      "status": 200,
+      "success": true,
+      "result": [],
+      "result_info": {
+        "page": 1,
+        "per_page": 1000,
+        "count": 0,
+        "total_count": 0
+      },
+      "errors": null
+    },
+    "hyperdrive": {
+      "status": 200,
+      "success": true,
+      "result": {
+        "host_matches_target": true,
+        "host_is_supabase_pooler": false,
+        "user_is_postgres": true,
+        "caching": {
+          "disabled": false
+        }
+      },
+      "errors": []
+    }
+  },
+  "cloudflare_core": {
+    "observed_at": "2026-10-29T02:52:48.747Z",
+    "deployments": {
+      "status": 200,
+      "success": true,
+      "result": {
+        "deployments": [
+          {
+            "id": "b07f7848-eb92-42dd-8e17-45aca8cc9d74",
+            "created_on": "2026-09-27T17:32:23.734187Z",
+            "strategy": "percentage",
+            "source": "wrangler",
+            "versions": [
+              {
+                "version_id": "5e185056-7eee-4589-a3c9-5d7343b82ce0",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "505b9359-4f59-4228-9bff-29a6479ec001",
+            "created_on": "2026-09-27T17:21:47.597943Z",
+            "strategy": "percentage",
+            "source": "wrangler",
+            "versions": [
+              {
+                "version_id": "bcd2787e-46fd-4c12-be95-670192e96c56",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "5ac49469-0beb-4018-9ca5-c32fb4b1c76c",
+            "created_on": "2026-09-27T17:14:30.183627Z",
+            "strategy": "percentage",
+            "source": "wrangler",
+            "versions": [
+              {
+                "version_id": "e62b3098-3a82-45cd-a0f7-1fcda718b10a",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "2f6c12ca-3a79-4b04-b0df-a5a0fe8b7c5d",
+            "created_on": "2026-09-27T17:05:19.995177Z",
+            "strategy": "percentage",
+            "source": "wrangler",
+            "versions": [
+              {
+                "version_id": "ef03be6f-9673-4928-bcdf-d85c10c95789",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "7a05ae23-9607-47c6-8130-9c92c3ffb8c5",
+            "created_on": "2026-09-27T16:48:24.733305Z",
+            "strategy": "percentage",
+            "source": "wrangler",
+            "versions": [
+              {
+                "version_id": "39ec56af-da9b-4ed6-abec-1ec27ef59b53",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "eec4b51a-bb1f-419c-a1f4-fdd87411d32f",
+            "created_on": "2026-09-27T16:30:02.616149Z",
+            "strategy": "percentage",
+            "source": "dash",
+            "versions": [
+              {
+                "version_id": "4639a8d3-7c92-4819-bbc0-6ae23fb2ce3e",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "1495d510-0984-4529-9457-a416b4f2294b",
+            "created_on": "2026-09-27T16:21:43.876749Z",
+            "strategy": "percentage",
+            "source": "dash",
+            "versions": [
+              {
+                "version_id": "e03d25d3-5667-40c0-8fa7-8b7dbc855f75",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "dedebeac-c46a-4dde-99a2-cf00c8db498f",
+            "created_on": "2026-09-27T16:17:17.771376Z",
+            "strategy": "percentage",
+            "source": "dash",
+            "versions": [
+              {
+                "version_id": "97a6d0d3-9fd8-45e9-8406-8b45a719ae52",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "fcd1c8fb-45da-4df0-913e-5839370c87e5",
+            "created_on": "2026-09-27T15:02:11.522156Z",
+            "strategy": "percentage",
+            "source": "wrangler",
+            "versions": [
+              {
+                "version_id": "068c7ad9-25eb-4e83-a6be-7a33d7b1586e",
+                "percentage": 100
+              }
+            ]
+          },
+          {
+            "id": "26a53240-304c-4656-a869-c9336d0d63ec",
+            "created_on": "2026-09-16T17:23:22.539244Z",
+            "strategy": "percentage",
+            "source": "wrangler",
+            "versions": [
+              {
+                "version_id": "54767658-feda-4497-8fbe-0bb6a4f338d0",
+                "percentage": 100
+              }
+            ]
+          }
+        ]
+      },
+      "result_info": {
+        "page": 1,
+        "per_page": 10,
+        "count": 10,
+        "total_count": 154,
+        "total_pages": 16
+      },
+      "errors": []
+    },
+    "schedules": {
+      "status": 200,
+      "success": true,
+      "result": {
+        "schedules": [
+          {
+            "cron": "*/15 * * * *",
+            "created_on": "2026-09-15T16:25:11.456163Z",
+            "modified_on": "2026-09-27T17:32:24.996866Z"
+          }
+        ]
+      },
+      "errors": []
+    },
+    "settings": {
+      "status": 200,
+      "success": true,
+      "result": {
+        "compatibility_date": "2026-08-07",
+        "compatibility_flags": ["nodejs_compat"],
+        "observability": {
+          "enabled": true,
+          "head_sampling_rate": 1,
+          "redact_query_string": false,
+          "logs": {
+            "enabled": true,
+            "head_sampling_rate": 1,
+            "persist": true,
+            "invocation_logs": true
+          },
+          "traces": {
+            "enabled": false,
+            "persist": true,
+            "head_sampling_rate": 1
+          }
+        },
+        "bindings": [
+          {
+            "name": "AI",
+            "type": "ai"
+          },
+          {
+            "name": "ASSETS",
+            "type": "assets"
+          },
+          {
+            "name": "email_verify",
+            "type": "send_email"
+          },
+          {
+            "name": "GITHUB_CLIENT_ID",
+            "type": "secret_text"
+          },
+          {
+            "name": "GITHUB_CLIENT_SECRET",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_CLIENT_ID",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_CLIENT_SECRET",
+            "type": "secret_text"
+          },
+          {
+            "name": "GOOGLE_MONITORING_ENABLED",
+            "type": "plain_text"
+          },
+          {
+            "name": "GOOGLE_REDIRECT_URI",
+            "type": "plain_text"
+          },
+          {
+            "name": "HYPERDRIVE",
+            "type": "hyperdrive",
+            "id": "6938fd96a02a4771b092d38f33981097"
+          },
+          {
+            "name": "MONITORING_TOKEN_KEY",
+            "type": "secret_text"
+          },
+          {
+            "name": "SUPABASE_DATABASE_URL",
+            "type": "secret_text"
+          },
+          {
+            "name": "SUPABASE_SECRET_KEY",
+            "type": "secret_text"
+          },
+          {
+            "name": "VITE_SUPABASE_PUBLISHABLE_KEY",
+            "type": "plain_text"
+          },
+          {
+            "name": "VITE_SUPABASE_URL",
+            "type": "plain_text"
+          }
+        ],
+        "tail_consumer_count": 0
+      },
+      "errors": []
+    }
+  },
+  "supabase": {
+    "project_ref": "pussbwanjsrvitaxzsnh",
+    "roles": [
+      {
+        "role": "authenticated",
+        "login": false,
+        "superuser": false,
+        "bypass_rls": false
+      },
+      {
+        "role": "anon",
+        "login": false,
+        "superuser": false,
+        "bypass_rls": false
+      },
+      {
+        "role": "service_role",
+        "login": false,
+        "superuser": false,
+        "bypass_rls": true
+      },
+      {
+        "role": "postgres",
+        "login": true,
+        "superuser": false,
+        "bypass_rls": true
+      }
+    ],
+    "tables": [
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "osiris_operators",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "security_cases",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "evidence_records",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "case_audit_events",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "pegasus_alerts",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "pegasus_security_events",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "monitoring_runs",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "monitoring_observations",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "monitoring_connections",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "pegasus_chain_heads",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "pegasus_email_config",
+        "schema": "public",
+        "force_rls": false
+      },
+      {
+        "rls": true,
+        "owner": "postgres",
+        "table": "pegasus_email_outbox",
+        "schema": "public",
+        "force_rls": false
+      }
+    ],
+    "functions": [
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "owner": "postgres",
+        "schema": "public",
+        "body_md5": "7fd90e8c1cf3195da98b3516fdf432f1",
+        "function": "prevent_vault_mutation",
+        "identity_args": "",
+        "security_definer": false
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+        "owner": "postgres",
+        "schema": "public",
+        "body_md5": "b8c1a4ac6031f64906025f32a6ce37dd",
+        "function": "seal_audit_event",
+        "identity_args": "",
+        "security_definer": false
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "owner": "postgres",
+        "schema": "public",
+        "body_md5": "911ae7b350cd8d358798042678eaea4e",
+        "function": "pegasus_reject_event_mutation",
+        "identity_args": "",
+        "security_definer": false
+      },
+      {
+        "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+        "owner": "postgres",
+        "schema": "public",
+        "body_md5": "0bd4e892940fe85ea86f4d34fe5ada6f",
+        "function": "pegasus_advance_chain_head",
+        "identity_args": "",
+        "security_definer": false
+      },
+      {
+        "acl": "{postgres=X/postgres,service_role=X/postgres}",
+        "owner": "postgres",
+        "schema": "public",
+        "body_md5": "99be20677b456ea8d3be47bdd44fb369",
+        "function": "rls_auto_enable",
+        "identity_args": "",
+        "security_definer": true
+      }
+    ],
+    "extensions": [
+      "plpgsql",
+      "pg_walinspect",
+      "pgjwt",
+      "tablefunc",
+      "wrappers",
+      "pg_stat_statements",
+      "uuid-ossp",
+      "pgcrypto",
+      "supabase_vault",
+      "http",
+      "pg_jsonschema",
+      "insert_username",
+      "tsm_system_time",
+      "postgis",
+      "pgrouting",
+      "pg_net",
+      "hypopg",
+      "index_advisor",
+      "autoinc",
+      "cube",
+      "dblink",
+      "moddatetime",
+      "pg_buffercache",
+      "pg_cron",
+      "pg_stat_monitor",
+      "pgaudit"
+    ],
+    "cron_catalog": true,
+    "observer_role": "postgres",
+    "server_version": "17.6",
+    "edge_functions": []
+  },
+  "limitations": [
+    "Read-only metadata observations; not an atomic cross-provider snapshot",
+    "No application endpoint invoked, application routine executed, business row/log read or secret value retained",
+    "Deployment history first page: 10 of 154; older history not exhausted",
+    "Deployed source SHA and exact deployed route implementations remain UNVERIFIED",
+    "Function body MD5 values are change fingerprints, not cryptographic authenticity proofs"
+  ]
+}
