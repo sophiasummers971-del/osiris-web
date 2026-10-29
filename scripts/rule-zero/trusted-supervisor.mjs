@@ -23,6 +23,7 @@ import {
 import { join, isAbsolute } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { createSharedClaimClient } from "./shared-claims.mjs";
 import { createPlanYAdmission } from "./plan-y-admission.mjs";
 import { createRuleZeroLauncher } from "./launcher.mjs";
 import { createFileNonceStore } from "./nonce-store.mjs";
@@ -69,6 +70,7 @@ export async function createTrustedSupervisor(options) {
     "leaseMs",
     "operationMs",
     "scenario",
+    "sharedClaims",
   ];
   if (
     !options ||
@@ -137,6 +139,42 @@ export async function createTrustedSupervisor(options) {
   const agentKeys = new Map(
     [...keys].map(([id, pair]) => [id, pair.publicKey])
   );
+  const shared = Object.hasOwn(options, "sharedClaims")
+    ? await createSharedClaimClient(options.sharedClaims, {
+        authorityKey,
+        contractKey,
+        agentKeys,
+        context,
+      })
+    : null;
+  async function sharedCall(method, ...args) {
+    let timer;
+    try {
+      return await Promise.race([
+        shared[method](...args),
+        new Promise((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error("SHARED_STORAGE_TIMEOUT")),
+            500
+          );
+        }),
+      ]);
+    } catch (error) {
+      unhealthy = true;
+      throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  function quarantineShared(lease, reason) {
+    if (!shared) return Promise.resolve(null);
+    if (!lease.sharedToken) return Promise.resolve(false);
+    return (lease.sharedQuarantinePromise ??= sharedCall(
+      "quarantine",
+      lease.sharedToken,
+      reason
+    ).catch(() => false));
+  }
   const leases = new Map(),
     jobs = new Map();
   const metrics = {
@@ -235,6 +273,8 @@ export async function createTrustedSupervisor(options) {
     clearTimeout(lease.timer);
     settle(lease, blocked(reason));
     lease.stopPromise = (async () => {
+      const sharedRevocation = quarantineShared(lease, "STOP_OR_UNCERTAIN");
+      // Shared persistence must never delay signal delivery.
       const revocationAttempt = audit({
         event: "LEASE_REVOKED",
         agentId: lease.agentId,
@@ -247,6 +287,7 @@ export async function createTrustedSupervisor(options) {
           observedExit: false,
           spawnNeverStarted: true,
           revocationPersisted: await revocationAttempt,
+          sharedQuarantinePersisted: await sharedRevocation,
         });
       if (!lease.exited) {
         try {
@@ -270,12 +311,14 @@ export async function createTrustedSupervisor(options) {
         return Object.freeze({
           observedExit: false,
           revocationPersisted: await revocationAttempt,
+          sharedQuarantinePersisted: await sharedRevocation,
         });
       }
       await lease.exitPromise;
       return Object.freeze({
         ...lease.exitEvidence,
         revocationPersisted: await revocationAttempt,
+        sharedQuarantinePersisted: await sharedRevocation,
       });
     })();
     return lease.stopPromise;
@@ -313,6 +356,7 @@ export async function createTrustedSupervisor(options) {
       record.costMicros === resource.costMicros &&
       Date.parse(op.request.issuedAt) <= Date.now() &&
       Date.parse(op.request.expiresAt) > Date.now() &&
+      (!shared || lease.sharedExpiresAt > Date.now()) &&
       Date.parse(lease.contract.expiresAt) > Date.now();
     if (!permitted()) {
       await failOperation(lease, "ADAPTER_SCOPE_VIOLATION");
@@ -342,6 +386,10 @@ export async function createTrustedSupervisor(options) {
         !permitted()
       )
         throw new Error("RESOURCE_BOUNDARY_VIOLATION");
+      if (shared) {
+        await sharedCall("assertActive", lease.sharedToken);
+        if (!permitted()) throw new Error("SHARED_LEASE_REVOKED_BEFORE_EFFECT");
+      }
       // This is the sole synthetic effect point; all guards run before it.
       metrics.adapterInvocations++;
       const buffer = Buffer.alloc(65);
@@ -387,9 +435,15 @@ export async function createTrustedSupervisor(options) {
       readyResolve = resolve;
     });
     const challenge = randomBytes(24).toString("hex");
+    if (shared) await sharedCall("begin", lease.sharedToken);
     // Preparation awaited filesystem work: cancellation may have completed
     // with no child yet. Never create a process after that stop/close boundary.
-    if (lease.revoked || unhealthy || closing)
+    if (
+      lease.revoked ||
+      unhealthy ||
+      closing ||
+      (shared && lease.sharedExpiresAt <= Date.now())
+    )
       throw new Error("LEASE_REVOKED_BEFORE_SPAWN");
     const child = spawn(
       "/usr/bin/python3",
@@ -436,6 +490,7 @@ export async function createTrustedSupervisor(options) {
       });
       child.once("close", async (exitCode, signal) => {
         lease.exited = true;
+        void quarantineShared(lease, "WORKER_EXIT");
         lease.revoked = true;
         lease.generation++;
         const hadProcess = Number.isSafeInteger(child.pid) && child.pid > 0;
@@ -599,7 +654,11 @@ export async function createTrustedSupervisor(options) {
       () => {
         void stop(lease, "LEASE_TIMEOUT");
       },
-      Math.min(leaseMs, Date.parse(lease.contract.expiresAt) - Date.now())
+      Math.min(
+        leaseMs,
+        Date.parse(lease.contract.expiresAt) - Date.now(),
+        lease.sharedExpiresAt ? lease.sharedExpiresAt - Date.now() : Infinity
+      )
     );
     await audit({
       event: "WORKER_READY_OBSERVED",
@@ -722,7 +781,12 @@ export async function createTrustedSupervisor(options) {
         keyHash: publicKeyFingerprint(keys.get(agentId).publicKey),
       });
     },
-    getMetrics: () => Object.freeze({ ...metrics, unhealthy }),
+    getMetrics: () =>
+      Object.freeze({
+        ...metrics,
+        unhealthy,
+        claimMode: shared ? "SHARED_SYNTHETIC" : "LOCAL_ONLY",
+      }),
     getStatus(agentId) {
       const l = leases.get(agentId);
       return l
@@ -767,6 +831,17 @@ export async function createTrustedSupervisor(options) {
         };
         leases.set(c.agentId, lease);
         jobs.set(c.jobId, lease);
+        if (shared) {
+          const claim = await sharedCall("acquire", bundle, leaseMs);
+          if (!claim.acquired) {
+            await stop(lease, "SHARED_CLAIM_CONFLICT");
+            return blocked("SHARED_CLAIM_CONFLICT");
+          }
+          lease.sharedToken = claim.token;
+          lease.sharedExpiresAt = claim.expiresAt;
+          if (lease.revoked || unhealthy || closing)
+            throw new Error("SHARED_CLAIM_CANCELLED");
+        }
         const time = Date.now();
         const request = {
           schema: "osiris.agent-admission/v1",
