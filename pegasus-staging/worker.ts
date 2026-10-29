@@ -3,7 +3,10 @@
  * D1 databases, routes, domains, cron triggers or privileged network calls.
  * This Worker does NOT change traffic: it reports a fixed synthetic state.
  */
-import { verifyControllerAccess, type AccessExecutionContext } from "./access-controller.js";
+import {
+  verifyControllerAccess,
+  type AccessExecutionContext,
+} from "./access-controller.js";
 
 export interface Env {
   PEGASUS_STAGING_ONLY: string;
@@ -16,7 +19,11 @@ const jsonHeaders = {
   "x-content-type-options": "nosniff",
 };
 export default {
-  async fetch(request: Request, env: Env, ctx?: AccessExecutionContext): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    ctx?: AccessExecutionContext
+  ): Promise<Response> {
     if (env.PEGASUS_STAGING_ONLY !== "true") {
       return new Response("Staging seal required", { status: 503 });
     }
@@ -30,8 +37,16 @@ export default {
         env.PEGASUS_CONTROLLER_EMAIL ?? "",
         env.PEGASUS_ACCESS_AUD ?? ""
       );
-      if (!approved) return new Response("Controller access denied", { status: 403 });
-      return new Response(JSON.stringify({ authenticated: true, routingEnabled: false, mode: "read-only" }), { status: 200, headers: jsonHeaders });
+      if (!approved)
+        return new Response("Controller access denied", { status: 403 });
+      return new Response(
+        JSON.stringify({
+          authenticated: true,
+          routingEnabled: false,
+          mode: "read-only",
+        }),
+        { status: 200, headers: jsonHeaders }
+      );
     }
     if (url.pathname === "/health") {
       return new Response(
