@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { rehearseRouteTransition, type RoutingProvider } from "./route-rehearsal.js";
+import {
+  rehearseRouteTransition,
+  type RoutingProvider,
+} from "./route-rehearsal.js";
 import type { RouteName } from "./route-observation.js";
 
 const now = 1_782_000_000_000;
