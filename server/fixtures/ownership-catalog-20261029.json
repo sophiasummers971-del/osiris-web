@@ -1,0 +1,325 @@
+{
+  "roles": [
+    {
+      "rolname": "authenticated",
+      "rolsuper": false,
+      "rolbypassrls": false
+    },
+    {
+      "rolname": "anon",
+      "rolsuper": false,
+      "rolbypassrls": false
+    },
+    {
+      "rolname": "service_role",
+      "rolsuper": false,
+      "rolbypassrls": true
+    },
+    {
+      "rolname": "postgres",
+      "rolsuper": false,
+      "rolbypassrls": true
+    }
+  ],
+  "tables": [
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres",
+        "anon=arwd/postgres",
+        "authenticated=arwd/postgres"
+      ],
+      "relname": "case_audit_events",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres",
+        "anon=arwd/postgres",
+        "authenticated=arwd/postgres"
+      ],
+      "relname": "evidence_records",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "monitoring_connections",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "monitoring_observations",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "monitoring_runs",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres",
+        "anon=arwd/postgres",
+        "authenticated=arwd/postgres"
+      ],
+      "relname": "osiris_operators",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=arwdm/postgres",
+        "authenticated=arwdm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "pegasus_alerts",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=arwdm/postgres",
+        "authenticated=arwdm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "pegasus_chain_heads",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "pegasus_email_config",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "pegasus_email_outbox",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=arwdm/postgres",
+        "authenticated=arwdm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "pegasus_security_events",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "owner": "postgres",
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres",
+        "anon=arwd/postgres",
+        "authenticated=arwd/postgres"
+      ],
+      "relname": "security_cases",
+      "force_rls": false
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": ["authenticated"],
+      "tablename": "case_audit_events",
+      "permissive": "PERMISSIVE",
+      "policyname": "case_audit_events_insert_own",
+      "with_check": "(operator_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(operator_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "case_audit_events",
+      "permissive": "PERMISSIVE",
+      "policyname": "case_audit_events_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": ["authenticated"],
+      "tablename": "evidence_records",
+      "permissive": "PERMISSIVE",
+      "policyname": "evidence_records_insert_own",
+      "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "evidence_records",
+      "permissive": "PERMISSIVE",
+      "policyname": "evidence_records_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(auth_user_id = ( SELECT auth.uid() AS uid))",
+      "roles": ["authenticated"],
+      "tablename": "osiris_operators",
+      "permissive": "PERMISSIVE",
+      "policyname": "osiris_operators_delete_own",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": ["authenticated"],
+      "tablename": "osiris_operators",
+      "permissive": "PERMISSIVE",
+      "policyname": "osiris_operators_insert_own",
+      "with_check": "(auth_user_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(auth_user_id = ( SELECT auth.uid() AS uid))",
+      "roles": ["authenticated"],
+      "tablename": "osiris_operators",
+      "permissive": "PERMISSIVE",
+      "policyname": "osiris_operators_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(auth_user_id = ( SELECT auth.uid() AS uid))",
+      "roles": ["authenticated"],
+      "tablename": "osiris_operators",
+      "permissive": "PERMISSIVE",
+      "policyname": "osiris_operators_update_own",
+      "with_check": "(auth_user_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": ["authenticated"],
+      "tablename": "pegasus_alerts",
+      "permissive": "PERMISSIVE",
+      "policyname": "pegasus_alerts_insert_own",
+      "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "pegasus_alerts",
+      "permissive": "PERMISSIVE",
+      "policyname": "pegasus_alerts_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "pegasus_alerts",
+      "permissive": "PERMISSIVE",
+      "policyname": "pegasus_alerts_update_own",
+      "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "pegasus_chain_heads",
+      "permissive": "PERMISSIVE",
+      "policyname": "pegasus_chain_heads_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": ["authenticated"],
+      "tablename": "pegasus_security_events",
+      "permissive": "PERMISSIVE",
+      "policyname": "pegasus_security_events_insert_own",
+      "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "pegasus_security_events",
+      "permissive": "PERMISSIVE",
+      "policyname": "pegasus_security_events_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "security_cases",
+      "permissive": "PERMISSIVE",
+      "policyname": "security_cases_delete_own",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": ["authenticated"],
+      "tablename": "security_cases",
+      "permissive": "PERMISSIVE",
+      "policyname": "security_cases_insert_own",
+      "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "security_cases",
+      "permissive": "PERMISSIVE",
+      "policyname": "security_cases_select_own",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": ["authenticated"],
+      "tablename": "security_cases",
+      "permissive": "PERMISSIVE",
+      "policyname": "security_cases_update_own",
+      "with_check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    }
+  ],
+  "checked_at": "2026-10-29T06:33:35.804611+00:00"
+}
