@@ -386,23 +386,30 @@ export async function createTrustedSupervisor(options) {
         !permitted()
       )
         throw new Error("RESOURCE_BOUNDARY_VIOLATION");
-      if (shared) {
-        await sharedCall("assertActive", lease.sharedToken);
+      const effect = async () => {
         if (!permitted()) throw new Error("SHARED_LEASE_REVOKED_BEFORE_EFFECT");
-      }
-      // This is the sole synthetic effect point; all guards run before it.
-      metrics.adapterInvocations++;
-      const buffer = Buffer.alloc(65);
-      const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
-      if (bytesRead > 64 || bytesRead !== resource.tokens)
-        throw new Error("RESOURCE_CHANGED_DURING_READ");
-      const data = buffer.subarray(0, bytesRead);
-      const receiptId = createHash("sha256")
-        .update(data)
-        .update(op.request.nonce)
-        .digest("hex");
-      if (!permitted()) throw new Error("LATE_ADAPTER_RESULT");
-      return { receiptId };
+        // This is the sole synthetic effect point; all guards run before it.
+        metrics.adapterInvocations++;
+        const buffer = Buffer.alloc(65);
+        const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
+        if (bytesRead > 64 || bytesRead !== resource.tokens)
+          throw new Error("RESOURCE_CHANGED_DURING_READ");
+        const data = buffer.subarray(0, bytesRead);
+        const receiptId = createHash("sha256")
+          .update(data)
+          .update(op.request.nonce)
+          .digest("hex");
+        if (!permitted()) throw new Error("LATE_ADAPTER_RESULT");
+        return { receiptId };
+      };
+      return shared
+        ? await sharedCall(
+            "withEffect",
+            lease.sharedToken,
+            op.request.nonce,
+            effect
+          )
+        : await effect();
     } catch {
       await failOperation(lease, "ADAPTER_RESOURCE_OR_LEASE_INVALID");
       throw new Error("ADAPTER_DENIED");
@@ -785,7 +792,11 @@ export async function createTrustedSupervisor(options) {
       Object.freeze({
         ...metrics,
         unhealthy,
-        claimMode: shared ? "SHARED_SYNTHETIC" : "LOCAL_ONLY",
+        claimMode: shared?.getFence()
+          ? "EPOCH_FENCED_SYNTHETIC"
+          : shared
+            ? "SHARED_SYNTHETIC"
+            : "LOCAL_ONLY",
       }),
     getStatus(agentId) {
       const l = leases.get(agentId);
