@@ -9,7 +9,10 @@ describe("Pegasus sealed staging observer", () => {
   it("reports healthy synthetic state", async () => {
     const res = await handler.fetch(request("/health"), env);
     expect(res.status).toBe(200);
-    expect((await res.json()).mode).toBe("synthetic");
+    const body = await res.json();
+    expect(body.mode).toBe("synthetic");
+    expect(body.ready).toBe(false);
+    expect(body.routingVerified).toBe(false);
   });
   it("shows both Sector 7 ports sealed", async () => {
     const res = await handler.fetch(request("/routes"), env);
