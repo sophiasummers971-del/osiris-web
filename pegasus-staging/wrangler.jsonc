@@ -7,5 +7,7 @@
   "observability": { "enabled": true },
   "vars": {
     "PEGASUS_STAGING_ONLY": "true",
+    "PEGASUS_CONTROLLER_EMAIL": "sophiasummers971@gmail.com",
+    "PEGASUS_ACCESS_AUD": "ecbe92feab00b82174e73d36bb5b87716fd4d2baad399f758e433f0b2bd4c9fc",
   },
 }
