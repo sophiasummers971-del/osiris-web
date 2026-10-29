@@ -1,6 +1,8 @@
 const monitoringErrorMessages: Record<string, string> = {
   GOOGLE_REAUTHORIZATION_REQUIRED:
     "Google access expired or was revoked. Connect the account again.",
+  GOOGLE_RATE_LIMITED:
+    "Google's request quota was reached. Coverage is delayed; the next scheduled check will retry without reconnecting.",
   GOOGLE_HISTORY_EXPIRED:
     "Google history is no longer available. Coverage has a gap; reconnect to establish a new baseline.",
   GOOGLE_MAIL_BACKLOG:

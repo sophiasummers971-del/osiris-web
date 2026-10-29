@@ -153,6 +153,7 @@ export async function runDueMonitoring(
     } catch (error) {
       const googleErrors = [
         "GOOGLE_REAUTHORIZATION_REQUIRED",
+        "GOOGLE_RATE_LIMITED",
         "GOOGLE_HISTORY_EXPIRED",
         "GOOGLE_MAIL_BACKLOG",
         "GOOGLE_NOT_CONFIGURED",

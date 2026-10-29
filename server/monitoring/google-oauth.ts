@@ -179,6 +179,31 @@ export async function googleGet(
       headers: { Authorization: `Bearer ${token}` },
     }
   );
+  // Gmail also uses 403 for quota exhaustion. Only explicit quota reasons
+  // qualify; unknown/mixed denials retain the authorization stop below.
+  if (response.status === 403) {
+    const body = (await response.json().catch(() => null)) as {
+      error?: { errors?: unknown };
+    } | null;
+    const errors = body?.error?.errors;
+    const quotaReasons = new Set([
+      "rateLimitExceeded",
+      "userRateLimitExceeded",
+      "dailyLimitExceeded",
+    ]);
+    if (
+      Array.isArray(errors) &&
+      errors.length > 0 &&
+      errors.every(
+        error =>
+          error !== null &&
+          typeof error === "object" &&
+          quotaReasons.has(error.reason)
+      )
+    )
+      throw new Error("GOOGLE_RATE_LIMITED");
+  }
+  if (response.status === 429) throw new Error("GOOGLE_RATE_LIMITED");
   if (!response.ok)
     throw new Error(
       response.status === 404
