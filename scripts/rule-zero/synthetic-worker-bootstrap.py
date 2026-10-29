@@ -73,5 +73,5 @@ os.write(4, (json.dumps(status) + "\n").encode())
 os.close(4)
 os.set_inheritable(3, True)
 worker = os.path.abspath(sys.argv[2])
-os.execve(sys.argv[1], [sys.argv[1], "--permission", "--allow-fs-read=" + worker,
+os.execve(sys.argv[1], [sys.argv[1], "--permission", "--no-experimental-sqlite", "--allow-fs-read=" + worker,
                        "--disallow-code-generation-from-strings", "--max-old-space-size=32", worker], os.environ)
