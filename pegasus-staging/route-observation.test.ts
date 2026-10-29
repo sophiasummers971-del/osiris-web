@@ -26,12 +26,16 @@ describe("Pegasus staging route observation contract", () => {
     expect(validateRouteObservation(seen, "primary", 4, 10_100).ok).toBe(false);
   });
   it("rejects stale, future, or invalid clocks", () => {
-    expect(validateRouteObservation(seen, "failover", 4, 50_001).ok).toBe(false);
+    expect(validateRouteObservation(seen, "failover", 4, 50_001).ok).toBe(
+      false
+    );
     expect(validateRouteObservation(seen, "failover", 4, 9_999).ok).toBe(false);
     expect(validateRouteObservation(seen, "failover", 4, NaN).ok).toBe(false);
   });
   it("rejects previous controller epochs", () => {
-    expect(validateRouteObservation(seen, "failover", 5, 10_100).ok).toBe(false);
+    expect(validateRouteObservation(seen, "failover", 5, 10_100).ok).toBe(
+      false
+    );
   });
   it("rejects sealed Sector 7 and unknown sources", () => {
     expect(

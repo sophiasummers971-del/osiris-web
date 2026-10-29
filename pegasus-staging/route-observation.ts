@@ -28,14 +28,19 @@ export function validateRouteObservation(
     !Number.isSafeInteger(observation.observedAtMs) ||
     !Number.isSafeInteger(maxAgeMs) ||
     maxAgeMs <= 0
-  ) return { ok: false, reason: "INVALID_OBSERVATION_METADATA" };
+  )
+    return { ok: false, reason: "INVALID_OBSERVATION_METADATA" };
   if (observation.active !== "primary" && observation.active !== "failover") {
     return { ok: false, reason: "UNKNOWN_OR_SEALED_ROUTE" };
   }
-  if (!observation.source.trim()) return { ok: false, reason: "SOURCE_NOT_IDENTIFIED" };
+  if (!observation.source.trim())
+    return { ok: false, reason: "SOURCE_NOT_IDENTIFIED" };
   const age = nowMs - observation.observedAtMs;
-  if (age < 0 || age > maxAgeMs) return { ok: false, reason: "STALE_OR_FUTURE_OBSERVATION" };
-  if (observation.epoch < minEpoch) return { ok: false, reason: "STALE_CONTROLLER_EPOCH" };
-  if (observation.active !== expected) return { ok: false, reason: "ROUTE_MISMATCH" };
+  if (age < 0 || age > maxAgeMs)
+    return { ok: false, reason: "STALE_OR_FUTURE_OBSERVATION" };
+  if (observation.epoch < minEpoch)
+    return { ok: false, reason: "STALE_CONTROLLER_EPOCH" };
+  if (observation.active !== expected)
+    return { ok: false, reason: "ROUTE_MISMATCH" };
   return { ok: true, active: observation.active, epoch: observation.epoch };
 }
