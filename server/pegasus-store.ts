@@ -87,7 +87,7 @@ export async function listPegasusAlerts(
 }
 
 export async function getPegasusOverview(db: VaultDb, ownerId: number) {
-  const [events, alerts, chainHeads] = await Promise.all([
+  const [events, alerts, chainHeads, openCounts] = await Promise.all([
     db
       .select()
       .from(pegasusSecurityEvents)
@@ -107,6 +107,10 @@ export async function getPegasusOverview(db: VaultDb, ownerId: number) {
       .from(pegasusChainHeads)
       .where(eq(pegasusChainHeads.ownerId, ownerId))
       .limit(1),
+    db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(pegasusAlerts)
+      .where(and(eq(pegasusAlerts.ownerId, ownerId), eq(pegasusAlerts.status, "open"))),
   ]);
   const integrity = await verifyPegasusEventLedger(
     events,
@@ -115,7 +119,7 @@ export async function getPegasusOverview(db: VaultDb, ownerId: number) {
   return {
     integrity,
     eventCount: events.length,
-    openAlertCount: alerts.filter(alert => alert.status === "open").length,
+    openAlertCount: openCounts[0]?.total ?? 0,
     latestEvents: events.slice(-20).reverse(),
     alerts,
   };
