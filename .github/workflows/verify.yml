@@ -23,3 +23,41 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
+  ownership-postgres17:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_DB: osiris_ownership_test
+          POSTGRES_PASSWORD: synthetic-ownership-ci-only
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready -U postgres -d osiris_ownership_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      OSIRIS_TEST_POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Reproduce accepted cross-case writes before repair
+        run: |
+          set +e
+          OSIRIS_TEST_OWNERSHIP_BASELINE=1 pnpm exec vitest run server/vault-ownership.test.ts --reporter=json --outputFile=/tmp/ownership-baseline.json
+          result=$?
+          set -e
+          test "$result" -eq 1
+          node scripts/verify-ownership-baseline.mjs /tmp/ownership-baseline.json
+      - name: Verify repaired ownership on native PostgreSQL 17
+        run: pnpm exec vitest run server/vault-ownership.test.ts

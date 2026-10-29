@@ -1,7 +1,8 @@
-import { PGlite } from "@electric-sql/pglite";
-import { drizzle } from "drizzle-orm/pglite";
-import { ensureVaultOperator, getVaultDb } from "./vault-db";
-import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
+import {
+  createOwnershipDatabase,
+  type OwnershipDatabase,
+} from "./fixtures/ownership-database";
+import { ensureVaultOperator } from "./vault-db";
 import { readFileSync } from "node:fs";
 import {
   afterAll,
@@ -27,16 +28,17 @@ const repairPath = new URL(
 const subjectA = "00000000-0000-0000-0000-000000000001";
 const subjectB = "00000000-0000-0000-0000-000000000002";
 const repair = () => readFileSync(repairPath, "utf8");
-let db: PGlite;
+let db: OwnershipDatabase;
 
 async function baseline() {
-  // No connection URL, credentials or filesystem: a disposable in-memory engine.
-  const pg = await PGlite.create({ extensions: { pgcrypto } });
+  const pg = await createOwnershipDatabase();
   try {
     await pg.exec(
-      readFileSync(
-        new URL("./fixtures/vault-ownership.sql", import.meta.url),
-        "utf8"
+      pg.fixture(
+        readFileSync(
+          new URL("./fixtures/vault-ownership.sql", import.meta.url),
+          "utf8"
+        )
       )
     );
     // Exact policy expressions from the read-only production catalogue snapshot.
@@ -191,9 +193,7 @@ describe("Vault ownership enforced by PostgreSQL grants, RLS and foreign keys", 
   );
   it("preserves real server operator provisioning and profile upsert", async () => {
     await as("osiris_server");
-    const adapter = drizzle(db) as unknown as NonNullable<
-      ReturnType<typeof getVaultDb>
-    >;
+    const adapter = db.orm;
     const user = {
       openId: "supabase:00000000-0000-0000-0000-000000000003",
       name: "Synthetic C",
