@@ -1,0 +1,353 @@
+{
+  "read_only_query": "BEGIN READ ONLY; SET LOCAL statement_timeout='8s'; SELECT jsonb_build_object('observed_at',clock_timestamp(),'cron_job_count',(SELECT count(*) FROM cron.job),'grants',(SELECT jsonb_agg(x) FROM (SELECT table_name AS table,grantee,string_agg(privilege_type,',' ORDER BY privilege_type) AS privileges FROM information_schema.role_table_grants WHERE table_schema='public' AND grantee IN ('anon','authenticated','service_role','postgres') GROUP BY table_name,grantee ORDER BY table_name,grantee) x),'schema_usage',(SELECT jsonb_agg(jsonb_build_object('schema',nspname,'anon',has_schema_privilege('anon',oid,'USAGE'),'authenticated',has_schema_privilege('authenticated',oid,'USAGE'),'postgres',has_schema_privilege('postgres',oid,'USAGE'))) FROM pg_namespace WHERE nspname IN ('public','extensions','net','cron')),'effect_functions',(SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'function',p.proname,'args',pg_get_function_identity_arguments(p.oid),'postgres_execute',has_function_privilege('postgres',p.oid,'EXECUTE'),'anon_execute',has_function_privilege('anon',p.oid,'EXECUTE'),'authenticated_execute',has_function_privilege('authenticated',p.oid,'EXECUTE'))) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE (n.nspname='net' AND p.proname IN ('http_post','http_get','http_delete')) OR (n.nspname='cron' AND p.proname IN ('schedule','schedule_in_database')) OR (n.nspname='extensions' AND p.proname IN ('http','dblink_exec'))),'trigger_summary',(SELECT jsonb_agg(jsonb_build_object('table',c.relname,'trigger',t.tgname,'enabled',t.tgenabled,'function',p.proname)) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace JOIN pg_proc p ON p.oid=t.tgfoid WHERE n.nspname='public' AND NOT t.tgisinternal)); COMMIT;",
+  "result": {
+    "grants": [
+      {
+        "table": "case_audit_events",
+        "grantee": "anon",
+        "privileges": "DELETE,INSERT,SELECT,UPDATE"
+      },
+      {
+        "table": "case_audit_events",
+        "grantee": "authenticated",
+        "privileges": "DELETE,INSERT,SELECT,UPDATE"
+      },
+      {
+        "table": "case_audit_events",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "case_audit_events",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "evidence_records",
+        "grantee": "anon",
+        "privileges": "DELETE,INSERT,SELECT,UPDATE"
+      },
+      {
+        "table": "evidence_records",
+        "grantee": "authenticated",
+        "privileges": "DELETE,INSERT,SELECT,UPDATE"
+      },
+      {
+        "table": "evidence_records",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "evidence_records",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "monitoring_connections",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "monitoring_connections",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "monitoring_observations",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "monitoring_observations",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "monitoring_runs",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "monitoring_runs",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "osiris_operators",
+        "grantee": "anon",
+        "privileges": "DELETE,INSERT,SELECT,UPDATE"
+      },
+      {
+        "table": "osiris_operators",
+        "grantee": "authenticated",
+        "privileges": "DELETE,INSERT,SELECT,UPDATE"
+      },
+      {
+        "table": "osiris_operators",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "osiris_operators",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_alerts",
+        "grantee": "anon",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_alerts",
+        "grantee": "authenticated",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_alerts",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_alerts",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_chain_heads",
+        "grantee": "anon",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_chain_heads",
+        "grantee": "authenticated",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_chain_heads",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_chain_heads",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_email_config",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_email_config",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_email_outbox",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_email_outbox",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_security_events",
+        "grantee": "anon",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_security_events",
+        "grantee": "authenticated",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_security_events",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "pegasus_security_events",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "security_cases",
+        "grantee": "anon",
+        "privileges": "DELETE,INSERT,SELECT,UPDATE"
+      },
+      {
+        "table": "security_cases",
+        "grantee": "authenticated",
+        "privileges": "DELETE,INSERT,SELECT,UPDATE"
+      },
+      {
+        "table": "security_cases",
+        "grantee": "postgres",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      },
+      {
+        "table": "security_cases",
+        "grantee": "service_role",
+        "privileges": "DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE"
+      }
+    ],
+    "observed_at": "2026-10-29T02:52:14.936557+00:00",
+    "schema_usage": [
+      {
+        "anon": true,
+        "schema": "public",
+        "postgres": true,
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "schema": "extensions",
+        "postgres": true,
+        "authenticated": true
+      },
+      {
+        "anon": true,
+        "schema": "net",
+        "postgres": true,
+        "authenticated": true
+      },
+      {
+        "anon": false,
+        "schema": "cron",
+        "postgres": true,
+        "authenticated": false
+      }
+    ],
+    "cron_job_count": 0,
+    "trigger_summary": [
+      {
+        "table": "case_audit_events",
+        "enabled": "O",
+        "trigger": "seal_case_audit_event",
+        "function": "seal_audit_event"
+      },
+      {
+        "table": "evidence_records",
+        "enabled": "O",
+        "trigger": "protect_evidence_records",
+        "function": "prevent_vault_mutation"
+      },
+      {
+        "table": "case_audit_events",
+        "enabled": "O",
+        "trigger": "protect_case_audit_events",
+        "function": "prevent_vault_mutation"
+      },
+      {
+        "table": "pegasus_security_events",
+        "enabled": "O",
+        "trigger": "pegasus_events_reject_mutation",
+        "function": "pegasus_reject_event_mutation"
+      },
+      {
+        "table": "pegasus_security_events",
+        "enabled": "O",
+        "trigger": "pegasus_events_reject_truncate",
+        "function": "pegasus_reject_event_mutation"
+      },
+      {
+        "table": "pegasus_security_events",
+        "enabled": "O",
+        "trigger": "pegasus_events_advance_chain_head",
+        "function": "pegasus_advance_chain_head"
+      }
+    ],
+    "effect_functions": [
+      {
+        "args": "text, text, boolean",
+        "schema": "extensions",
+        "function": "dblink_exec",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "text",
+        "schema": "extensions",
+        "function": "dblink_exec",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "text, boolean",
+        "schema": "extensions",
+        "function": "dblink_exec",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "request http_request",
+        "schema": "extensions",
+        "function": "http",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "text, text",
+        "schema": "extensions",
+        "function": "dblink_exec",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer",
+        "schema": "net",
+        "function": "http_post",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "url text, params jsonb, headers jsonb, timeout_milliseconds integer",
+        "schema": "net",
+        "function": "http_get",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "url text, params jsonb, headers jsonb, timeout_milliseconds integer, body jsonb",
+        "schema": "net",
+        "function": "http_delete",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "job_name text, schedule text, command text",
+        "schema": "cron",
+        "function": "schedule",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      },
+      {
+        "args": "job_name text, schedule text, command text, database text, username text, active boolean",
+        "schema": "cron",
+        "function": "schedule_in_database",
+        "anon_execute": false,
+        "postgres_execute": true,
+        "authenticated_execute": false
+      },
+      {
+        "args": "schedule text, command text",
+        "schema": "cron",
+        "function": "schedule",
+        "anon_execute": true,
+        "postgres_execute": true,
+        "authenticated_execute": true
+      }
+    ]
+  }
+}

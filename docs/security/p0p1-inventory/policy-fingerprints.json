@@ -1,0 +1,285 @@
+{
+  "read_only_query": "BEGIN READ ONLY; SET LOCAL statement_timeout='8s'; SELECT jsonb_build_object('observed_at',clock_timestamp(),'function_groups',(SELECT jsonb_agg(x) FROM (SELECT n.nspname AS schema,count(*) AS functions,count(*) FILTER (WHERE p.prosecdef) AS security_definers FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname NOT IN ('pg_catalog','information_schema') GROUP BY n.nspname ORDER BY n.nspname) x),'policies',(SELECT jsonb_agg(jsonb_build_object('schema',schemaname,'table',tablename,'policy',policyname,'roles',roles,'cmd',cmd,'permissive',permissive,'using_md5',md5(qual),'check_md5',md5(with_check))) FROM pg_policies WHERE schemaname IN ('public','storage'))); COMMIT;",
+  "result": {
+    "policies": [
+      {
+        "cmd": "DELETE",
+        "roles": ["authenticated"],
+        "table": "osiris_operators",
+        "policy": "osiris_operators_delete_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "93e7a039bdce7aec37b7d8dc20e22f3a",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "INSERT",
+        "roles": ["authenticated"],
+        "table": "osiris_operators",
+        "policy": "osiris_operators_insert_own",
+        "schema": "public",
+        "check_md5": "93e7a039bdce7aec37b7d8dc20e22f3a",
+        "using_md5": null,
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "SELECT",
+        "roles": ["authenticated"],
+        "table": "osiris_operators",
+        "policy": "osiris_operators_select_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "93e7a039bdce7aec37b7d8dc20e22f3a",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "UPDATE",
+        "roles": ["authenticated"],
+        "table": "osiris_operators",
+        "policy": "osiris_operators_update_own",
+        "schema": "public",
+        "check_md5": "93e7a039bdce7aec37b7d8dc20e22f3a",
+        "using_md5": "93e7a039bdce7aec37b7d8dc20e22f3a",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "DELETE",
+        "roles": ["authenticated"],
+        "table": "security_cases",
+        "policy": "security_cases_delete_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "INSERT",
+        "roles": ["authenticated"],
+        "table": "security_cases",
+        "policy": "security_cases_insert_own",
+        "schema": "public",
+        "check_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "using_md5": null,
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "SELECT",
+        "roles": ["authenticated"],
+        "table": "security_cases",
+        "policy": "security_cases_select_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "UPDATE",
+        "roles": ["authenticated"],
+        "table": "security_cases",
+        "policy": "security_cases_update_own",
+        "schema": "public",
+        "check_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "using_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "INSERT",
+        "roles": ["authenticated"],
+        "table": "evidence_records",
+        "policy": "evidence_records_insert_own",
+        "schema": "public",
+        "check_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "using_md5": null,
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "SELECT",
+        "roles": ["authenticated"],
+        "table": "evidence_records",
+        "policy": "evidence_records_select_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "INSERT",
+        "roles": ["authenticated"],
+        "table": "case_audit_events",
+        "policy": "case_audit_events_insert_own",
+        "schema": "public",
+        "check_md5": "b3fbbc3e75dc2e264fa66907dc9746d0",
+        "using_md5": null,
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "SELECT",
+        "roles": ["authenticated"],
+        "table": "case_audit_events",
+        "policy": "case_audit_events_select_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "b3fbbc3e75dc2e264fa66907dc9746d0",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "SELECT",
+        "roles": ["service_role", "supabase_etl_admin"],
+        "table": "objects",
+        "policy": "Give access to a file to user 19atmy5_0",
+        "schema": "storage",
+        "check_md5": null,
+        "using_md5": "da3614ba6d4f3b7264e705b22e38fa16",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "INSERT",
+        "roles": ["service_role", "supabase_etl_admin"],
+        "table": "objects",
+        "policy": "Give access to a file to user 19atmy5_1",
+        "schema": "storage",
+        "check_md5": "da3614ba6d4f3b7264e705b22e38fa16",
+        "using_md5": null,
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "DELETE",
+        "roles": ["service_role", "supabase_etl_admin"],
+        "table": "objects",
+        "policy": "Give access to a file to user 19atmy5_2",
+        "schema": "storage",
+        "check_md5": null,
+        "using_md5": "da3614ba6d4f3b7264e705b22e38fa16",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "UPDATE",
+        "roles": ["service_role", "supabase_etl_admin"],
+        "table": "objects",
+        "policy": "Give access to a file to user 19atmy5_3",
+        "schema": "storage",
+        "check_md5": null,
+        "using_md5": "da3614ba6d4f3b7264e705b22e38fa16",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "INSERT",
+        "roles": ["authenticated"],
+        "table": "pegasus_alerts",
+        "policy": "pegasus_alerts_insert_own",
+        "schema": "public",
+        "check_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "using_md5": null,
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "SELECT",
+        "roles": ["authenticated"],
+        "table": "pegasus_alerts",
+        "policy": "pegasus_alerts_select_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "UPDATE",
+        "roles": ["authenticated"],
+        "table": "pegasus_alerts",
+        "policy": "pegasus_alerts_update_own",
+        "schema": "public",
+        "check_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "using_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "INSERT",
+        "roles": ["authenticated"],
+        "table": "pegasus_security_events",
+        "policy": "pegasus_security_events_insert_own",
+        "schema": "public",
+        "check_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "using_md5": null,
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "SELECT",
+        "roles": ["authenticated"],
+        "table": "pegasus_security_events",
+        "policy": "pegasus_security_events_select_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "permissive": "PERMISSIVE"
+      },
+      {
+        "cmd": "SELECT",
+        "roles": ["authenticated"],
+        "table": "pegasus_chain_heads",
+        "policy": "pegasus_chain_heads_select_own",
+        "schema": "public",
+        "check_md5": null,
+        "using_md5": "23998ec81ed4351306d5c0b66276c39d",
+        "permissive": "PERMISSIVE"
+      }
+    ],
+    "observed_at": "2026-10-29T02:56:26.82199+00:00",
+    "function_groups": [
+      {
+        "schema": "auth",
+        "functions": 4,
+        "security_definers": 0
+      },
+      {
+        "schema": "cron",
+        "functions": 7,
+        "security_definers": 0
+      },
+      {
+        "schema": "extensions",
+        "functions": 1343,
+        "security_definers": 7
+      },
+      {
+        "schema": "graphql_public",
+        "functions": 1,
+        "security_definers": 0
+      },
+      {
+        "schema": "net",
+        "functions": 12,
+        "security_definers": 0
+      },
+      {
+        "schema": "pgbouncer",
+        "functions": 1,
+        "security_definers": 1
+      },
+      {
+        "schema": "public",
+        "functions": 5,
+        "security_definers": 1
+      },
+      {
+        "schema": "realtime",
+        "functions": 15,
+        "security_definers": 0
+      },
+      {
+        "schema": "storage",
+        "functions": 19,
+        "security_definers": 0
+      },
+      {
+        "schema": "vault",
+        "functions": 5,
+        "security_definers": 2
+      }
+    ]
+  },
+  "limitations": [
+    "Policy expression hashes are inventory fingerprints, not enforcement tests",
+    "No policy bodies or stored user data retained",
+    "External/extension schemas counted; function bodies and exposed REST schemas not exhaustively reviewed"
+  ]
+}
