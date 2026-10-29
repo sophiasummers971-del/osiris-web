@@ -1,0 +1,91 @@
+{
+  "schema": "osiris.p2-design-fixture/v1",
+  "status": "UNSIGNED_DESIGN_FIXTURE_NOT_EXECUTABLE",
+  "generatedAt": "2026-10-29T03:06:42.477483+00:00",
+  "ids": {
+    "tenant": "588d8ed0-8002-47e1-a710-f49a68df846e",
+    "resource": "48d42117-949b-4e68-8356-920b387cc7be",
+    "task": "6040745b-81b4-4f7d-bf8e-1ce71fd3e721",
+    "owner": "e8216093-2e87-46cf-b5e2-1db41d5678b1",
+    "job": "9f1a1c3e-1a00-494e-9827-5b88918279ac",
+    "operation": "cb07959e-7676-4e5d-81a1-5326700a21ef",
+    "approval": "9d8170d7-cc2e-4dfc-bbfd-1af68ba71273",
+    "contract": "d7cb1155-0d00-4238-96a1-f8f85539752e",
+    "incarnation": "e94845b1-a135-4e13-bba2-9b5cbc485786",
+    "run": "29422d71-a47b-465e-bf3d-fad4def47515"
+  },
+  "agentId": "NR-16277",
+  "ruleset": {
+    "schema": "osiris.p2-ruleset-proposal/v1",
+    "operation": "appendSynthetic",
+    "zone": "p2/synthetic/db",
+    "maxRows": 1,
+    "maxPayloadBytes": 1024,
+    "noNetworkForWorker": true,
+    "noAutomaticRetry": true
+  },
+  "rulesetHash": "36a493aba4cee80c16fa0ac67224a58e042a122d768d58b54c6a024116a380bb",
+  "plan": {
+    "schema": "osiris.plan-y/v1",
+    "taskId": "6040745b-81b4-4f7d-bf8e-1ce71fd3e721",
+    "ownerId": "e8216093-2e87-46cf-b5e2-1db41d5678b1",
+    "tenantId": "588d8ed0-8002-47e1-a710-f49a68df846e",
+    "task": "Task X: append one disposable synthetic marker in isolated staging",
+    "version": 1,
+    "steps": [
+      {
+        "id": "append_marker",
+        "description": "Append exactly one synthetic marker to the fixed staging resource",
+        "purpose": "Observe a database-local guarded effect",
+        "justification": "Exercise independent approval, claims, resource fencing and reconciliation without business data",
+        "dependencies": [],
+        "scope": {
+          "target": "p2/db/synthetic_records",
+          "commit": "5afadb23fa31f0f6fc029d5ca158364deeba59d0",
+          "tools": ["appendSynthetic"],
+          "zones": ["p2/synthetic/db"],
+          "rulesetHash": "36a493aba4cee80c16fa0ac67224a58e042a122d768d58b54c6a024116a380bb",
+          "budgets": {
+            "maxCalls": 1,
+            "maxTokens": 0,
+            "maxCostMicros": 100000
+          }
+        },
+        "risks": [
+          "A lost commit acknowledgment is uncertain execution",
+          "A restored database can contain stale local fencing state"
+        ],
+        "expectedEvidence": [
+          "Independent signed synthetic-row observation",
+          "Retained authority intent and completion checkpoint",
+          "Externally observed disposable worker termination",
+          "approved-arguments-sha256:69f4820a1c08f82ed777a5a42b5c32844f53d83839ca16015e6380a0fda1ed81"
+        ]
+      }
+    ]
+  },
+  "planHash": "1312361fcfa83ef75f53bc52eafa2dd5a0c38ee8fb9684ee1b1e8d8a56b23ce1",
+  "arguments": {
+    "tenantId": "588d8ed0-8002-47e1-a710-f49a68df846e",
+    "resourceId": "48d42117-949b-4e68-8356-920b387cc7be",
+    "operationId": "cb07959e-7676-4e5d-81a1-5326700a21ef",
+    "jobId": "9f1a1c3e-1a00-494e-9827-5b88918279ac",
+    "expectedResourceVersion": 0,
+    "kind": "synthetic.marker.v1",
+    "marker": "p2-disposable-0c7e4ba5-94cb-4448-bd13-0547d6c9d8f1"
+  },
+  "argumentDigest": "69f4820a1c08f82ed777a5a42b5c32844f53d83839ca16015e6380a0fda1ed81",
+  "expectedEffect": {
+    "rowCount": 1,
+    "resourceVersion": 1,
+    "kind": "synthetic.marker.v1",
+    "marker": "p2-disposable-0c7e4ba5-94cb-4448-bd13-0547d6c9d8f1"
+  },
+  "approvalEnvelope": null,
+  "contractEnvelope": null,
+  "limitations": [
+    "No keys, signatures, credentials, database objects or staging resources were created",
+    "Base commit is a reference only; future adapter/build changes require a new plan version/hash and fresh approval",
+    "Not an admission request or execution receipt"
+  ]
+}
