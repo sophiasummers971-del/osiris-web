@@ -1,0 +1,31 @@
+name: Pegasus staging format once
+on:
+  push:
+    paths:
+      - ".github/workflows/pegasus-staging-format-once.yml"
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --write pegasus-staging/worker.ts pegasus-staging/wrangler.jsonc
+      - name: Commit formatted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- pegasus-staging/worker.ts pegasus-staging/wrangler.jsonc
+          if ! git diff --cached --quiet; then
+            git commit -m "style(pegasus): apply Prettier to staging scaffold"
+            git push origin HEAD:feat/pegasus-staging-observer-20261029
+          fi
