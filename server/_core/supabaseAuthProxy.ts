@@ -4,6 +4,16 @@ import express from "express";
 const allowedMethods = new Set(["GET", "POST", "PUT", "DELETE"]);
 
 export function registerSupabaseAuthProxy(app: Express) {
+  // The browser bootstrap reads these public settings at runtime. Register
+  // before the SPA fallback so Node serves the same contract as the Worker.
+  app.get("/api/runtime-config", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      supabaseUrl: process.env.VITE_SUPABASE_URL ?? "",
+      supabasePublishableKey: process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "",
+    });
+  });
+
   app.use(
     "/api/supabase-auth",
     express.raw({ type: "*/*", limit: "1mb" }),
