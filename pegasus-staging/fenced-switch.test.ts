@@ -23,10 +23,12 @@ function fixture() {
 describe("Pegasus fenced staging switch contract", () => {
   it("switches and verifies the provider state", async () => {
     const { provider, expected } = fixture();
-    expect(await switchStagingRoute(provider, expected, "failover", 2)).toEqual({
-      ok: true,
-      state: { route: "failover", epoch: 2, revision: "v2" },
-    });
+    expect(await switchStagingRoute(provider, expected, "failover", 2)).toEqual(
+      {
+        ok: true,
+        state: { route: "failover", epoch: 2, revision: "v2" },
+      }
+    );
   });
   it("rejects replayed or stale epochs", async () => {
     const { provider, expected } = fixture();
