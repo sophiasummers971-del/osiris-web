@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
-  QUARANTINE_TTL_MS, expireQuarantines, initialTopology,
-  isolatePipeline, redirectTraffic, rejectMismatchedIdentity,
+  QUARANTINE_TTL_MS,
+  expireQuarantines,
+  initialTopology,
+  isolatePipeline,
+  redirectTraffic,
+  rejectMismatchedIdentity,
 } from "./pegasus-pipeline-policy.js";
 
 describe("PEGASUS four-pipeline safety core", () => {
@@ -14,23 +18,28 @@ describe("PEGASUS four-pipeline safety core", () => {
   it("denies unapproved redirection without changing the topology", () => {
     const t = initialTopology();
     expect(redirectTraffic(t, "failover")).toEqual({
-      ok: false, reason: "APPROVAL_AND_INDEPENDENT_VERIFICATION_REQUIRED",
+      ok: false,
+      reason: "APPROVAL_AND_INDEPENDENT_VERIFICATION_REQUIRED",
     });
     expect(t.active).toBe("primary");
   });
   it("rejects opening reserved Sector 7 routes even with approval", () => {
     const t = initialTopology();
     const result = redirectTraffic(t, "sector7-a", {
-      pipeline: "sector7-a", operation: "failover",
-      authorized: true, independentVerified: true,
+      pipeline: "sector7-a",
+      operation: "failover",
+      authorized: true,
+      independentVerified: true,
     });
     expect(result).toEqual({ ok: false, reason: "SECTOR7_CONNECTOR_SEALED" });
   });
   it("fails over only to a healthy standby with independent approval", () => {
     const t = initialTopology();
     const result = redirectTraffic(t, "failover", {
-      pipeline: "failover", operation: "failover",
-      authorized: true, independentVerified: true,
+      pipeline: "failover",
+      operation: "failover",
+      authorized: true,
+      independentVerified: true,
     });
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -48,9 +57,15 @@ describe("PEGASUS four-pipeline safety core", () => {
     const isolated = isolatePipeline(t, "failover", "q1", 1000);
     expect(isolated.ok).toBe(true);
     if (!isolated.ok) return;
-    const before = expireQuarantines(isolated.topology, 1000 + QUARANTINE_TTL_MS - 1);
+    const before = expireQuarantines(
+      isolated.topology,
+      1000 + QUARANTINE_TTL_MS - 1
+    );
     expect(before.quarantines[0].state).toBe("sealed");
-    const after = expireQuarantines(isolated.topology, 1000 + QUARANTINE_TTL_MS);
+    const after = expireQuarantines(
+      isolated.topology,
+      1000 + QUARANTINE_TTL_MS
+    );
     expect(after.quarantines[0].state).toBe("destroyed");
     expect(after.pipelines.failover.state).toBe("isolated");
     expect(after.pipelines.primary.state).toBe("active");
