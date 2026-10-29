@@ -1,0 +1,175 @@
+{
+  "schema": "osiris.offline-evidence/v1",
+  "capturedAt": "2026-10-29T03:46:19.359Z",
+  "scope": "SELF_CONTAINED_SYNTHETIC_FIXTURE_NOT_INDEPENDENT_CUSTODY",
+  "referenceCommit": "8840e61ad8a299be1062c3cc199f349d61aef7e0",
+  "adapterRulesetHash": "b95e6dd61853859da8c7cc64afd9a250202e87b9133bf119c6f97a37de11aad5",
+  "publicPins": {
+    "context": {
+      "tenantId": "offline_tenant",
+      "ownerId": "offline_owner",
+      "taskId": "offline_task"
+    },
+    "ownerKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAnoy3iR0WBj8afxMaClP9w2EVpaCid9venxXATokU6YM=\n-----END PUBLIC KEY-----\n",
+    "contractKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAk0nGZba+zP/IqAzFrz4sKN9WAdaej/5SZ+PtRHpJaZ8=\n-----END PUBLIC KEY-----\n",
+    "reconcilerKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAkGM34mgLHpvTFexYSqR/uhvw73mvzfNKwiRU0U5LRDI=\n-----END PUBLIC KEY-----\n",
+    "agentKeys": {
+      "NR-00001": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAwHShH4/ld+XbFtCGPUwGyslgPb4pGGR3kqsYX9I6IaQ=\n-----END PUBLIC KEY-----\n",
+      "NR-00002": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA35/0uBIh0CCEPZMHQnQKWopLvJMj+84Qu96/qWVn/yo=\n-----END PUBLIC KEY-----\n"
+    }
+  },
+  "bundle": {
+    "planJson": "{\"schema\":\"osiris.plan-y/v1\",\"tenantId\":\"offline_tenant\",\"ownerId\":\"offline_owner\",\"taskId\":\"offline_task\",\"task\":\"Task X: append one disposable marker\",\"version\":1,\"steps\":[{\"id\":\"step_one\",\"description\":\"Append marker\",\"purpose\":\"Test an offline boundary\",\"justification\":\"No hosted access\",\"dependencies\":[],\"scope\":{\"target\":\"offline/db/synthetic_records\",\"commit\":\"8840e61ad8a299be1062c3cc199f349d61aef7e0\",\"tools\":[\"appendSynthetic\"],\"zones\":[\"offline/synthetic/db\"],\"rulesetHash\":\"b95e6dd61853859da8c7cc64afd9a250202e87b9133bf119c6f97a37de11aad5\",\"budgets\":{\"maxCalls\":1,\"maxTokens\":0,\"maxCostMicros\":100000}},\"risks\":[\"Unknown commit\"],\"expectedEvidence\":[\"approved-arguments-sha256:5166e18a9eca460fb890d3818ea7bc7cb619b727bedbdf26e94d39e6085e53ec\"]}]}",
+    "approvalEnvelope": {
+      "payload": "{\"approvalId\":\"approval_fb7db267-6b10-4850-a7a0-53417d2a31ae\",\"expiresAt\":\"2026-10-29T03:47:19.340Z\",\"issuedAt\":\"2026-10-29T03:46:19.240Z\",\"ownerId\":\"offline_owner\",\"planHash\":\"f5d07d124d1825aa8ae78a0d015d40e6fb527bf2747e4bd31a2420a11d8f9b2b\",\"planVersion\":1,\"schema\":\"osiris.plan-approval/v1\",\"taskId\":\"offline_task\",\"tenantId\":\"offline_tenant\"}",
+      "signature": "v27nVOvaDJD18VvECiQup0slbZT9hr930L25sHHbHrJFtshdIb++SaiLFTUupcQlfCBmMZjTZoLiTRWREQPKBQ=="
+    },
+    "contractEnvelope": {
+      "payload": "{\"agentId\":\"NR-00001\",\"agentKeyHash\":\"7900eaa0a02be924ca2a89f75099b09b42f809590ea63bd8eacc76d09cff7c00\",\"approvalId\":\"approval_fb7db267-6b10-4850-a7a0-53417d2a31ae\",\"budgets\":{\"maxCalls\":1,\"maxCostMicros\":100000,\"maxTokens\":0},\"commit\":\"8840e61ad8a299be1062c3cc199f349d61aef7e0\",\"contractId\":\"contract_ec86e978-f449-4924-aaf7-0e682c562254\",\"expiresAt\":\"2026-10-29T03:46:49.340Z\",\"issuedAt\":\"2026-10-29T03:46:19.240Z\",\"jobId\":\"job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8\",\"ownerId\":\"offline_owner\",\"planHash\":\"f5d07d124d1825aa8ae78a0d015d40e6fb527bf2747e4bd31a2420a11d8f9b2b\",\"planVersion\":1,\"rulesetHash\":\"b95e6dd61853859da8c7cc64afd9a250202e87b9133bf119c6f97a37de11aad5\",\"schema\":\"osiris.agent-contract/v1\",\"stepId\":\"step_one\",\"target\":\"offline/db/synthetic_records\",\"taskId\":\"offline_task\",\"tenantId\":\"offline_tenant\",\"tools\":[\"appendSynthetic\"],\"zones\":[\"offline/synthetic/db\"]}",
+      "signature": "qoDiFy7mFvqgnRGrNEXT8IenduB9l2NM6eWWCs2tBwOL1XoG1t7oXrRFLJl67Eua/uDpDnbVCE5UielCCAQ3DQ=="
+    },
+    "requestEnvelope": {
+      "payload": "{\"agentId\":\"NR-00001\",\"argumentDigest\":\"5166e18a9eca460fb890d3818ea7bc7cb619b727bedbdf26e94d39e6085e53ec\",\"epoch\":1,\"expiresAt\":\"2026-10-29T03:46:29.340Z\",\"fence\":1,\"issuedAt\":\"2026-10-29T03:46:19.290Z\",\"jobId\":\"job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8\",\"nonce\":\"nonce_d4accf89-5f8e-4d6d-9f02-66a2cba895fd\",\"operationId\":\"op_cf1e562f-8945-4da6-93f5-686a4d2a3110\",\"schema\":\"osiris.offline-action/v1\",\"tenantId\":\"offline_tenant\"}",
+      "signature": "OZXYmRHrVmpL5H0U0MwMzS8OprbiKnrkuh2OnIEvRAi7CwGx8ByNx/By9eB63aJ1if6JGHzHyYnNkl71cynqDQ=="
+    },
+    "arguments": {
+      "tenantId": "offline_tenant",
+      "resourceId": "offline_resource",
+      "jobId": "job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8",
+      "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110",
+      "expectedVersion": 0,
+      "kind": "synthetic.marker.v1",
+      "marker": "disposable-marker"
+    }
+  },
+  "observation": {
+    "payload": "{\"nonce\":\"obs_6c92bc0c-234c-4072-b023-ae02c999040c\",\"operationId\":\"op_cf1e562f-8945-4da6-93f5-686a4d2a3110\",\"schema\":\"osiris.offline-observation/v1\",\"snapshotHash\":\"5b0b9e24cc4718c7bc64e920583f03510f45601cf54ea182328749a9a682e6dd\",\"tenantId\":\"offline_tenant\"}",
+    "signature": "yH5PjE2cvjNvhtFAwi+8XAo7mV6CTp7abjPKzNYHARdvK266xAplr6QC5Lm9POLESOUfd+9uGsAUUIEy0VTbAg=="
+  },
+  "completed": {
+    "decision": "VERIFIED_COMPLETE_SYNTHETIC_ONLY",
+    "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110"
+  },
+  "beforeCompletion": {
+    "gate": {
+      "active": true,
+      "epoch": 1,
+      "fence": 1,
+      "version": 1
+    },
+    "authority": {
+      "epoch": 1,
+      "fence": 1,
+      "version": 0,
+      "active": true
+    },
+    "effects": [
+      {
+        "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110",
+        "jobId": "job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8",
+        "digest": "5166e18a9eca460fb890d3818ea7bc7cb619b727bedbdf26e94d39e6085e53ec",
+        "payload": "{\"expectedVersion\":0,\"jobId\":\"job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8\",\"kind\":\"synthetic.marker.v1\",\"marker\":\"disposable-marker\",\"operationId\":\"op_cf1e562f-8945-4da6-93f5-686a4d2a3110\",\"resourceId\":\"offline_resource\",\"tenantId\":\"offline_tenant\"}"
+      }
+    ],
+    "audit": [
+      {
+        "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110",
+        "version": 1,
+        "digest": "5166e18a9eca460fb890d3818ea7bc7cb619b727bedbdf26e94d39e6085e53ec"
+      }
+    ],
+    "intents": [
+      {
+        "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110",
+        "jobId": "job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8",
+        "status": "INTENT",
+        "bodyHash": "b4bddb7dedf22aa6b67d2913556773301b3c944bba96ba28899d9a2867212d64"
+      }
+    ],
+    "checkpointHead": "1e5b9f1836e710e57081aaf95af78b8b707fdcfaff07f2946160fa4c9b74db7e"
+  },
+  "afterCompletion": {
+    "gate": {
+      "active": true,
+      "epoch": 1,
+      "fence": 1,
+      "version": 1
+    },
+    "authority": {
+      "epoch": 1,
+      "fence": 1,
+      "version": 1,
+      "active": true
+    },
+    "effects": [
+      {
+        "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110",
+        "jobId": "job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8",
+        "digest": "5166e18a9eca460fb890d3818ea7bc7cb619b727bedbdf26e94d39e6085e53ec",
+        "payload": "{\"expectedVersion\":0,\"jobId\":\"job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8\",\"kind\":\"synthetic.marker.v1\",\"marker\":\"disposable-marker\",\"operationId\":\"op_cf1e562f-8945-4da6-93f5-686a4d2a3110\",\"resourceId\":\"offline_resource\",\"tenantId\":\"offline_tenant\"}"
+      }
+    ],
+    "audit": [
+      {
+        "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110",
+        "version": 1,
+        "digest": "5166e18a9eca460fb890d3818ea7bc7cb619b727bedbdf26e94d39e6085e53ec"
+      }
+    ],
+    "intents": [
+      {
+        "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110",
+        "jobId": "job_31e9f326-b6c3-49f8-bc12-b8dbefab45a8",
+        "status": "COMPLETE",
+        "bodyHash": "b4bddb7dedf22aa6b67d2913556773301b3c944bba96ba28899d9a2867212d64"
+      }
+    ],
+    "checkpointHead": "3b44bc50cb763bb50de40a69a549ea8a8d7e77c2fe74c340002a4e203fb8a76f"
+  },
+  "blocked": [
+    {
+      "name": "missing-owner-approval",
+      "denied": true,
+      "effectDelta": 0,
+      "reason": "INVALID_SCHEMA"
+    },
+    {
+      "name": "stale-resource-fence",
+      "denied": true,
+      "effectDelta": 0,
+      "reason": "STALE_FENCE_OR_FROZEN"
+    }
+  ],
+  "checkpoint": [
+    {
+      "body": {
+        "event": "GENESIS",
+        "tenantId": "offline_tenant"
+      },
+      "hash": "3ff6d6c3cef0b6dec422b9860ff2f06629802c70bd06092515b3d086112f6098",
+      "previous": null
+    },
+    {
+      "body": {
+        "authorizationHash": "b4bddb7dedf22aa6b67d2913556773301b3c944bba96ba28899d9a2867212d64",
+        "epoch": 1,
+        "event": "INTENT",
+        "fence": 1,
+        "operationId": "op_cf1e562f-8945-4da6-93f5-686a4d2a3110"
+      },
+      "hash": "1e5b9f1836e710e57081aaf95af78b8b707fdcfaff07f2946160fa4c9b74db7e",
+      "previous": "3ff6d6c3cef0b6dec422b9860ff2f06629802c70bd06092515b3d086112f6098"
+    },
+    {
+      "body": {
+        "event": "OBSERVED_COMPLETE",
+        "receipt": {
+          "payload": "{\"nonce\":\"obs_6c92bc0c-234c-4072-b023-ae02c999040c\",\"operationId\":\"op_cf1e562f-8945-4da6-93f5-686a4d2a3110\",\"schema\":\"osiris.offline-observation/v1\",\"snapshotHash\":\"5b0b9e24cc4718c7bc64e920583f03510f45601cf54ea182328749a9a682e6dd\",\"tenantId\":\"offline_tenant\"}",
+          "signature": "yH5PjE2cvjNvhtFAwi+8XAo7mV6CTp7abjPKzNYHARdvK266xAplr6QC5Lm9POLESOUfd+9uGsAUUIEy0VTbAg=="
+        }
+      },
+      "hash": "3b44bc50cb763bb50de40a69a549ea8a8d7e77c2fe74c340002a4e203fb8a76f",
+      "previous": "1e5b9f1836e710e57081aaf95af78b8b707fdcfaff07f2946160fa4c9b74db7e"
+    }
+  ]
+}
