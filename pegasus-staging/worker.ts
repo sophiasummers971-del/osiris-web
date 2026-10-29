@@ -25,7 +25,8 @@ export default {
         JSON.stringify({
           service: "pegasus-routing-staging",
           mode: "synthetic",
-          ready: true,
+          ready: false,
+          routingVerified: false,
         }),
         { status: 200, headers: jsonHeaders }
       );
