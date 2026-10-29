@@ -1,0 +1,30 @@
+name: Format Pegasus consolidation once
+on:
+  push:
+    paths:
+      - ".github/workflows/pegasus-consolidation-format-once.yml"
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --write docs/PEGASUS-STAGING-THREE-GATE-REVIEW-20261029.md
+      - name: Commit formatted review
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- docs/PEGASUS-STAGING-THREE-GATE-REVIEW-20261029.md
+          if ! git diff --cached --quiet; then
+            git commit -m "style(pegasus): format three-gate staging review"
+            git push origin HEAD:feat/pegasus-lab-consolidation-20261029
+          fi
