@@ -20,6 +20,7 @@ export default defineConfig({
       "server/**/*.spec.ts",
       "worker/**/*.test.ts",
       "worker/**/*.spec.ts",
+      "pegasus-staging/**/*.test.ts",
     ],
   },
 });
