@@ -242,7 +242,7 @@ export async function createTrustedSupervisor(options) {
         pid: lease.child?.pid ?? null,
         reason,
       });
-      if (!lease.child)
+      if (!lease.child || !Number.isSafeInteger(lease.child.pid))
         return Object.freeze({
           observedExit: false,
           spawnNeverStarted: true,
@@ -311,6 +311,8 @@ export async function createTrustedSupervisor(options) {
       record.zone === resource.zone &&
       record.tokens === resource.tokens &&
       record.costMicros === resource.costMicros &&
+      Date.parse(op.request.issuedAt) <= Date.now() &&
+      Date.parse(op.request.expiresAt) > Date.now() &&
       Date.parse(lease.contract.expiresAt) > Date.now();
     if (!permitted()) {
       await failOperation(lease, "ADAPTER_SCOPE_VIOLATION");
@@ -385,6 +387,10 @@ export async function createTrustedSupervisor(options) {
       readyResolve = resolve;
     });
     const challenge = randomBytes(24).toString("hex");
+    // Preparation awaited filesystem work: cancellation may have completed
+    // with no child yet. Never create a process after that stop/close boundary.
+    if (lease.revoked || unhealthy || closing)
+      throw new Error("LEASE_REVOKED_BEFORE_SPAWN");
     const child = spawn(
       "/usr/bin/python3",
       [
@@ -403,7 +409,7 @@ export async function createTrustedSupervisor(options) {
     );
     lease.child = child;
     lease.phase = "STARTING";
-    metrics.spawned++;
+    if (Number.isSafeInteger(child.pid)) metrics.spawned++;
     const bootstrapEvidence = new Promise(resolve => {
       let text = "";
       child.stdio[4].on("data", chunk => {
@@ -432,18 +438,19 @@ export async function createTrustedSupervisor(options) {
         lease.exited = true;
         lease.revoked = true;
         lease.generation++;
-        lease.phase = "STOPPED";
+        const hadProcess = Number.isSafeInteger(child.pid) && child.pid > 0;
+        lease.phase = hadProcess ? "STOPPED" : "SPAWN_FAILED";
         clearTimeout(lease.timer);
         readyResolve(false);
         settle(lease, blocked("WORKER_EXITED"));
         const record = {
-          event: "PROCESS_EXIT_OBSERVED",
+          event: hadProcess ? "PROCESS_EXIT_OBSERVED" : "PROCESS_SPAWN_FAILED",
           agentId: lease.agentId,
           contractId: lease.contract.contractId,
           pid: child.pid ?? null,
           exitCode,
           signal,
-          observedExit: true,
+          observedExit: hadProcess,
         };
         const auditPersisted = await audit(record);
         lease.exitEvidence = Object.freeze({ ...record, auditPersisted });

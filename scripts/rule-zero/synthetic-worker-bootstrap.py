@@ -22,9 +22,17 @@ rules = [Filter(0x20, 0, 0, 4), Filter(0x15, 1, 0, 0xc000003e), Filter(0x06, 0, 
          Filter(0x20, 0, 0, 0), Filter(0x45, 0, 1, 0x40000000), Filter(0x06, 0, 0, 0x80000000)]
 # Deny new network endpoints, cross-process interference, namespace/mount changes
 # and io_uring network bypasses. IPC uses only the already inherited parent pipe.
-for number in [41, 42, 43, 49, 50, 53, 62, 101, 129, 155, 161, 165, 166, 200, 234,
+for number in [41, 42, 43, 49, 50, 53, 57, 58, 62, 101, 129, 155, 161, 165, 166, 200, 234,
                272, 288, 297, 304, 308, 310, 311, 321, 322, 424, 425, 426, 427, 434, 438]:
     rules += [Filter(0x15, 0, 1, number), Filter(0x06, 0, 0, 0x50000 | errno.EPERM)]
+# clone may create runtime threads, never a new process. The kernel also
+# requires CLONE_VM/CLONE_SIGHAND with CLONE_THREAD. clone3 uses a pointed-to
+# struct the BPF filter cannot inspect: deny with ENOSYS so libc can fall back
+# to the inspectable, thread-only clone syscall.
+rules += [Filter(0x15, 0, 4, 56), Filter(0x20, 0, 0, 16),
+          Filter(0x45, 1, 0, 0x10000), Filter(0x06, 0, 0, 0x50000 | errno.EPERM),
+          Filter(0x06, 0, 0, 0x7fff0000)]
+rules += [Filter(0x15, 0, 1, 435), Filter(0x06, 0, 0, 0x50000 | errno.ENOSYS)]
 rules += [Filter(0x06, 0, 0, 0x7fff0000)]
 array = (Filter * len(rules))(*rules)
 program = Program(len(rules), array)
