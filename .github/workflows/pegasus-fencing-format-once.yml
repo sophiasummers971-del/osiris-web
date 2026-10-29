@@ -1,0 +1,30 @@
+name: Format Pegasus fencing once
+on:
+  push:
+    paths:
+      - ".github/workflows/pegasus-fencing-format-once.yml"
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec prettier --write pegasus-staging/fenced-switch.ts pegasus-staging/fenced-switch.test.ts
+      - name: Commit formatted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- pegasus-staging/fenced-switch.ts pegasus-staging/fenced-switch.test.ts
+          if ! git diff --cached --quiet; then
+            git commit -m "style(pegasus): format fenced staging switch"
+            git push origin HEAD:feat/pegasus-staging-observer-20261029
+          fi
