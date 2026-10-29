@@ -49,7 +49,8 @@ describe("PEGASUS four-pipeline safety core", () => {
   });
   it("does not quarantine the currently active route", () => {
     expect(isolatePipeline(initialTopology(), "primary", "q1", 0)).toEqual({
-      ok: false, reason: "ROUTE_AWAY_BEFORE_ISOLATION",
+      ok: false,
+      reason: "ROUTE_AWAY_BEFORE_ISOLATION",
     });
   });
   it("isolates a drained pipe and destroys only its quarantined payload after 7 days", () => {

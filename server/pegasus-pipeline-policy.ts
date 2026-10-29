@@ -18,7 +18,11 @@ export type Approval = {
   independentVerified: boolean;
 };
 
-export type Pipeline = { id: PipelineId; state: PipelineState; healthy: boolean };
+export type Pipeline = {
+  id: PipelineId;
+  state: PipelineState;
+  healthy: boolean;
+};
 export type Quarantine = {
   id: string;
   pipeline: PipelineId;
