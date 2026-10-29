@@ -702,5 +702,10 @@ test("offline existing Linux permission/seccomp profile denies DB read, network 
   assert.equal(evidence.NoNewPrivs, "1");
   assert.equal(evidence.Seccomp, "2");
   assert.equal(result.readDenied, true);
+  assert.equal(
+    result.sqliteDenied,
+    true,
+    "SQLite must not bypass worker filesystem restrictions"
+  );
   assert.throws(() => process.kill(child.pid, 0), /ESRCH/);
 });
