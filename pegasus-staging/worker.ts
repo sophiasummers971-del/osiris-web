@@ -22,7 +22,11 @@ export default {
     }
     if (url.pathname === "/health") {
       return new Response(
-        JSON.stringify({ service: "pegasus-routing-staging", mode: "synthetic", ready: true }),
+        JSON.stringify({
+          service: "pegasus-routing-staging",
+          mode: "synthetic",
+          ready: true,
+        }),
         { status: 200, headers: jsonHeaders }
       );
     }

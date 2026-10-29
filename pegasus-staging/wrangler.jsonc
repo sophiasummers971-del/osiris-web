@@ -6,6 +6,6 @@
   "workers_dev": true,
   "observability": { "enabled": true },
   "vars": {
-    "PEGASUS_STAGING_ONLY": "true"
-  }
+    "PEGASUS_STAGING_ONLY": "true",
+  },
 }
