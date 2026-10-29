@@ -24,12 +24,8 @@ describe("Staging durable fencing ledger contract", () => {
   it("claims and settles only after verified provider readback", async () => {
     const db = fixture();
     expect((await claimStagingFence(db, "initial", 1, "op-1")).ok).toBe(true);
-    expect(
-      (await settleStagingFence(db, "op-1", "v1", false)).ok
-    ).toBe(false);
-    expect(
-      (await settleStagingFence(db, "op-1", "v1", true)).ok
-    ).toBe(true);
+    expect((await settleStagingFence(db, "op-1", "v1", false)).ok).toBe(false);
+    expect((await settleStagingFence(db, "op-1", "v1", true)).ok).toBe(true);
     expect((await claimStagingFence(db, "v1", 2, "op-2")).ok).toBe(true);
   });
   it("refuses a second claim while first is pending", async () => {

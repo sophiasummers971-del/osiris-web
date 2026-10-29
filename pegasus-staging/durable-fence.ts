@@ -38,7 +38,7 @@ export async function claimStagingFence(
   )
     return { ok: false, reason: "INVALID_CLAIM" };
   try {
-    return await store.transaction(async (tx) => {
+    return await store.transaction(async tx => {
       const current = (await tx.get<FenceRecord>(KEY)) ?? {
         epoch: 0,
         revision: "initial",
@@ -78,9 +78,13 @@ export async function settleStagingFence(
   if (!operationId || !observedRevision || !providerVerified)
     return { ok: false, reason: "UNVERIFIED_PROVIDER_STATE" };
   try {
-    return await store.transaction(async (tx) => {
+    return await store.transaction(async tx => {
       const current = await tx.get<FenceRecord>(KEY);
-      if (!current || current.status !== "pending" || current.operationId !== operationId)
+      if (
+        !current ||
+        current.status !== "pending" ||
+        current.operationId !== operationId
+      )
         return { ok: false, reason: "OPERATION_NOT_CURRENT" };
       const lease: FenceRecord = {
         epoch: current.epoch,
