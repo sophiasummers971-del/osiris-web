@@ -20,10 +20,10 @@ connector calls. No live credentials supplied to tests; no mailbox contents or p
 
 Native PostgreSQL/Docker unavailable; the package-manager setup attempt failed
 because this managed runtime cannot perform its required user/group switching.
-No escalation or network-policy bypass attempted. Tests instead run an in-memory
-PostgreSQL WASM engine, PGlite 0.5.13 / **PostgreSQL 18.6**, with no connection URL,
-files or hosted service. Production is PostgreSQL 17: native PG17/Supabase rehearsal
-is a remaining approval gate, not a demonstrated guarantee.
+No escalation or network-policy bypass attempted. Local tests use an in-memory PostgreSQL WASM engine, PGlite 0.5.13 /
+**PostgreSQL 18.6**, with no connection URL, files or hosted service. The subsequent
+native PostgreSQL 17.6 CI rehearsal is recorded below. Hosted Supabase integration
+remains unverified.
 
 ## Live ownership inventory
 
@@ -129,22 +129,60 @@ identity/role edits, BYPASSRLS mismatches, case-owner movement, append protectio
 real application operator provisioning/upsert, permitted appends and transactional
 rollback on existing conflict. Each test transaction rolls back; engines close.
 
-Final full verify: **220 tests / 35 files**, TypeScript, formatting, boundary and
+Initial full verify: **220 tests / 35 files**, TypeScript, formatting, boundary and
 configuration checks, static migration validation, frontend/Node/Worker builds.
 The draft PR records exact repair SHA and final CI link. This branch starts from
 main, not unmerged PR #61: its 11 Google tests are deliberately not incorporated.
 
+## Native PostgreSQL 17 compatibility rehearsal
+
+Completed on disposable GitHub CI, using the same 26 ownership tests and SQL
+proposal, not an imitation policy evaluator. Tested code commit:
+`18271ea3b623f114f9783b1ba54b9f2f508ae87f`.
+[Evidence run 40831744011](https://github.com/sophiasummers971-del/osiris-web/actions/runs/40831744011):
+
+| Check             | Actual result                                                                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------- |
+| Engine            | PostgreSQL 17.6, Debian 17.6-2.pgdg13+1, native x86_64                                             |
+| Baseline policies | 14 failed / 12 passed; checker confirms both forbidden appends resolved successfully before repair |
+| Repaired SQL      | 26 / 26 ownership tests passed                                                                     |
+| Full repository   | 223 tests / 36 files, full verification passed                                                     |
+| Cleanup           | Native service container stop step succeeded                                                       |
+
+The PostgreSQL image is pinned to its observed digest
+`sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929`.
+
+The added three selection-guard tests reject non-CI use, connection URLs supplied
+as ports, and out-of-range ports before opening a client. The native harness uses
+only loopback, a fixed empty test database and fixed synthetic credentials. Each
+engine instance creates a uniquely named disposable database; cleanup drops only
+that generated database. No production URL, credential or fallback is accepted.
+The standard local suite remains in memory. SQL roles are cluster-wide in native
+PostgreSQL; their expected attributes are checked before reuse.
+
+Native tests use postgres-js and the actual application operator upsert, while
+ordinary roles and a non-superuser BYPASSRLS server role exercise the same allowed
+and denied operations. This demonstrates SQL/driver compatibility, not hosted
+Supabase Auth, PostgREST JWT validation, managed extensions or Hyperdrive behavior.
+
+An initial rehearsal CI run (40831548466) failed before any jobs started: the
+service-port context was incorrectly placed at job scope. Moving it to step scope
+resolved workflow validation. No application defect was inferred from that failure.
+A local intermediate run passed tests but failed formatting; corrected before the
+successful full verification. Final commit and rerun links are recorded in PR #63.
+
 ## Approval gates and remaining gaps
 
 - **Not applied.** Before production: independently review predicates and SQL;
-  rehearse on disposable native PG17/Supabase; test real Auth/PostgREST claims and
+  rehearse the managed Supabase integration; test real Auth/PostgREST claims and
   existing application clients; authorize this exact transaction separately.
 - Recheck live schema/grants/policies and mismatch counts immediately beforehand.
   Confirm no external consumer legitimately writes operator profiles via Data API.
   Lock acquisition/validation cost and rollback timing require staging measurement.
   Snapshot at 06:33 is point-in-time evidence, not permission to apply later.
-- PostgreSQL 18 WASM is real SQL evidence, but not hosted PG17, Hyperdrive, network
-  authentication, concurrent sessions, row-lock timing or restored-backup evidence.
+- Native PG17 SQL and driver compatibility is now demonstrated, but hosted
+  Supabase, Hyperdrive, network authentication, concurrent sessions, row-lock timing
+  and restored-backup behavior remain unverified.
   Relevant fixture tables model the ownership columns/FKs/triggers, not a full
   Supabase bootstrap; Auth-user FK and all unrelated schema details are not modeled.
 - Privileged postgres/BYPASSRLS, independently protected evidence custody, and
