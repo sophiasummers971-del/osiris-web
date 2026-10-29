@@ -39,8 +39,6 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
-    env:
-      OSIRIS_TEST_POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -52,6 +50,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Reproduce accepted cross-case writes before repair
+        env:
+          OSIRIS_TEST_POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
         run: |
           set +e
           OSIRIS_TEST_OWNERSHIP_BASELINE=1 pnpm exec vitest run server/vault-ownership.test.ts --reporter=json --outputFile=/tmp/ownership-baseline.json
@@ -60,4 +60,6 @@ jobs:
           test "$result" -eq 1
           node scripts/verify-ownership-baseline.mjs /tmp/ownership-baseline.json
       - name: Verify repaired ownership on native PostgreSQL 17
+        env:
+          OSIRIS_TEST_POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
         run: pnpm exec vitest run server/vault-ownership.test.ts
