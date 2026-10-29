@@ -97,6 +97,10 @@ both child tables. It never deletes or rewrites evidence to make validation pass
 Constraint validation rejects the old gap; it does not prove tamper-resistant
 custody against the database owner, who can still alter constraints/triggers.
 
+Own-case direct API INSERT remains permitted. A case owner can submit claimed
+audit actions; a sealed hash does not independently prove server authorship. This
+repair enforces ownership, not trusted provenance.
+
 This preserves the application's current single-owner case model. Delegated or
 collaborative case authorship would require a reviewed actor/owner distinction,
 not silently loosening these checks.
