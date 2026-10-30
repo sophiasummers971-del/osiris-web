@@ -2,7 +2,7 @@ name: CAT-START-01 disposable PostgreSQL acceptance
 on:
   pull_request:
     paths:
-      - "scripts/rule-zero/postgres-challenge-store*"
+      - "scripts/rule-zero/postgres-challenge-store*"\n      - "scripts/integration/postgres-challenge-store.integration.mjs"
       - ".github/workflows/cat-challenge-postgres.yml"
   workflow_dispatch:
 permissions:
@@ -42,4 +42,4 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: node --test scripts/rule-zero/postgres-challenge-store.integration.test.mjs
+      - run: node --test scripts/integration/postgres-challenge-store.integration.mjs
