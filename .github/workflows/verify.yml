@@ -24,4 +24,11 @@ jobs:
       - name: Rule Zero decision and provider-probe tests
         run: node --test scripts/rule-zero/*.test.mjs
       - run: pnpm install --frozen-lockfile
+      - name: Temporary staging-doc formatter diagnostic
+        run: |
+          pnpm exec prettier --write docs/security/CAT-START-01-STAGING-ACCEPTANCE.md
+          echo FORMAT_FILE:docs/security/CAT-START-01-STAGING-ACCEPTANCE.md
+          base64 -w 0 docs/security/CAT-START-01-STAGING-ACCEPTANCE.md
+          echo
+          echo FORMAT_END
       - run: pnpm verify
