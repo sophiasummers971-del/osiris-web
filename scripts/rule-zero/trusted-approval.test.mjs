@@ -52,7 +52,10 @@ function harness() {
 test("approved signed receipt admits once and rejects replay", async () => {
   const h = harness();
   assert.equal((await h.gate({ envelope: signed(), expected })).approved, true);
-  assert.equal((await h.gate({ envelope: signed(), expected })).approved, false);
+  assert.equal(
+    (await h.gate({ envelope: signed(), expected })).approved,
+    false
+  );
   assert.equal(h.claims(), 2);
 });
 for (const [name, field, value] of [
