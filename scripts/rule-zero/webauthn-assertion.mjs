@@ -4,7 +4,8 @@ function decode(value) {
   if (typeof value !== "string" || !/^[A-Za-z0-9_-]+$/.test(value))
     throw new Error("INVALID_ENCODING");
   const bytes = Buffer.from(value, "base64url");
-  if (bytes.toString("base64url") !== value) throw new Error("INVALID_ENCODING");
+  if (bytes.toString("base64url") !== value)
+    throw new Error("INVALID_ENCODING");
   return bytes;
 }
 
@@ -38,7 +39,8 @@ export function verifyWebAuthnAssertion({
     )
       return { verified: false, reason: "CHALLENGE_OR_ORIGIN_MISMATCH" };
     const auth = decode(authenticatorData);
-    if (auth.length < 37) return { verified: false, reason: "INVALID_AUTH_DATA" };
+    if (auth.length < 37)
+      return { verified: false, reason: "INVALID_AUTH_DATA" };
     const expectedHash = createHash("sha256").update(rpId).digest();
     if (!auth.subarray(0, 32).equals(expectedHash))
       return { verified: false, reason: "RP_MISMATCH" };
