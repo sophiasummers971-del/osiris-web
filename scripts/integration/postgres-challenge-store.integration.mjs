@@ -31,7 +31,14 @@ test("real PostgreSQL: independent connections atomically consume once", async (
     )`);
     const adapter = client =>
       createPostgresChallengeStore({
-        query: async (sql, params) => ({ rows: await client.unsafe(sql, params) }),
+        query: async (sql, params) => ({
+          rows: await client.unsafe(
+            sql,
+            sql.includes("INSERT INTO")
+              ? [params[0], postgres.json(JSON.parse(params[1]))]
+              : params
+          ),
+        }),
       });
     const a = adapter(first);
     const b = adapter(second);
