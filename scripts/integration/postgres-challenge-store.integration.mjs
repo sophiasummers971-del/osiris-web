@@ -18,6 +18,8 @@ const options = {
   username: process.env.PGUSER,
   password: process.env.PGPASSWORD,
   max: 3,
+  connect_timeout: 3,
+  idle_timeout: 3,
 };
 test("real PostgreSQL: independent connections atomically consume once", async () => {
   const admin = postgres(options);
@@ -58,7 +60,7 @@ test("real PostgreSQL: independent connections atomically consume once", async (
   }
 });
 
-test("real PostgreSQL: service grants are narrow and untrusted role is denied", async () => {
+test("real PostgreSQL: service grants are narrow and untrusted role is denied", { timeout: 20000 }, async () => {
   const admin = postgres(options);
   let service;
   let untrusted;
@@ -108,8 +110,8 @@ test("real PostgreSQL: service grants are narrow and untrusted role is denied", 
     );
     assert.deepEqual(await store.take("restricted-key"), { ownerId: "synthetic_owner" });
   } finally {
-    if (service) await service.end();
-    if (untrusted) await untrusted.end();
+    if (service) await service.end({ timeout: 2 });
+    if (untrusted) await untrusted.end({ timeout: 2 });
     await admin.unsafe("DROP TABLE IF EXISTS osiris_webauthn_challenges");
     await admin.unsafe("DROP ROLE IF EXISTS cat_approval_runner");
     await admin.unsafe("DROP ROLE IF EXISTS cat_untrusted");
