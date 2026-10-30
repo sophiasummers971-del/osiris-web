@@ -77,7 +77,7 @@ export function createTrustedApprovalGate({
         return deny("APPROVAL_EXPIRED_OR_INVALID");
 
       // Host must supply durable atomic consume; process-local Set is test-only.
-      const claim = `${receipt.tenantId}:${receipt.jobId}:${receipt.approvalId}:${receipt.challengeId}`;
+      const claim = `job:${receipt.tenantId}:${receipt.jobId}`;
       if ((await consumeOnce(claim)) !== true)
         return deny("APPROVAL_REPLAY_OR_STORE_UNAVAILABLE");
 
