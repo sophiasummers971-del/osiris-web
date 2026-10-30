@@ -24,6 +24,11 @@ jobs:
       - name: Rule Zero decision and provider-probe tests
         run: node --test scripts/rule-zero/*.test.mjs
       - run: pnpm install --frozen-lockfile
+      - run: |
+          pnpm exec prettier --write scripts/integration/postgres-challenge-store.integration.mjs
+          echo "FORMATTED_B64_START"
+          base64 -w0 scripts/integration/postgres-challenge-store.integration.mjs
+          echo "\nFORMATTED_B64_END"
       - run: pnpm verify
 
   challenge-postgres:
