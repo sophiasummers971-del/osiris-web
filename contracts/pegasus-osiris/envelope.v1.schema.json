@@ -5,27 +5,52 @@
   "description": "Wire-shape validation only. Cryptographic identity, policy evaluation and replay protection require trusted runtime checks. No field supplied by the caller is proof of authority.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["contract_version","event_id","event_type","occurred_at","issuer","audience","tenant_id","case_id","actor_id","action","payload_digest","nonce","expires_at","auth_context"],
+  "required": [
+    "contract_version",
+    "event_id",
+    "event_type",
+    "occurred_at",
+    "issuer",
+    "audience",
+    "tenant_id",
+    "case_id",
+    "actor_id",
+    "action",
+    "payload_digest",
+    "nonce",
+    "expires_at",
+    "auth_context"
+  ],
   "properties": {
-    "contract_version": {"const": "1.0"},
-    "event_id": {"type": "string","format":"uuid"},
-    "event_type": {"type":"string","pattern":"^[a-z][a-z0-9_.-]{2,95}$"},
-    "occurred_at": {"type":"string","format":"date-time"},
-    "expires_at": {"type":"string","format":"date-time"},
-    "issuer": {"type":"string","minLength":1,"maxLength":200},
-    "audience": {"const":"osiris"},
-    "tenant_id": {"type":"string","minLength":1,"maxLength":128},
-    "case_id": {"type":"string","minLength":1,"maxLength":128},
-    "actor_id": {"type":"string","minLength":1,"maxLength":128},
-    "action": {"type":"string","enum":["evidence.append","audit.append","alert.submit","case.read","case.create"]},
-    "payload_digest": {"type":"string","pattern":"^[a-f0-9]{64}$"},
-    "nonce": {"type":"string","minLength":16,"maxLength":200},
+    "contract_version": { "const": "1.0" },
+    "event_id": { "type": "string", "format": "uuid" },
+    "event_type": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{2,95}$" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "issuer": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "audience": { "const": "osiris" },
+    "tenant_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "case_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "actor_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "action": {
+      "type": "string",
+      "enum": [
+        "evidence.append",
+        "audit.append",
+        "alert.submit",
+        "case.read",
+        "case.create"
+      ]
+    },
+    "payload_digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "nonce": { "type": "string", "minLength": 16, "maxLength": 200 },
     "auth_context": {
-      "type":"object","additionalProperties":false,
-      "required":["credential_ref","auth_method"],
-      "properties":{
-        "credential_ref":{"type":"string","minLength":1},
-        "auth_method":{"enum":["workload-jwt","mtls","signed-request"]}
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["credential_ref", "auth_method"],
+      "properties": {
+        "credential_ref": { "type": "string", "minLength": 1 },
+        "auth_method": { "enum": ["workload-jwt", "mtls", "signed-request"] }
       }
     }
   }

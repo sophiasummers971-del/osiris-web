@@ -22,24 +22,25 @@ Never accept `service_role` or database superuser credentials as client credenti
 Results: `ALLOW`, `DENY`, `QUARANTINE`. Unknown version, action, event type, identity, tenant, case or policy => `DENY`; missing evidence or dependency failures => `QUARANTINE` or `DENY`, never `ALLOW`. A quarantine receipt carries a correlation ID and non-sensitive reason code; it is **not** an accepted append. No execution occurs until a separately approved replay passes fresh admission and idempotency checks.
 
 Two independent gates:
+
 1. **Shape/transport admission** at Pegasus: required fields, exact versions, authenticated issuer/audience, signed digest, TTL, replay, route policy and resource budget.
 2. **Resource authorization** at OSIRIS: look up tenant/case/actor ownership and allowed action in trusted tables, reject mismatches even if Pegasus issued ALLOW. Database constraints and immutable event controls remain in effect.
 
 ### Event policy catalogue (review required)
 
-| Category | Event/action | Default v1 outcome | Reason |
-| --- | --- | --- | --- |
-| Case reads | `case.read` | DENY until explicit actor+case policy | No implicit gateway permission |
-| Case creation | `case.create` | DENY until explicit capability | Avoid unbounded case creation |
-| Evidence append | `evidence.append` | DENY until verified case ownership + trusted provenance | PR #63 enforces ownership only |
-| Audit append | `audit.append` | DENY until trusted authorship + policy | Self-authored audit is not trustworthy server provenance |
-| Alert submission | `alert.submit` | DENY until Pegasus alert ownership/provenance review | Pegasus-track decision outstanding |
-| Unrecognized/new types | any | DENY | Explicit versioned inclusion required |
-| Replay/suspicious sequence | any | QUARANTINE without side effects | Independent security investigation |
-| Unknown actor/tenant/case | any | DENY | No implicit fallback |
-| Upstream/downstream unavailable | any | QUARANTINE or DENY without side effects | Never allow on timeout |
+| Category                        | Event/action      | Default v1 outcome                                      | Reason                                                   |
+| ------------------------------- | ----------------- | ------------------------------------------------------- | -------------------------------------------------------- |
+| Case reads                      | `case.read`       | DENY until explicit actor+case policy                   | No implicit gateway permission                           |
+| Case creation                   | `case.create`     | DENY until explicit capability                          | Avoid unbounded case creation                            |
+| Evidence append                 | `evidence.append` | DENY until verified case ownership + trusted provenance | PR #63 enforces ownership only                           |
+| Audit append                    | `audit.append`    | DENY until trusted authorship + policy                  | Self-authored audit is not trustworthy server provenance |
+| Alert submission                | `alert.submit`    | DENY until Pegasus alert ownership/provenance review    | Pegasus-track decision outstanding                       |
+| Unrecognized/new types          | any               | DENY                                                    | Explicit versioned inclusion required                    |
+| Replay/suspicious sequence      | any               | QUARANTINE without side effects                         | Independent security investigation                       |
+| Unknown actor/tenant/case       | any               | DENY                                                    | No implicit fallback                                     |
+| Upstream/downstream unavailable | any               | QUARANTINE or DENY without side effects                 | Never allow on timeout                                   |
 
-All application feature traffic is *disabled by default* under this draft contract. The table does not claim production policies have changed.
+All application feature traffic is _disabled by default_ under this draft contract. The table does not claim production policies have changed.
 
 ### Evolution and event exclusion
 
@@ -53,6 +54,7 @@ All application feature traffic is *disabled by default* under this draft contra
 ## Required negative/positive integration tests
 
 Run on isolated environment with synthetic identities and cases only:
+
 1. valid credential + permitted same-case event succeeds exactly once, with recorded decision and DB constraints intact
 2. same transport credential with another tenant/case/actor is denied at OSIRIS, including privileged gateway path
 3. fake issuer, mismatched audience or environment, expired/not-yet-valid timestamp and altered body digest are denied
@@ -67,6 +69,7 @@ Run on isolated environment with synthetic identities and cases only:
 ## Release gate
 
 Require separate receipts:
+
 - `SCHEMA_BOOTSTRAP_VERIFIED`: clean fresh database from reviewed baseline and manifest, catalog diff accepted
 - `HOSTED_INTEGRATION_VERIFIED`: hosted Auth/PostgREST + ownership allowed/denied cases, no production credentials
 - `BRIDGE_CONTRACT_VERIFIED`: actual Pegasus and OSIRIS releases exchange signed events and pass negative cases
@@ -79,7 +82,7 @@ Require separate receipts:
 
 Cloudflare Access establishes a verified identity at the protected application boundary. **Access admission is not transaction-specific approval**. Validate the Access JWT signature and expected issuer, audience, expiry and authenticated subject server-side; never trust an unverified `Cf-Access-Jwt-Assertion` header. Access service tokens prove machine identity, not a person's approval. Linked-app tokens may transport identity between protected applications but do not confer resource authority.
 
-For production mutations, privileged operations and separately classified high-risk events, introduce a distinct final `TRUSTED_APPROVAL_VERIFIED` decision *before execution*, after Pegasus and OSIRIS independently pass their checks. Bind the authorization receipt to the exact canonical payload digest, action, tenant, case, target service/environment, approved actor, verified Access subject, policy/contract version, expiry, nonce and a durable single-use approval ID. A receipt is invalid after payload edits, policy revocation, expiry or replay. Persist consumption atomically with the intended operation or prove idempotent recovery.
+For production mutations, privileged operations and separately classified high-risk events, introduce a distinct final `TRUSTED_APPROVAL_VERIFIED` decision _before execution_, after Pegasus and OSIRIS independently pass their checks. Bind the authorization receipt to the exact canonical payload digest, action, tenant, case, target service/environment, approved actor, verified Access subject, policy/contract version, expiry, nonce and a durable single-use approval ID. A receipt is invalid after payload edits, policy revocation, expiry or replay. Persist consumption atomically with the intended operation or prove idempotent recovery.
 
 Rejection/absence of approval => DENY; verification service outage, stale policy or unresolved concurrency => QUARANTINE without executing. Explicitly disallow self-approval by the initiating agent/service and require separation of duties for sensitive actions. Normal low-risk read-only events may omit per-action human approval only if a separately reviewed, bounded policy explicitly permits them; there is no blanket global approval for future unknown events.
 
