@@ -87,3 +87,21 @@ jobs:
           node -e 'JSON.parse(require("node:fs").readFileSync("contracts/pegasus-osiris/envelope.v1.schema.json", "utf8"))'
           echo "SECURITY_INTEGRATION_UNVERIFIED: contract is draft, not enforced." >> "$GITHUB_STEP_SUMMARY"
           echo "TRUSTED_APPROVAL_UNVERIFIED: Cloudflare Access approval not exercised." >> "$GITHUB_STEP_SUMMARY"
+
+  release-readiness:
+    name: Release acceptance (independent, fail-closed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [formatting, code, database-static, security-evidence]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Refuse release without independently verified evidence
+        shell: bash
+        run: |
+          echo "RELEASE_BLOCKED: static CI passing is not a release authorization." >> "$GITHUB_STEP_SUMMARY"
+          echo "Required: schema bootstrap, hosted Auth, Pegasus bridge, Rule Zero, trusted-person approval and production change authorization." >> "$GITHUB_STEP_SUMMARY"
+          node scripts/release-acceptance.mjs
