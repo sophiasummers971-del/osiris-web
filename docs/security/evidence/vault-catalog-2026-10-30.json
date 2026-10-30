@@ -1,0 +1,593 @@
+{
+  "source": "Read-only production catalog, 2026-10-30, no user rows",
+  "limitations": "Partial Vault catalog only. Not an executable bootstrap or full pg_dump; excludes Auth/Storage dependencies, owner roles, extensions and other public tables. Do not apply to production.",
+  "project_ref": "pussbwanjsrvitaxzsnh",
+  "columns": [
+    {
+      "type": "int8",
+      "table": "case_audit_events",
+      "column": "id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "int8",
+      "table": "case_audit_events",
+      "column": "case_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "int8",
+      "table": "case_audit_events",
+      "column": "operator_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "case_audit_events",
+      "column": "action",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "jsonb",
+      "table": "case_audit_events",
+      "column": "details",
+      "default": "'{}'::jsonb",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamptz",
+      "table": "case_audit_events",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "case_audit_events",
+      "column": "previous_event_hash",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "case_audit_events",
+      "column": "event_hash",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "int8",
+      "table": "evidence_records",
+      "column": "id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "int8",
+      "table": "evidence_records",
+      "column": "case_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "int8",
+      "table": "evidence_records",
+      "column": "owner_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "label",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "source_type",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "source_reference",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "content_hash",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "notes",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "timestamptz",
+      "table": "evidence_records",
+      "column": "captured_at",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamptz",
+      "table": "evidence_records",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "storage_bucket",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "storage_path",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "original_filename",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "evidence_records",
+      "column": "mime_type",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "int8",
+      "table": "evidence_records",
+      "column": "file_size_bytes",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "timestamptz",
+      "table": "evidence_records",
+      "column": "uploaded_at",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "int8",
+      "table": "osiris_operators",
+      "column": "id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "osiris_operators",
+      "column": "external_id",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "uuid",
+      "table": "osiris_operators",
+      "column": "auth_user_id",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "osiris_operators",
+      "column": "display_name",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "osiris_operators",
+      "column": "email",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "osiris_operators",
+      "column": "role",
+      "default": "'operator'::text",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamptz",
+      "table": "osiris_operators",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamptz",
+      "table": "osiris_operators",
+      "column": "updated_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "int8",
+      "table": "security_cases",
+      "column": "id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "int8",
+      "table": "security_cases",
+      "column": "owner_id",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "security_cases",
+      "column": "title",
+      "default": null,
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "security_cases",
+      "column": "summary",
+      "default": null,
+      "nullable": "YES"
+    },
+    {
+      "type": "text",
+      "table": "security_cases",
+      "column": "severity",
+      "default": "'medium'::text",
+      "nullable": "NO"
+    },
+    {
+      "type": "text",
+      "table": "security_cases",
+      "column": "status",
+      "default": "'open'::text",
+      "nullable": "NO"
+    },
+    {
+      "type": "int4",
+      "table": "security_cases",
+      "column": "confidence",
+      "default": "50",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamptz",
+      "table": "security_cases",
+      "column": "created_at",
+      "default": "now()",
+      "nullable": "NO"
+    },
+    {
+      "type": "timestamptz",
+      "table": "security_cases",
+      "column": "updated_at",
+      "default": "now()",
+      "nullable": "NO"
+    }
+  ],
+  "constraints": [
+    {
+      "name": "case_audit_events_case_id_fkey",
+      "table": "case_audit_events",
+      "definition": "FOREIGN KEY (case_id) REFERENCES security_cases(id)"
+    },
+    {
+      "name": "case_audit_events_event_hash_key",
+      "table": "case_audit_events",
+      "definition": "UNIQUE (event_hash)"
+    },
+    {
+      "name": "case_audit_events_operator_id_fkey",
+      "table": "case_audit_events",
+      "definition": "FOREIGN KEY (operator_id) REFERENCES osiris_operators(id)"
+    },
+    {
+      "name": "case_audit_events_pkey",
+      "table": "case_audit_events",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "evidence_hash_format",
+      "table": "evidence_records",
+      "definition": "CHECK (((content_hash IS NULL) OR (content_hash ~ '^[0-9a-f]{64}$'::text)))"
+    },
+    {
+      "name": "evidence_records_case_id_fkey",
+      "table": "evidence_records",
+      "definition": "FOREIGN KEY (case_id) REFERENCES security_cases(id)"
+    },
+    {
+      "name": "evidence_records_file_size_bytes_check",
+      "table": "evidence_records",
+      "definition": "CHECK (((file_size_bytes IS NULL) OR (file_size_bytes >= 0)))"
+    },
+    {
+      "name": "evidence_records_owner_id_fkey",
+      "table": "evidence_records",
+      "definition": "FOREIGN KEY (owner_id) REFERENCES osiris_operators(id)"
+    },
+    {
+      "name": "evidence_records_pkey",
+      "table": "evidence_records",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "evidence_records_source_type_check",
+      "table": "evidence_records",
+      "definition": "CHECK ((source_type = ANY (ARRAY['observation'::text, 'document'::text, 'message'::text, 'system'::text, 'external'::text])))"
+    },
+    {
+      "name": "evidence_records_storage_path_key",
+      "table": "evidence_records",
+      "definition": "UNIQUE (storage_path)"
+    },
+    {
+      "name": "osiris_operators_auth_user_id_fkey",
+      "table": "osiris_operators",
+      "definition": "FOREIGN KEY (auth_user_id) REFERENCES auth.users(id)"
+    },
+    {
+      "name": "osiris_operators_auth_user_id_key",
+      "table": "osiris_operators",
+      "definition": "UNIQUE (auth_user_id)"
+    },
+    {
+      "name": "osiris_operators_external_id_key",
+      "table": "osiris_operators",
+      "definition": "UNIQUE (external_id)"
+    },
+    {
+      "name": "osiris_operators_pkey",
+      "table": "osiris_operators",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "osiris_operators_role_check",
+      "table": "osiris_operators",
+      "definition": "CHECK ((role = ANY (ARRAY['operator'::text, 'admin'::text])))"
+    },
+    {
+      "name": "security_cases_confidence_check",
+      "table": "security_cases",
+      "definition": "CHECK (((confidence >= 0) AND (confidence <= 100)))"
+    },
+    {
+      "name": "security_cases_owner_id_fkey",
+      "table": "security_cases",
+      "definition": "FOREIGN KEY (owner_id) REFERENCES osiris_operators(id)"
+    },
+    {
+      "name": "security_cases_pkey",
+      "table": "security_cases",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "security_cases_severity_check",
+      "table": "security_cases",
+      "definition": "CHECK ((severity = ANY (ARRAY['low'::text, 'medium'::text, 'high'::text, 'critical'::text])))"
+    },
+    {
+      "name": "security_cases_status_check",
+      "table": "security_cases",
+      "definition": "CHECK ((status = ANY (ARRAY['open'::text, 'monitoring'::text, 'contained'::text, 'closed'::text])))"
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "INSERT",
+      "name": "case_audit_events_insert_own",
+      "check": "(operator_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": [ "authenticated" ],
+      "table": "case_audit_events",
+      "using": null
+    },
+    {
+      "cmd": "SELECT",
+      "name": "case_audit_events_select_own",
+      "check": null,
+      "roles": [ "authenticated" ],
+      "table": "case_audit_events",
+      "using": "(operator_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "INSERT",
+      "name": "evidence_records_insert_own",
+      "check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": [ "authenticated" ],
+      "table": "evidence_records",
+      "using": null
+    },
+    {
+      "cmd": "SELECT",
+      "name": "evidence_records_select_own",
+      "check": null,
+      "roles": [ "authenticated" ],
+      "table": "evidence_records",
+      "using": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "DELETE",
+      "name": "osiris_operators_delete_own",
+      "check": null,
+      "roles": [ "authenticated" ],
+      "table": "osiris_operators",
+      "using": "(auth_user_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "INSERT",
+      "name": "osiris_operators_insert_own",
+      "check": "(auth_user_id = ( SELECT auth.uid() AS uid))",
+      "roles": [ "authenticated" ],
+      "table": "osiris_operators",
+      "using": null
+    },
+    {
+      "cmd": "SELECT",
+      "name": "osiris_operators_select_own",
+      "check": null,
+      "roles": [ "authenticated" ],
+      "table": "osiris_operators",
+      "using": "(auth_user_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "UPDATE",
+      "name": "osiris_operators_update_own",
+      "check": "(auth_user_id = ( SELECT auth.uid() AS uid))",
+      "roles": [ "authenticated" ],
+      "table": "osiris_operators",
+      "using": "(auth_user_id = ( SELECT auth.uid() AS uid))"
+    },
+    {
+      "cmd": "DELETE",
+      "name": "security_cases_delete_own",
+      "check": null,
+      "roles": [ "authenticated" ],
+      "table": "security_cases",
+      "using": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "INSERT",
+      "name": "security_cases_insert_own",
+      "check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": [ "authenticated" ],
+      "table": "security_cases",
+      "using": null
+    },
+    {
+      "cmd": "SELECT",
+      "name": "security_cases_select_own",
+      "check": null,
+      "roles": [ "authenticated" ],
+      "table": "security_cases",
+      "using": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    },
+    {
+      "cmd": "UPDATE",
+      "name": "security_cases_update_own",
+      "check": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))",
+      "roles": [ "authenticated" ],
+      "table": "security_cases",
+      "using": "(owner_id IN ( SELECT osiris_operators.id\n   FROM osiris_operators\n  WHERE (osiris_operators.auth_user_id = ( SELECT auth.uid() AS uid))))"
+    }
+  ],
+  "triggers": [
+    {
+      "name": "protect_case_audit_events",
+      "table": "case_audit_events",
+      "definition": "CREATE TRIGGER protect_case_audit_events BEFORE DELETE OR UPDATE ON public.case_audit_events FOR EACH ROW EXECUTE FUNCTION prevent_vault_mutation()"
+    },
+    {
+      "name": "seal_case_audit_event",
+      "table": "case_audit_events",
+      "definition": "CREATE TRIGGER seal_case_audit_event BEFORE INSERT ON public.case_audit_events FOR EACH ROW EXECUTE FUNCTION seal_audit_event()"
+    },
+    {
+      "name": "protect_evidence_records",
+      "table": "evidence_records",
+      "definition": "CREATE TRIGGER protect_evidence_records BEFORE DELETE OR UPDATE ON public.evidence_records FOR EACH ROW EXECUTE FUNCTION prevent_vault_mutation()"
+    }
+  ],
+  "functions": [
+    {
+      "name": "prevent_vault_mutation",
+      "definition": "CREATE OR REPLACE FUNCTION public.prevent_vault_mutation()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nbegin\n  raise exception '% records are append-only', tg_table_name;\nend;\n$function$\n"
+    },
+    {
+      "name": "seal_audit_event",
+      "definition": "CREATE OR REPLACE FUNCTION public.seal_audit_event()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nbegin\n  perform pg_advisory_xact_lock(new.case_id);\n\n  select event_hash\n    into new.previous_event_hash\n  from public.case_audit_events\n  where case_id = new.case_id\n  order by id desc\n  limit 1;\n\n  new.event_hash := encode(\n    extensions.digest(\n      concat_ws(\n        '|',\n        new.case_id::text,\n        new.operator_id::text,\n        new.action,\n        new.details::text,\n        coalesce(new.previous_event_hash, ''),\n        new.created_at::text\n      ),\n      'sha256'\n    ),\n    'hex'\n  );\n\n  return new;\nend;\n$function$\n"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "case_audit_events_case_idx",
+      "table": "case_audit_events",
+      "definition": "CREATE INDEX case_audit_events_case_idx ON public.case_audit_events USING btree (case_id, created_at DESC)"
+    },
+    {
+      "name": "case_audit_events_event_hash_key",
+      "table": "case_audit_events",
+      "definition": "CREATE UNIQUE INDEX case_audit_events_event_hash_key ON public.case_audit_events USING btree (event_hash)"
+    },
+    {
+      "name": "case_audit_events_operator_idx",
+      "table": "case_audit_events",
+      "definition": "CREATE INDEX case_audit_events_operator_idx ON public.case_audit_events USING btree (operator_id)"
+    },
+    {
+      "name": "case_audit_events_pkey",
+      "table": "case_audit_events",
+      "definition": "CREATE UNIQUE INDEX case_audit_events_pkey ON public.case_audit_events USING btree (id)"
+    },
+    {
+      "name": "evidence_records_case_idx",
+      "table": "evidence_records",
+      "definition": "CREATE INDEX evidence_records_case_idx ON public.evidence_records USING btree (case_id)"
+    },
+    {
+      "name": "evidence_records_owner_idx",
+      "table": "evidence_records",
+      "definition": "CREATE INDEX evidence_records_owner_idx ON public.evidence_records USING btree (owner_id)"
+    },
+    {
+      "name": "evidence_records_pkey",
+      "table": "evidence_records",
+      "definition": "CREATE UNIQUE INDEX evidence_records_pkey ON public.evidence_records USING btree (id)"
+    },
+    {
+      "name": "evidence_records_storage_path_key",
+      "table": "evidence_records",
+      "definition": "CREATE UNIQUE INDEX evidence_records_storage_path_key ON public.evidence_records USING btree (storage_path)"
+    },
+    {
+      "name": "osiris_operators_auth_user_id_key",
+      "table": "osiris_operators",
+      "definition": "CREATE UNIQUE INDEX osiris_operators_auth_user_id_key ON public.osiris_operators USING btree (auth_user_id)"
+    },
+    {
+      "name": "osiris_operators_external_id_key",
+      "table": "osiris_operators",
+      "definition": "CREATE UNIQUE INDEX osiris_operators_external_id_key ON public.osiris_operators USING btree (external_id)"
+    },
+    {
+      "name": "osiris_operators_pkey",
+      "table": "osiris_operators",
+      "definition": "CREATE UNIQUE INDEX osiris_operators_pkey ON public.osiris_operators USING btree (id)"
+    },
+    {
+      "name": "security_cases_owner_idx",
+      "table": "security_cases",
+      "definition": "CREATE INDEX security_cases_owner_idx ON public.security_cases USING btree (owner_id)"
+    },
+    {
+      "name": "security_cases_pkey",
+      "table": "security_cases",
+      "definition": "CREATE UNIQUE INDEX security_cases_pkey ON public.security_cases USING btree (id)"
+    }
+  ]
+}

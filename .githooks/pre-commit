@@ -1,0 +1,13 @@
+#!/bin/sh
+# Opt-in: pnpm hooks:install. Checks formatting before a local commit.
+# CI independently checks the committed tree for connector/API-based commits.
+set -eu
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "pnpm required for pre-commit formatting verification" >&2
+  exit 1
+fi
+git diff --cached --check
+if ! pnpm exec prettier --check .; then
+  echo "Formatting gate failed: run pnpm format, review and stage the changes." >&2
+  exit 1
+fi

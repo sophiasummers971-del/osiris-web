@@ -9,7 +9,25 @@ concurrency:
   group: verify-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  verify:
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: VERIFY_FORMAT_FAILED if formatting differs
+        run: pnpm format:check
+
+  code:
+    name: Code, tests and builds
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -22,4 +40,68 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm verify
+      - name: Code boundaries and configuration
+        run: pnpm lint && pnpm config:check
+      - name: TypeScript
+        run: pnpm check
+      - name: Unit tests
+        run: pnpm test
+      - name: Node and frontend build
+        run: pnpm build
+      - name: Cloudflare Worker build
+        run: pnpm build:worker
+
+  database-static:
+    name: Database migration manifest (static only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Migration manifest integrity
+        run: pnpm db:validate
+      - name: Mark incomplete bootstrap explicitly
+        run: |
+          echo "BOOTSTRAP_INCOMPLETE: static validation is not schema replay." >> "$GITHUB_STEP_SUMMARY"
+          echo "HOSTED_INTEGRATION_UNVERIFIED: no hosted database or Auth tests run." >> "$GITHUB_STEP_SUMMARY"
+
+  security-evidence:
+    name: Security contract inventory (not acceptance)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check reviewed draft contract files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s contracts/pegasus-osiris/CONTRACT-v1.md
+          test -s contracts/pegasus-osiris/envelope.v1.schema.json
+          node -e 'JSON.parse(require("node:fs").readFileSync("contracts/pegasus-osiris/envelope.v1.schema.json", "utf8"))'
+          echo "SECURITY_INTEGRATION_UNVERIFIED: contract is draft, not enforced." >> "$GITHUB_STEP_SUMMARY"
+          echo "TRUSTED_APPROVAL_UNVERIFIED: Cloudflare Access approval not exercised." >> "$GITHUB_STEP_SUMMARY"
+
+  release-readiness:
+    name: Release readiness evidence (not approval)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [formatting, code, database-static, security-evidence]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Refuse release without independently verified evidence
+        shell: bash
+        run: |
+          echo "RELEASE_BLOCKED: static CI passing is not a release authorization." >> "$GITHUB_STEP_SUMMARY"
+          echo "Required: schema bootstrap, hosted Auth, Pegasus bridge, Rule Zero, trusted-person approval and production change authorization." >> "$GITHUB_STEP_SUMMARY"
+          echo "Status: BLOCKED / UNVERIFIED. Release acceptance has NOT been granted." >> "$GITHUB_STEP_SUMMARY"
