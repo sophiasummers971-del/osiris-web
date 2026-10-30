@@ -22,5 +22,6 @@ if (!/^postgres(?:ql)?:$/.test(url.protocol) ||
 command -v psql >/dev/null || { echo "psql unavailable" >&2; exit 2; }
 PGOPTIONS="-c default_transaction_read_only=on" \
   psql "$OSIRIS_STAGING_DATABASE_URL" -X -v ON_ERROR_STOP=1 \
-    -f scripts/sql/staging-vault-preflight.sql
-echo "Vault catalog presence only: hosted Auth/PostgREST still UNVERIFIED."
+    -f scripts/sql/staging-vault-preflight.sql \
+    -f scripts/sql/staging-complete-catalog-preflight.sql
+echo "Vault and 12-table catalogue minima only: hosted Auth/PostgREST still UNVERIFIED."
