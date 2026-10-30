@@ -1,16 +1,13 @@
 #!/bin/sh
-# Opt-in: pnpm hooks:install. Never modifies production services.
+# Opt-in: pnpm hooks:install. Checks formatting before a local commit.
+# CI independently checks the committed tree for connector/API-based commits.
 set -eu
 if ! command -v pnpm >/dev/null 2>&1; then
   echo "pnpm required for pre-commit formatting verification" >&2
   exit 1
 fi
-changed="$(git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.tsx' '*.js' '*.mjs' '*.json' '*.md' '*.css' '*.yaml' '*.yml')"
-[ -z "$changed" ] && exit 0
-# Check staged contents in a temporary git index snapshot, so unstaged work
-# cannot disguise a formatting failure. This hook intentionally does not
-# rewrite files or auto-stage any changes.
-if ! pnpm exec prettier --check $changed; then
-  echo "Formatting gate failed: run pnpm exec prettier --write <files>, then re-stage." >&2
+git diff --cached --check
+if ! pnpm exec prettier --check .; then
+  echo "Formatting gate failed: run pnpm format, review and stage the changes." >&2
   exit 1
 fi
