@@ -9,7 +9,7 @@
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
-    "hooks:install": "git config core.hooksPath .githooks",
+    "hooks:install": "chmod +x .githooks/pre-commit && git config core.hooksPath .githooks",
     "test": "vitest run",
     "format:check": "prettier --check .",
     "db:validate": "node scripts/validate-migrations.mjs",
