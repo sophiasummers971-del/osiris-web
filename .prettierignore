@@ -33,3 +33,6 @@ pnpm-lock.yaml
 # OS files
 .DS_Store
 Thumbs.db
+
+# Immutable raw read-only production catalogue evidence (do not reflow)
+docs/security/evidence/vault-catalog-2026-10-30.json
