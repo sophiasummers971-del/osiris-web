@@ -24,13 +24,4 @@ jobs:
       - name: Rule Zero decision and provider-probe tests
         run: node --test scripts/rule-zero/*.test.mjs
       - run: pnpm install --frozen-lockfile
-      - name: Temporary formatting diagnostics (draft branch only)
-        run: |
-          pnpm exec prettier --write docs/security/CAT-START-01-HUMAN-APPROVAL-BOUNDARY.md scripts/rule-zero/trusted-approval.mjs scripts/rule-zero/trusted-approval.test.mjs
-          for file in docs/security/CAT-START-01-HUMAN-APPROVAL-BOUNDARY.md scripts/rule-zero/trusted-approval.mjs scripts/rule-zero/trusted-approval.test.mjs; do
-            echo "FORMAT_FILE:$file"
-            base64 -w 0 "$file"
-            echo
-            echo FORMAT_END
-          done
       - run: pnpm verify
