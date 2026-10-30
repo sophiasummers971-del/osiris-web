@@ -98,8 +98,9 @@ for (const acknowledgment of [false, undefined]) {
       audit: async event =>
         event.event === "ADMISSION_ATTEMPT" ? true : acknowledgment,
     });
-    assert.equal((await x.gate.submit(job)).light, "RED");
-    assert.equal((await x.gate.submit(job)).decision, "EFFECT_UNKNOWN_RECONCILE");
+    const first = await x.gate.submit(job);
+    assert.equal(first.light, "RED");
+    assert.equal(first.decision, "EFFECT_UNKNOWN_RECONCILE");
     assert.equal(x.calls(), 1); // Launch already happened; audit failure cannot undo it.
     assert.equal((await x.gate.submit(job)).light, "RED");
     assert.equal(x.calls(), 1);
