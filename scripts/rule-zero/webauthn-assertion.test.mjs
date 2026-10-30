@@ -19,15 +19,15 @@ function assertion(options = {}) {
   };
   const clientBytes = Buffer.from(JSON.stringify(data));
   const auth = Buffer.alloc(37);
-  createHash("sha256").update(options.rpId || rpId).digest().copy(auth);
+  createHash("sha256")
+    .update(options.rpId || rpId)
+    .digest()
+    .copy(auth);
   auth[32] = options.flags ?? 0x05;
   auth.writeUInt32BE(options.counter ?? 2, 33);
   const signature = sign(
     "sha256",
-    Buffer.concat([
-      auth,
-      createHash("sha256").update(clientBytes).digest(),
-    ]),
+    Buffer.concat([auth, createHash("sha256").update(clientBytes).digest()]),
     options.key || privateKey
   );
   return {
@@ -56,10 +56,7 @@ for (const [label, override] of [
   ["counter rollback", { counter: 1 }],
 ]) {
   test(label + " rejects", () => {
-    assert.equal(
-      verifyWebAuthnAssertion(assertion(override)).verified,
-      false
-    );
+    assert.equal(verifyWebAuthnAssertion(assertion(override)).verified, false);
   });
 }
 test("forged credential signature rejects", () => {
