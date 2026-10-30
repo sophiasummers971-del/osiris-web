@@ -10,8 +10,8 @@ out="${1:-./osiris-public-schema-review.sql}"
 if [[ -e "$out" ]]; then echo "Refusing to overwrite existing output" >&2; exit 2; fi
 case "$out" in *.sql) ;; *) echo 'Output must be a .sql review file' >&2; exit 2;; esac
 # No data, no auth.users or storage rows. Public schema only, not a complete
-# Supabase bootstrap: review role/extension/auth dependencies separately.
-pg_dump --dbname="$OSIRIS_SCHEMA_EXPORT_URL" --schema-only --no-owner --no-privileges \
+# Supabase bootstrap: review owner/extension/auth dependencies separately. Grants retained for review.
+pg_dump --dbname="$OSIRIS_SCHEMA_EXPORT_URL" --schema-only --no-owner \
   --schema=public --file="$out"
 chmod 600 "$out"
 echo "Candidate written locally for REVIEW ONLY. Do not commit unreviewed export."
