@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
-# Fail-closed staging import preflight. Never connects to production.
+# Read-only staging-only preflight; never applies a migration or restores schema.
 set -Eeuo pipefail
-: "${OSIRIS_STAGING_DATABASE_URL:?Set an isolated staging database URL}"
-: "${OSIRIS_EXPECTED_STAGING_REF:?Set the isolated Supabase project ref}"
-: "${OSIRIS_ACTUAL_STAGING_REF:?Set the actual connection's independently verified project ref}"
-if [[ "${OSIRIS_EXPECTED_STAGING_REF}" != "${OSIRIS_ACTUAL_STAGING_REF}" ]]; then
-  echo "BLOCKED: staging project identity mismatch" >&2
+: "${OSIRIS_STAGING_DATABASE_URL:?Missing staging URL}"
+: "${OSIRIS_EXPECTED_STAGING_REF:?Missing independently recorded staging ref}"
+if [[ "$OSIRIS_EXPECTED_STAGING_REF" == "pussbwanjsrvitaxzsnh" ]]; then
+  echo "BLOCKED: production project ref" >&2
   exit 2
 fi
-if [[ "${OSIRIS_ACTUAL_STAGING_REF}" == "pussbwanjsrvitaxzsnh" ]]; then
-  echo "BLOCKED: production project is forbidden" >&2
-  exit 2
-fi
+# For this guard require direct Supabase database hostname, not ambiguous pooler.
+# Parse the actual connection URL rather than trusting a second caller string.
+node -e '
+const url = new URL(process.env.OSIRIS_STAGING_DATABASE_URL);
+const ref = process.env.OSIRIS_EXPECTED_STAGING_REF;
+if (!/^postgres(?:ql)?:$/.test(url.protocol) ||
+    !/^[a-z0-9]{20}$/.test(ref) ||
+    url.hostname !== "db." + ref + ".supabase.co") {
+  process.stderr.write("BLOCKED: staging URL does not identify expected project\n");
+  process.exit(2);
+}
+'
 command -v psql >/dev/null || { echo "psql unavailable" >&2; exit 2; }
-# The role must not be a superuser when running the diagnostic.
-# This command is read-only; it never restores the schema or applies migrations.
 PGOPTIONS="-c default_transaction_read_only=on" \
   psql "$OSIRIS_STAGING_DATABASE_URL" -X -v ON_ERROR_STOP=1 \
     -f scripts/sql/staging-vault-preflight.sql
-echo "Only Vault presence verified. Hosted identity and migration replay unverified."
+echo "Vault catalog presence only: hosted Auth/PostgREST still UNVERIFIED."
