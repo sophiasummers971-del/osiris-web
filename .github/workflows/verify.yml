@@ -24,13 +24,4 @@ jobs:
       - name: Rule Zero decision and provider-probe tests
         run: node --test scripts/rule-zero/*.test.mjs
       - run: pnpm install --frozen-lockfile
-      - name: Temporary format output for challenge store files
-        run: |
-          pnpm exec prettier --write scripts/rule-zero/postgres-challenge-store.mjs scripts/rule-zero/postgres-challenge-store.test.mjs
-          for file in scripts/rule-zero/postgres-challenge-store.mjs scripts/rule-zero/postgres-challenge-store.test.mjs; do
-            echo "FORMAT_FILE:$file"
-            base64 -w 0 "$file"
-            echo
-            echo FORMAT_END
-          done
       - run: pnpm verify
