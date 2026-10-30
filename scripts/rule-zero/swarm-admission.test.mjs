@@ -345,3 +345,29 @@ for (const approved of [false, true]) {
     assert.equal(gate.getActiveCount(), 0);
   });
 }
+
+test("post-dispatch audit outage reports effect unknown, not preflight blocked", async () => {
+  const x = setup({
+    audit: async event => event.event === "ADMISSION_ATTEMPT",
+  });
+  const result = await x.gate.submit(job);
+  assert.equal(result.decision, "EFFECT_UNKNOWN_RECONCILE");
+  assert.equal(result.light, "RED");
+  assert.equal(x.calls(), 1);
+  assert.equal((await x.gate.submit(job)).light, "RED");
+  assert.equal(x.calls(), 1);
+});
+
+test("runner uncertainty reports effect unknown without a retry", async () => {
+  let attempts = 0;
+  const x = setup({
+    requestLaunch: async () => {
+      attempts++;
+      throw Error("runner disconnected after accepting job");
+    },
+  });
+  assert.equal((await x.gate.submit(job)).decision, "EFFECT_UNKNOWN_RECONCILE");
+  assert.equal(attempts, 1);
+  await x.gate.submit(job);
+  assert.equal(attempts, 1);
+});
