@@ -1,19 +1,38 @@
 #!/usr/bin/env bash
-# Collect a schema-only candidate for manual review. Never reads table rows.
-# Run only from a trusted workstation with PostgreSQL 17 pg_dump.
-# Requires OSIRIS_SCHEMA_EXPORT_URL configured outside Git and shell history.
+# Read-only PostgreSQL 17 schema export for isolated review.
+# The URL must be provided securely, outside Git and shell history.
 set -Eeuo pipefail
 umask 077
-: "${OSIRIS_SCHEMA_EXPORT_URL:?Set OSIRIS_SCHEMA_EXPORT_URL securely (never commit it)}"
-command -v pg_dump >/dev/null || { echo 'PostgreSQL pg_dump is required' >&2; exit 2; }
+
+: "${OSIRIS_SCHEMA_EXPORT_URL:?Set the production DATABASE URL securely}"
+command -v pg_dump >/dev/null || { echo "PostgreSQL pg_dump required" >&2; exit 2; }
+command -v node >/dev/null || { echo "Node.js required" >&2; exit 2; }
+command -v sha256sum >/dev/null || { echo "sha256sum required" >&2; exit 2; }
+
+node -e '
+const u = new URL(process.env.OSIRIS_SCHEMA_EXPORT_URL);
+if (!/^postgres(?:ql)?:$/.test(u.protocol) ||
+    u.hostname !== "db.pussbwanjsrvitaxzsnh.supabase.co") {
+  console.error("BLOCKED: schema export URL must target the verified OSIRIS database");
+  process.exit(2);
+}
+'
+
 out="${1:-./osiris-public-schema-review.sql}"
-if [[ -e "$out" ]]; then echo "Refusing to overwrite existing output" >&2; exit 2; fi
-case "$out" in *.sql) ;; *) echo 'Output must be a .sql review file' >&2; exit 2;; esac
-# No data, no auth.users or storage rows. Public schema only, not a complete
-# Supabase bootstrap: review owner/extension/auth dependencies separately. Grants retained for review.
+case "$out" in *.sql) ;; *) echo "Expected a .sql output filename" >&2; exit 2 ;; esac
+[[ ! -e "$out" && ! -e "$out.sha256" ]] || { echo "Refusing to overwrite output" >&2; exit 2; }
+tmp="$(mktemp "${out}.partial.XXXXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+
+# No application rows; include public table grants, policies, functions,
+# triggers, constraints and sequences. Auth/storage managed schemas are not
+# exported, and their dependencies must be reviewed separately.
 pg_dump --dbname="$OSIRIS_SCHEMA_EXPORT_URL" --schema-only --no-owner \
-  --schema=public --file="$out"
-chmod 600 "$out"
-echo "Candidate written locally for REVIEW ONLY. Do not commit unreviewed export."
-echo "Inspect SECURITY DEFINER functions, extensions, role dependencies, grants,"
-echo "auth/storage references, sensitive literals and non-public prerequisites."
+  --schema=public --file="$tmp"
+
+[[ -s "$tmp" ]] || { echo "Empty schema export" >&2; exit 2; }
+mv "$tmp" "$out"
+sha256sum "$out" > "$out.sha256"
+chmod 600 "$out" "$out.sha256"
+echo "Schema-only candidate and SHA256 recorded locally. REVIEW REQUIRED."
+echo "Never upload or commit an unreviewed export or database credentials."
