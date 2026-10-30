@@ -113,6 +113,7 @@ test("real PostgreSQL: service grants are narrow and untrusted role is denied", 
     if (service) await service.end({ timeout: 2 });
     if (untrusted) await untrusted.end({ timeout: 2 });
     await admin.unsafe("DROP TABLE IF EXISTS osiris_webauthn_challenges");
+    await admin.unsafe("REVOKE USAGE ON SCHEMA public FROM cat_approval_runner");
     await admin.unsafe("DROP ROLE IF EXISTS cat_approval_runner");
     await admin.unsafe("DROP ROLE IF EXISTS cat_untrusted");
     await admin.end();
