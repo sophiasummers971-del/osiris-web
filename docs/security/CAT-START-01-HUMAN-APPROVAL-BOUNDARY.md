@@ -12,25 +12,23 @@ Status: REVIEW REQUIRED / NOT IMPLEMENTED. Synthetic CI green is not deployment 
 
 1. A trusted approval service creates a server-stored, random one-time challenge bound to authenticated tenant/owner, canonical immutable plan hash, job/contract identity, approved scope summary, intended action (START), short expiry, credential policy and nonce.
 2. Present that exact transaction summary to the owner. Perform **fresh user-verified authenticator step-up** (such as a correctly configured WebAuthn assertion) with relying-party ID/origin, challenge, credential/owner binding, signature, user-verification and authenticator policy verified on the trusted server. Browser session and autofill do not satisfy the gate.
-3. Approval issuer verifies the challenge, request context, risk policy and credential status *before* issuing a signed, short-lived job-bound receipt. Use controlled key custody and revocation. Do not expose issuer signing keys to agents or browser.
+3. Approval issuer verifies the challenge, request context, risk policy and credential status _before_ issuing a signed, short-lived job-bound receipt. Use controlled key custody and revocation. Do not expose issuer signing keys to agents or browser.
 4. The execution host independently checks receipt signature, actor/tenant, exact plan digest, contract/job, scope, expiry and a **durable atomic one-use claim** shared by all dispatchers. Check immediately before any effect. Unverifiable authority, nonce store or expiry => deny before dispatch.
 5. A plan or permissions change, new job, changed tenant, widened tool/zone/budget or expiry requires a new approval ceremony. Bounded pre-approved substeps under the same unchanged contract do not.
 6. Track audit durability and execution outcome separately. If a runner may have accepted the operation before an audit/receipt outage, show `EFFECT_UNKNOWN_RECONCILE`, quarantine and forbid automatic retry.
 
 ## Mandatory isolated acceptance tests
 
-| Case | Expected result |
-| --- | --- |
-| START clicked while logged in but no fresh approval | deny; 0 dispatch |
-| Browser replay/autofill, stale or wrong challenge | deny; 0 dispatch |
-| Real user verifies for plan hash A; submitted plan hash B | deny; 0 dispatch |
-| Wrong RP ID, origin, owner, tenant, credential or invalid signature | deny; 0 dispatch |
-| Expired, revoked or already claimed approval | deny; 0 dispatch |
-| Missing/partitioned authority store | deny; 0 dispatch |
-| Two independent supervisors race same job/approval | 1 claim; at most 1 effect |
-| Valid approval but different tools, target, budget or agent | deny; 0 dispatch |
-| Valid approval, unchanged job and verified host runner | 1 dispatch with signed durable receipt |
-| Audit fails after dispatch | UNKNOWN, no retry, reconcile externally |
+- START with a logged-in session but no fresh approval: deny, zero dispatch.
+- Browser replay, autofill, stale or mismatched challenge: deny, zero dispatch.
+- User verifies plan A but submits plan B: deny, zero dispatch.
+- Wrong RP ID, origin, owner, tenant, credential or signature: deny, zero dispatch.
+- Expired, revoked or consumed approval: deny, zero dispatch.
+- Missing authority store: deny, zero dispatch.
+- Two supervisors racing the same approval: one claim, at most one effect.
+- Altered tools, target, budget or agent: deny, zero dispatch.
+- Valid approval and verified runner: one dispatch with signed durable receipt.
+- Post-dispatch audit failure: unknown outcome, no retry, external reconciliation.
 
 ## Release blockers
 
