@@ -19,18 +19,16 @@ Status: REVIEW REQUIRED / NOT IMPLEMENTED. Synthetic CI green is not deployment 
 
 ## Mandatory isolated acceptance tests
 
-| Case | Expected result |
-| --- | --- |
-| START clicked while logged in but no fresh approval | deny; 0 dispatch |
-| Browser replay/autofill, stale or wrong challenge | deny; 0 dispatch |
-| Real user verifies for plan hash A; submitted plan hash B | deny; 0 dispatch |
-| Wrong RP ID, origin, owner, tenant, credential or invalid signature | deny; 0 dispatch |
-| Expired, revoked or already claimed approval | deny; 0 dispatch |
-| Missing/partitioned authority store | deny; 0 dispatch |
-| Two independent supervisors race same job/approval | 1 claim; at most 1 effect |
-| Valid approval but different tools, target, budget or agent | deny; 0 dispatch |
-| Valid approval, unchanged job and verified host runner | 1 dispatch with signed durable receipt |
-| Audit fails after dispatch | UNKNOWN, no retry, reconcile externally |
+- START with a logged-in session but no fresh approval: deny, zero dispatch.
+- Browser replay, autofill, stale or mismatched challenge: deny, zero dispatch.
+- User verifies plan A but submits plan B: deny, zero dispatch.
+- Wrong RP ID, origin, owner, tenant, credential or signature: deny, zero dispatch.
+- Expired, revoked or consumed approval: deny, zero dispatch.
+- Missing authority store: deny, zero dispatch.
+- Two supervisors racing the same approval: one claim, at most one effect.
+- Altered tools, target, budget or agent: deny, zero dispatch.
+- Valid approval and verified runner: one dispatch with signed durable receipt.
+- Post-dispatch audit failure: unknown outcome, no retry, external reconciliation.
 
 ## Release blockers
 
