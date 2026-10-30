@@ -733,3 +733,25 @@ test("changing a plan version rejects an unchanged old approval", async t => {
   assert.equal((await h.gate.submit(bundle(f))).light, "RED");
   assert.equal(h.launches(), 0);
 });
+
+test("Plan Y preserves uncertain launch outcome and burns contract", async t => {
+  const f = fixture();
+  let calls = 0;
+  const h = await harness(t, {
+    requestLaunch: async () => {
+      calls++;
+      return {
+        decision: "EFFECT_UNKNOWN_RECONCILE",
+        light: "RED",
+        reasons: ["POST_DISPATCH_AUDIT_UNAVAILABLE"],
+      };
+    },
+  });
+  const outcome = await h.gate.submit(bundle(f));
+  assert.equal(outcome.decision, "EFFECT_UNKNOWN_RECONCILE");
+  assert.deepEqual(outcome.signals, ["DENY", "REVOKE", "RECONCILE"]);
+  assert.equal(h.gate.getContractState(f.contract.contractId), "REVOKED");
+  assert.equal(calls, 1);
+  await h.gate.submit(bundle(f));
+  assert.equal(calls, 1);
+});
