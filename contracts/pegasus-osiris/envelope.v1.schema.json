@@ -47,10 +47,10 @@
     "auth_context": {
       "type": "object",
       "additionalProperties": false,
-      "required": [ "credential_ref", "auth_method" ],
+      "required": ["credential_ref", "auth_method"],
       "properties": {
         "credential_ref": { "type": "string", "minLength": 1 },
-        "auth_method": { "enum": [ "workload-jwt", "mtls", "signed-request" ] }
+        "auth_method": { "enum": ["workload-jwt", "mtls", "signed-request"] }
       }
     }
   }
