@@ -35,7 +35,7 @@ test("real PostgreSQL: independent connections atomically consume once", async (
           rows: await client.unsafe(
             sql,
             sql.includes("INSERT INTO")
-              ? [params[0], postgres.json(JSON.parse(params[1]))]
+              ? [params[0], client.json(JSON.parse(params[1]))]
               : params
           ),
         }),
