@@ -25,3 +25,24 @@ Run `scripts/sql/staging-vault-preflight.sql` against the **isolated staging bra
 - Run `drizzle/000*.sql` against PostgreSQL.
 - Run PR #63 on `main`, merge it, or mutate production.
 - Call a passing table-presence check hosted Auth verification.
+
+## Read-only Vault catalogue recovered (30 October 2026)
+
+A fresh metadata-only production query captured the four Vault tables in
+`docs/security/evidence/vault-catalog-2026-10-30.json`. The scoped evidence
+contains **41 columns, 21 constraints, 12 RLS policies, 3 triggers, 2 trigger
+functions, and 13 indexes**. It contains no application record rows.
+
+This snapshot is **not** a complete executable baseline. Before turning it into
+bootstrap DDL, obtain/check role grants, sequence ownership, dependency ordering,
+`auth.users` prerequisites, the Pegasus and monitoring tables, extension
+placement, and actual migration replay semantics. The other eight public
+tables and their dependencies must not be silently dropped from staging.
+
+### No go decision
+
+- Do not create another paid branch until the missing baseline is synthesized,
+  reviewed, and tested in a disposable local database.
+- Do not assume that creating a Supabase branch automatically copies all
+  manually-created schema objects or full production migration history.
+- Do not mark `SCHEMA_BOOTSTRAP_VERIFIED` or `HOSTED_INTEGRATION_VERIFIED`.
