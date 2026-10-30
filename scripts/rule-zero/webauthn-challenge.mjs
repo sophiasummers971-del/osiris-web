@@ -20,15 +20,18 @@ export function createChallengeService({
     return (
       s &&
       ["tenantId", "ownerId", "jobId"].every(
-        key => typeof s[key] === "string" && /^[A-Za-z0-9_-]{8,128}$/.test(s[key])
+        key =>
+          typeof s[key] === "string" && /^[A-Za-z0-9_-]{8,128}$/.test(s[key])
       ) &&
       typeof s.planHash === "string" &&
       /^[a-f0-9]{64}$/.test(s.planHash)
     );
   }
   function keyFor(challenge) {
-    return "webauthn-challenge:" +
-      createHash("sha256").update(challenge).digest("hex");
+    return (
+      "webauthn-challenge:" +
+      createHash("sha256").update(challenge).digest("hex")
+    );
   }
 
   return {
@@ -47,22 +50,28 @@ export function createChallengeService({
         planHash: scope.planHash,
         expiresAt: now + 120000,
       };
-      if (await store.putIfAbsent(keyFor(challenge), record) !== true)
+      if ((await store.putIfAbsent(keyFor(challenge), record)) !== true)
         throw new Error("CHALLENGE_UNAVAILABLE_OR_COLLISION");
       return { challenge, expiresAt: record.expiresAt };
     },
     async consume(scope) {
       const deny = { ok: false };
-      if (!validScope(scope) ||
-          typeof scope.challenge !== "string" ||
-          !/^[A-Za-z0-9_-]{43}$/.test(scope.challenge))
+      if (
+        !validScope(scope) ||
+        typeof scope.challenge !== "string" ||
+        !/^[A-Za-z0-9_-]{43}$/.test(scope.challenge)
+      )
         return deny;
       try {
         // An atomic destructive take burns a challenge even when scope fails.
         const record = await store.take(keyFor(scope.challenge));
         if (!record || !Number.isFinite(clock()) || clock() >= record.expiresAt)
           return deny;
-        if (["tenantId", "ownerId", "jobId", "planHash"].some(k => record[k] !== scope[k]))
+        if (
+          ["tenantId", "ownerId", "jobId", "planHash"].some(
+            k => record[k] !== scope[k]
+          )
+        )
           return deny;
         return { ok: true };
       } catch {
