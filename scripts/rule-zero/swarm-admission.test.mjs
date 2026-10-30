@@ -99,6 +99,7 @@ for (const acknowledgment of [false, undefined]) {
         event.event === "ADMISSION_ATTEMPT" ? true : acknowledgment,
     });
     assert.equal((await x.gate.submit(job)).light, "RED");
+    assert.equal((await x.gate.submit(job)).decision, "EFFECT_UNKNOWN_RECONCILE");
     assert.equal(x.calls(), 1); // Launch already happened; audit failure cannot undo it.
     assert.equal((await x.gate.submit(job)).light, "RED");
     assert.equal(x.calls(), 1);
@@ -370,4 +371,19 @@ test("runner uncertainty reports effect unknown without a retry", async () => {
   assert.equal(attempts, 1);
   await x.gate.submit(job);
   assert.equal(attempts, 1);
+});
+
+test("pre-dispatch audit failure never calls runner", async () => {
+  const x = setup({ audit: async () => false });
+  const result = await x.gate.submit(job);
+  assert.equal(result.decision, "PREFLIGHT_BLOCKED");
+  assert.equal(x.calls(), 0);
+});
+
+test("malformed runner receipt is execution-uncertain", async () => {
+  const x = setup({
+    requestLaunch: async () => ({ decision: "LAUNCHED", light: "GREEN" }),
+  });
+  const result = await x.gate.submit(job);
+  assert.equal(result.decision, "EFFECT_UNKNOWN_RECONCILE");
 });
