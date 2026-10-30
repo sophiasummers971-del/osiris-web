@@ -14,7 +14,10 @@ function fakeDb() {
       if (sql.includes("DELETE FROM")) {
         const value = records.get(params[0]);
         records.delete(params[0]);
-        return { rows: value ? [{ payload: value }] : [], rowCount: value ? 1 : 0 };
+        return {
+          rows: value ? [{ payload: value }] : [],
+          rowCount: value ? 1 : 0,
+        };
       }
       throw Error("UNEXPECTED_SQL");
     },
@@ -39,7 +42,9 @@ test("duplicate insert rejects without overwriting", async () => {
 });
 test("database outage does not produce a successful claim", async () => {
   const store = createPostgresChallengeStore({
-    query: async () => { throw Error("db offline"); },
+    query: async () => {
+      throw Error("db offline");
+    },
   });
   await assert.rejects(store.putIfAbsent("a", {}));
   await assert.rejects(store.take("a"));
