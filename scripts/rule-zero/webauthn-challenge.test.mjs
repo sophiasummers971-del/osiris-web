@@ -49,7 +49,13 @@ test("wrong scope burns challenge instead of allowing replay", async () => {
   const service = setup();
   const issued = await service.issue(scope);
   assert.equal(
-    (await service.consume({ ...scope, ownerId: "owner_wrong", challenge: issued.challenge })).ok,
+    (
+      await service.consume({
+        ...scope,
+        ownerId: "owner_wrong",
+        challenge: issued.challenge,
+      })
+    ).ok,
     false
   );
   assert.equal(
@@ -60,8 +66,12 @@ test("wrong scope burns challenge instead of allowing replay", async () => {
 test("store unavailable fails closed", async () => {
   const service = createChallengeService({
     store: {
-      putIfAbsent: async () => { throw Error("offline"); },
-      take: async () => { throw Error("offline"); },
+      putIfAbsent: async () => {
+        throw Error("offline");
+      },
+      take: async () => {
+        throw Error("offline");
+      },
     },
     clock: () => now,
   });
