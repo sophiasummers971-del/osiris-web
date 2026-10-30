@@ -215,6 +215,15 @@ export function createPlanYAdmission({
           state.status = "ACTIVE";
           return result;
         }
+        if (result.decision === "EFFECT_UNKNOWN_RECONCILE") {
+          state.status = "REVOKED"; // Burn authority; never re-admit uncertain work.
+          return Object.freeze({
+            light: "RED",
+            decision: "EFFECT_UNKNOWN_RECONCILE",
+            reasons: Object.freeze(["RULE_ZERO_DISPATCH_UNCERTAIN"]),
+            signals: Object.freeze(["DENY", "REVOKE", "RECONCILE"]),
+          });
+        }
         return revoked(state, "RULE_ZERO_ADMISSION_DENIED");
       } catch {
         return state
