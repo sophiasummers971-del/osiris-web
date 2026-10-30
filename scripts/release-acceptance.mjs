@@ -16,7 +16,9 @@ function fail(message) {
 }
 
 if (!path || !existsSync(path)) {
-  fail("No independently signed release attestation supplied. All six receipts required.");
+  fail(
+    "No independently signed release attestation supplied. All six receipts required.",
+  );
 } else {
   let attestation;
   try {
