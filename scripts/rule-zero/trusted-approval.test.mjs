@@ -126,3 +126,19 @@ test("claim store unavailable denies", async () => {
   });
   assert.equal((await gate({ envelope: signed(), expected })).approved, false);
 });
+
+test("two distinct signed approvals cannot authorize the same job twice", async () => {
+  const h = harness();
+  assert.equal((await h.gate({ envelope: signed(), expected })).approved, true);
+  const alternate = {
+    ...original,
+    approvalId: "approval_67890",
+    challengeId: "challenge_67890",
+  };
+  const alternateExpected = { ...expected, challengeId: alternate.challengeId };
+  assert.equal(
+    (await h.gate({ envelope: signed(alternate), expected: alternateExpected }))
+      .approved,
+    false
+  );
+});
