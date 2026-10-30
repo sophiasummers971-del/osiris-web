@@ -74,3 +74,17 @@ Require separate receipts:
 - `PRODUCTION_CHANGE_APPROVED`: separate explicit authorization, migration/rollback evidence and release owner
 
 **No individual receipt implies the others.** Never declare the integrated platform release-ready based on a local suite or document-only contract.
+
+## Cloudflare Access trusted-user approval (proposed mandatory high-risk gate)
+
+Cloudflare Access establishes a verified identity at the protected application boundary. **Access admission is not transaction-specific approval**. Validate the Access JWT signature and expected issuer, audience, expiry and authenticated subject server-side; never trust an unverified `Cf-Access-Jwt-Assertion` header. Access service tokens prove machine identity, not a person's approval. Linked-app tokens may transport identity between protected applications but do not confer resource authority.
+
+For production mutations, privileged operations and separately classified high-risk events, introduce a distinct final `TRUSTED_APPROVAL_VERIFIED` decision *before execution*, after Pegasus and OSIRIS independently pass their checks. Bind the authorization receipt to the exact canonical payload digest, action, tenant, case, target service/environment, approved actor, verified Access subject, policy/contract version, expiry, nonce and a durable single-use approval ID. A receipt is invalid after payload edits, policy revocation, expiry or replay. Persist consumption atomically with the intended operation or prove idempotent recovery.
+
+Rejection/absence of approval => DENY; verification service outage, stale policy or unresolved concurrency => QUARANTINE without executing. Explicitly disallow self-approval by the initiating agent/service and require separation of duties for sensitive actions. Normal low-risk read-only events may omit per-action human approval only if a separately reviewed, bounded policy explicitly permits them; there is no blanket global approval for future unknown events.
+
+Approval tests must cover identity spoofing, wrong Access audience, expired credentials, wrong environment/action/payload, dual-use receipt, approval revocation, service outage, competing approvals, and attempts to bypass the gate using direct OSIRIS/Hyperdrive paths. Audit only a receipt digest and non-sensitive identifiers; no secrets or raw tokens.
+
+This is a **design requirement only**, not an enabled Cloudflare configuration or an implemented approval flow. The exact Access application, identity groups and approval provider remain to be inventoried and reviewed, then tested in isolated staging. Cloudflare identity verification must not be misrepresented as Cloudflare-managed per-event approval.
+
+Reference: https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/ and https://developers.cloudflare.com/cloudflare-one/access-controls/applications/linked-app-token/.
