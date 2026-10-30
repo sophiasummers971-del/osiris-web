@@ -2,7 +2,8 @@
 // PostgreSQL database. INSERT ON CONFLICT and DELETE RETURNING are atomic.
 // A test double does not prove hosted concurrency, isolation or permissions.
 export function createPostgresChallengeStore(db) {
-  if (typeof db?.query !== "function") throw new Error("DATABASE_NOT_CONFIGURED");
+  if (typeof db?.query !== "function")
+    throw new Error("DATABASE_NOT_CONFIGURED");
   return {
     async putIfAbsent(key, value) {
       if (typeof key !== "string" || key.length > 160 || !key)
