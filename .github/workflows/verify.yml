@@ -25,3 +25,39 @@ jobs:
         run: node --test scripts/rule-zero/*.test.mjs
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
+
+  challenge-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cat_test
+          POSTGRES_PASSWORD: disposable_only
+          POSTGRES_DB: cat_challenge_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cat_test -d cat_challenge_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CAT_POSTGRES_DISPOSABLE: "1"
+      PGHOST: 127.0.0.1
+      PGPORT: "5432"
+      PGDATABASE: cat_challenge_test
+      PGUSER: cat_test
+      PGPASSWORD: disposable_only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node --test scripts/integration/postgres-challenge-store.integration.mjs
