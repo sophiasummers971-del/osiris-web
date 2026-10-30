@@ -35,6 +35,11 @@ export function createSwarmAdmission({
     throw new Error("SWARM_HOST_NOT_CONFIGURED");
   let active = 0;
   const admitted = new Set();
+  const uncertain = reason => ({
+    light: "RED",
+    decision: "EFFECT_UNKNOWN_RECONCILE",
+    reasons: [reason],
+  });
   const deny = reason => ({
     light: "RED",
     decision: "PREFLIGHT_BLOCKED",
@@ -68,6 +73,7 @@ export function createSwarmAdmission({
       // Reserve before awaits; do not turn audit outages into permitted work.
       admitted.add(job.id);
       active++;
+      let dispatchAttempted = false;
       try {
         if (
           (await audit(
@@ -78,15 +84,16 @@ export function createSwarmAdmission({
         // Snapshot and whitelist result fields before awaiting any audit sink.
         // Returning the host's original object could expose capabilities or
         // let another reference rewrite a verified RED decision into GREEN.
+        dispatchAttempted = true;
         const raw = await requestLaunch(job);
-        if (!raw) return deny("INVALID_LAUNCHER_RESULT");
+        if (!raw) return uncertain("RUNNER_RESULT_UNAVAILABLE");
         const { decision, light, runId, reasons } = raw;
         if (
           reasons !== undefined &&
           (!Array.isArray(reasons) ||
             reasons.some(reason => typeof reason !== "string"))
         )
-          return deny("INVALID_LAUNCHER_RESULT");
+          return uncertain("INVALID_LAUNCHER_RESULT");
         const result = Object.freeze(
           decision === "LAUNCHED"
             ? { decision, light, runId }
@@ -102,7 +109,7 @@ export function createSwarmAdmission({
               !result.runId)) ||
           (result.decision === "PREFLIGHT_BLOCKED" && result.light !== "RED")
         )
-          return deny("INVALID_LAUNCHER_RESULT");
+          return uncertain("INVALID_LAUNCHER_RESULT");
         if (
           (await audit(
             Object.freeze({
@@ -112,10 +119,12 @@ export function createSwarmAdmission({
             })
           )) !== true
         )
-          return deny("SWARM_GATE_OR_AUDIT_UNAVAILABLE");
+          return uncertain("POST_DISPATCH_AUDIT_UNAVAILABLE");
         return result;
       } catch {
-        return deny("SWARM_GATE_OR_AUDIT_UNAVAILABLE");
+        return dispatchAttempted
+          ? uncertain("RUNNER_OR_AUDIT_OUTCOME_UNKNOWN")
+          : deny("SWARM_GATE_OR_AUDIT_UNAVAILABLE");
       } finally {
         active--;
       }
