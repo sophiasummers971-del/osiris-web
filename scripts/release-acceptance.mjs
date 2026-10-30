@@ -1,4 +1,3 @@
-// Standalone release authorization is intentionally closed until independent
-// attestation signature verification, approved identity and replay protection exist.
-console.error("RELEASE_BLOCKED: trusted release approval has not been implemented.");
+// Fail closed until signed release receipts can be verified.
+console.error("RELEASE_BLOCKED: approval verification unavailable.");
 process.exitCode = 1;
