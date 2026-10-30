@@ -5,6 +5,7 @@ Status: **PARTIAL READ-ONLY RECOVERY / NOT AN EXECUTABLE BOOTSTRAP**.
 ## Grounded inventory
 
 The live production PostgreSQL catalogue was queried read-only. It reports:
+
 - 12 application tables in `public` and 18 policies (earlier snapshot)
 - 20 foreign-key relationships across the public application schema
 - 4 public sequences
