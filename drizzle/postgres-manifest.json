@@ -49,6 +49,16 @@
       "file": "20260927160000_google_monitoring_provider.sql",
       "sha256": "5c0c893212eeaadb70da468b3bdd078cfc8545c824fd73b6c680d47ed89754ba",
       "appliedVersion": "20260927164352"
+    },
+    {
+      "file": "20261029053336_revoke_public_pegasus_truncate_privileges.sql",
+      "appliedVersion": "20261029053336",
+      "sha256": "e0958c2a6dcd4d81becf360ad96afa5ca03775454937bcbf3be114c41cf36373"
+    },
+    {
+      "file": "20261029053751_revoke_pegasus_api_schema_privileges.sql",
+      "appliedVersion": "20261029053751",
+      "sha256": "a05c445f030058b89f863326ee538212c9fb7ab25c40f33cfa7098c615eb79b5"
     }
   ]
 }
